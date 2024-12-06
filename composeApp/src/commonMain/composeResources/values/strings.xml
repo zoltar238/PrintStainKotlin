@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PrintStain</string>
+    <string name="username_field">Username</string>
+    <string name="password_field">Password</string>
+    <string name="email_field">Email</string>
+    <string name="repeat_password_field">Repeat Password</string>
+    <string name="name_field">Name</string>
+    <string name="surname_field">Surname</string>
+</resources>
