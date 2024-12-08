@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.multiplatform.charts.desktop)
             implementation(libs.kotlinx.datetime)
             implementation(libs.koalaplot.core)
+            implementation(libs.dropdown)
         }
         desktopMain.dependencies {
             implementation(libs.vico.compose.m2)
