@@ -1,4 +1,4 @@
-package org.example.project
+package org.example.project.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.apache.commons.validator.routines.EmailValidator
-import org.example.project.controller.IdentificationRequestController
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import printstain.composeapp.generated.resources.Res
@@ -234,7 +233,7 @@ fun LoginForm(snackBarScope: CoroutineScope, snackbarHostState: SnackbarHostStat
                 snackBarScope.launch {
                     try {
                         //httpRequestDemo()  // Llamada a la función suspendida
-                        IdentificationRequestController.requestLogin("sap", "sap")
+                        //IdentificationRequestController.requestLogin("sap", "sap")
                         snackbarHostState.showSnackbar(
                             message = "Login successful!",
                             duration = SnackbarDuration.Short

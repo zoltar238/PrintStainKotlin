@@ -2,6 +2,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -23,6 +24,10 @@ kotlin {
         val desktopMain by getting
         
         androidMain.dependencies {
+            implementation(libs.vico.compose.m2)
+            implementation(libs.vico.compose.m3)
+            implementation(libs.vico.core)
+            implementation(libs.vico.views)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
@@ -36,17 +41,23 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.commons.validator)
-            implementation(libs.ktor.client.core.v230)  // Cliente base de Ktor
-            implementation(libs.ktor.client.cio.v230)   // Motor CIO para cliente HTTP
-            implementation(libs.ktor.client.content.negotiation)  // Soporte para ContentNegotiation
-            implementation(libs.ktor.client.json)   // Soporte para JSON en el cliente
-            implementation(libs.ktor.client.serialization.v230)  // Soporte para serialización con Kotlinx
-            implementation(libs.kotlinx.serialization.json) // Kotlinx Serialization JSON
             implementation(libs.kotlin.logging.jvm)
             implementation(libs.logback.classic)
-
+            implementation(libs.androidx.material3)
+            //implementation(libs.compose)
+            implementation(libs.vico.compose.m2)
+            implementation(libs.vico.compose.m3)
+            implementation(libs.vico.core)
+            implementation(libs.vico.views)
+            implementation(libs.androidx.core)  // O una versión anterior que sea compatible con SDK 34
+            implementation(libs.androidx.core.ktx)  // Lo mismo para core-ktx
+            implementation(libs.ycharts)
         }
         desktopMain.dependencies {
+            implementation(libs.vico.compose.m2)
+            implementation(libs.vico.compose.m3)
+            implementation(libs.vico.core)
+            implementation(libs.vico.views)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
@@ -55,7 +66,7 @@ kotlin {
 
 android {
     namespace = "org.example.project"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.example.project"
@@ -82,7 +93,12 @@ android {
 
 dependencies {
     implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
+    implementation(libs.vico.compose.m2)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.core)
+    implementation(libs.vico.views)
 }
 
 compose.desktop {
