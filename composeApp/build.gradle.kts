@@ -17,12 +17,12 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(libs.vico.compose.m2)
             implementation(libs.vico.compose.m3)
@@ -44,14 +44,15 @@ kotlin {
             implementation(libs.kotlin.logging.jvm)
             implementation(libs.logback.classic)
             implementation(libs.androidx.material3)
-            //implementation(libs.compose)
             implementation(libs.vico.compose.m2)
             implementation(libs.vico.compose.m3)
             implementation(libs.vico.core)
             implementation(libs.vico.views)
             implementation(libs.androidx.core)  // O una versión anterior que sea compatible con SDK 34
             implementation(libs.androidx.core.ktx)  // Lo mismo para core-ktx
-            implementation(libs.ycharts)
+            implementation(libs.multiplatform.charts.desktop)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.koalaplot.core)
         }
         desktopMain.dependencies {
             implementation(libs.vico.compose.m2)
@@ -89,6 +90,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    buildToolsVersion = "35.0.0"
 }
 
 dependencies {
