@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.example.project.view.App
-import org.example.project.view.mainAppView
+import org.example.project.view.MainAppView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             //App()
-            mainAppView()
+            MainAppView()
         }
     }
 }

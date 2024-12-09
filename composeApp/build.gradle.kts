@@ -24,10 +24,6 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
-            implementation(libs.vico.compose.m2)
-            implementation(libs.vico.compose.m3)
-            implementation(libs.vico.core)
-            implementation(libs.vico.views)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
@@ -44,22 +40,13 @@ kotlin {
             implementation(libs.kotlin.logging.jvm)
             implementation(libs.logback.classic)
             implementation(libs.androidx.material3)
-            implementation(libs.vico.compose.m2)
-            implementation(libs.vico.compose.m3)
-            implementation(libs.vico.core)
-            implementation(libs.vico.views)
             implementation(libs.androidx.core)  // O una versión anterior que sea compatible con SDK 34
             implementation(libs.androidx.core.ktx)  // Lo mismo para core-ktx
             implementation(libs.multiplatform.charts.desktop)
             implementation(libs.kotlinx.datetime)
             implementation(libs.koalaplot.core)
-            implementation(libs.dropdown)
         }
         desktopMain.dependencies {
-            implementation(libs.vico.compose.m2)
-            implementation(libs.vico.compose.m3)
-            implementation(libs.vico.core)
-            implementation(libs.vico.views)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }

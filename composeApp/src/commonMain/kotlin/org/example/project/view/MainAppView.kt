@@ -28,7 +28,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun mainAppView() {
+fun MainAppView() {
     MaterialTheme {
         MaterialTheme {
             // Estado que controla el menú seleccionado y el estado del drawer
@@ -49,8 +49,8 @@ fun mainAppView() {
                         )
                         NavigationDrawerItem(
                             label = { Text(text = "Models") },
-                            selected = selectedView == "Reports",
-                            onClick = { selectedView = "Reports" }
+                            selected = selectedView == "Models",
+                            onClick = { selectedView = "Models" }
                         )
                         NavigationDrawerItem(
                             label = { Text(text = "Settings") },

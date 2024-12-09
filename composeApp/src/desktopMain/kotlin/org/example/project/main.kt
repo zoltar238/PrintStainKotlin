@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import org.example.project.view.App
+import org.example.project.view.MainAppView
 
 fun main() = application {
 
@@ -18,6 +18,7 @@ fun main() = application {
         title = "PrintStain",
         state = windowState
     ) {
-        App()
+        //App()
+        MainAppView()
     }
 }
