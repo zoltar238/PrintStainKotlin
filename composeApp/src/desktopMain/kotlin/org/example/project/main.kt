@@ -4,9 +4,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import org.example.project.view.MainAppView
+import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
+import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.preferences.createDataStore
+import org.example.project.persistence.repository.ItemsRepoHttpImp
+import org.example.project.service.getAllItems
+import org.example.project.ui.navigation.AppNavigation
 
 fun main() = application {
+
+    // Initialize preferences datastore
+    PreferencesManager.initPreferences(
+        createDataStore { DATA_STORE_FILE_NAME }
+    )
 
     val windowState = rememberWindowState(
         width = 800.dp,
@@ -18,7 +28,7 @@ fun main() = application {
         title = "PrintStain",
         state = windowState
     ) {
-        //App()
-        MainAppView()
+        // Launch application
+        AppNavigation()
     }
 }

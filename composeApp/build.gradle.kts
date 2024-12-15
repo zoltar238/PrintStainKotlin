@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
@@ -28,23 +29,49 @@ kotlin {
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
+            // Basic dependencies
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
+
+            // Navigation
+            implementation(libs.navigation.compose)
+
+            runtimeOnly(libs.lifecycle.runtime)
+            runtimeOnly(libs.androidx.lifecycle.lifecycle.viewmodel)
+            runtimeOnly(libs.androidx.lifecycle.livedata)
+
+            implementation(libs.kotlinx.serialization.json)
+
+            // charts
+            implementation(libs.multiplatform.charts.desktop)
+
+            // For email validation
             implementation(libs.commons.validator)
+
+            // Logging
             implementation(libs.kotlin.logging.jvm)
             implementation(libs.logback.classic)
             implementation(libs.androidx.material3)
-            implementation(libs.androidx.core)  // O una versión anterior que sea compatible con SDK 34
-            implementation(libs.androidx.core.ktx)  // Lo mismo para core-ktx
-            implementation(libs.multiplatform.charts.desktop)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.koalaplot.core)
+            implementation(libs.androidx.core)
+            implementation(libs.androidx.core.ktx)
+
+            // HTTP
+            implementation(project.dependencies.platform(libs.http4k.bom))
+            implementation(libs.http4k.core)
+            implementation(libs.http4k.server.undertow)
+            implementation(libs.http4k.client.apache)
+
+            // JSON
+            implementation(libs.jackson.module.kotlin)
+            implementation(libs.jackson.databind)
+
+            // Datastore
+            api(libs.datastore.preferences)
+            api(libs.datastore)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -67,6 +94,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/INDEX.LIST"  // Exclude META-INF/INDEX.LIST
+            excludes += "/META-INF/DEPENDENCIES"  // Exclude META-INF/DEPENDENCIES
         }
     }
     buildTypes {
@@ -82,13 +111,13 @@ android {
 }
 
 dependencies {
+    implementation (libs.androidx.lifecycle.runtime.ktx)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.activity.ktx)
     debugImplementation(compose.uiTooling)
-    implementation(libs.vico.compose.m2)
-    implementation(libs.vico.compose.m3)
-    implementation(libs.vico.core)
-    implementation(libs.vico.views)
 }
 
 compose.desktop {

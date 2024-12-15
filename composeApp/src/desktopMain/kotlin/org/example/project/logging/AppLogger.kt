@@ -13,7 +13,7 @@ actual object AppLogger {
     actual fun e(
         tag: String,
         message: String,
-        throwable: Throwable?
+        throwable: Throwable?,
     ) {
         if (throwable != null) {
             logger.log(Level.SEVERE, "ERROR: [$tag] $message", throwable)
