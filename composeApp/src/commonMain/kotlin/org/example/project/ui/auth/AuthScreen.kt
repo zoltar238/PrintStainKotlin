@@ -31,7 +31,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun AuthScreen(
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     MaterialTheme {
         // SnackBar

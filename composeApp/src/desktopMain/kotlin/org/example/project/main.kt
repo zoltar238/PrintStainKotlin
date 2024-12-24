@@ -7,8 +7,6 @@ import androidx.compose.ui.window.rememberWindowState
 import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.persistence.preferences.createDataStore
-import org.example.project.persistence.repository.ItemsRepoHttpImp
-import org.example.project.service.getAllItems
 import org.example.project.ui.navigation.AppNavigation
 
 fun main() = application {

@@ -2,53 +2,119 @@ package org.example.project.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import org.example.project.service.getAllItems
-import printstain.composeapp.generated.resources.Res
-import printstain.composeapp.generated.resources.r_3x
+import androidx.navigation.NavHostController
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.example.project.controller.ItemController
+import org.example.project.model.ItemDto
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ModelsScreen() {
+fun ModelsScreen(navController: NavHostController, itemStatus: String, items: List<ItemDto>) {
+    // Scrollbar status
+    val scrollState = rememberScrollState()
+    // Searchbar value
+    var searchValue by remember { mutableStateOf("") }
 
     MaterialTheme {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(16.dp),
-            //horizontalAlignment = Alignment.CenterHorizontally,
-            //verticalArrangement = Arrangement.Center
+                .fillMaxSize()
         ) {
-            ModelCard()
-            Text("Esta es la vista de modelos", modifier = Modifier.padding(16.dp))
+            // Search bar
+            SearchBar(
+                query = searchValue, // Pasa directamente el estado actual
+                onQueryChange = { newValue -> searchValue = newValue } // Actualiza el estado
+            )
+            // Model rows
+            FlowRow(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(scrollState)
+                    .fillMaxSize(),
+                overflow = FlowRowOverflow.Visible
+            ) {
+                if (itemStatus == "OK") {
+                    items.forEach { item ->
+                        if (item.name?.contains(searchValue) == true || searchValue.length <= 2) {
+                            ModelCard(item, navController)
+                        }
+                    }
+                } else {
+                    Text(itemStatus)
+                }
+            }
         }
     }
 }
 
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    placeholder: String = "Buscar...",
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        placeholder = { Text(placeholder) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Buscar"
+            )
+        }
+    )
+}
+
 // Model individual cards
 @Composable
-fun ModelCard() {
+fun ModelCard(item: ItemDto, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(200.dp)
-            .height(200.dp),
+            .height(200.dp)
+            .padding(10.dp)
+            .clickable(onClick = {
+                // change screen and pass item id
+                navController.navigate("model_details_screen/${item.itemId}")
+            }),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility
         elevation = CardDefaults.cardElevation(8.dp)
@@ -60,8 +126,8 @@ fun ModelCard() {
         ) {
             // Imagen
             Image(
-                painter = org.jetbrains.compose.resources.painterResource(Res.drawable.r_3x),
-                contentDescription = null,
+                painter = BitmapPainter(item.bitmapImages[0]),
+                contentDescription = item.description,
                 contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
                 modifier = Modifier.fillMaxSize()
             )
@@ -75,12 +141,14 @@ fun ModelCard() {
                     .padding(8.dp), // Espaciado interno
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Titulo",
-                    style = MaterialTheme.typography.subtitle1,
-                    color = Color.White, // Texto claro para contraste
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                item.name?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.subtitle1,
+                        color = Color.White, // Texto claro para contraste
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }

@@ -2,7 +2,7 @@ package org.example.project.persistence.repository
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.example.project.model.User
+import org.example.project.model.UserDto
 import org.http4k.client.ApacheClient
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -12,11 +12,11 @@ import java.net.URI
 object UserRepoHttpImp : UserRepo {
 
     @Throws
-    override fun registerUser(user: User): String {
+    override fun registerUser(userDto: UserDto): String {
 
         // Map user to JSON
         val objectMapper = jacksonObjectMapper().registerKotlinModule()
-        val userJson = objectMapper.writeValueAsString(user)
+        val userJson = objectMapper.writeValueAsString(userDto)
 
         // Create uri
         val uri = URI.create("http://localhost:8080/person/register")
@@ -33,11 +33,11 @@ object UserRepoHttpImp : UserRepo {
         return client.invoke(request).bodyString()
     }
 
-    override fun loginUser(user: User): String {
+    override fun loginUser(userDto: UserDto): String {
 
         // Map user to JSON
         val objectMapper = jacksonObjectMapper().registerKotlinModule()
-        val userJson = objectMapper.writeValueAsString(user)
+        val userJson = objectMapper.writeValueAsString(userDto)
 
         // Create uri
         val uri = URI.create("http://localhost:8080/person/login")

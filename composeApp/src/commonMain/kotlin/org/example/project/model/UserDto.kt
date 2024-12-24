@@ -1,6 +1,6 @@
 package org.example.project.model
 
-data class User(
+data class UserDto(
     val name: String? = null,
     val surname: String? = null,
     val email: String? = null,

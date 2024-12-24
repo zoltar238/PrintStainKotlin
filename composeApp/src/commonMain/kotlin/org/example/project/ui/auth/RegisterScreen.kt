@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.validator.routines.EmailValidator
-import org.example.project.model.User
+import org.example.project.model.UserDto
 import org.example.project.service.registerUser
 import org.example.project.ui.main.LoadingIndicator
 import org.jetbrains.compose.resources.stringResource
@@ -155,7 +155,7 @@ fun RegisterScreen(snackBarScope: CoroutineScope, snackbarHostState: SnackbarHos
                             try {
                                 val (success, response) = withContext(context = Dispatchers.IO) {
                                     registerUser(
-                                        User(
+                                        UserDto(
                                             name = name,
                                             email = email,
                                             password = password,

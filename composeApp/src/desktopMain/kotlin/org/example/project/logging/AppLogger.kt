@@ -3,6 +3,7 @@ package org.example.project.logging
 import java.util.logging.Level
 import java.util.logging.Logger
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual object AppLogger {
     private val logger: Logger = Logger.getLogger(AppLogger::class.java.name)
 

@@ -37,6 +37,9 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Horizontal list of models
+            implementation(libs.accompanist.flowlayout)
+
             // Navigation
             implementation(libs.navigation.compose)
 
@@ -111,9 +114,9 @@ android {
 }
 
 dependencies {
-    implementation (libs.androidx.lifecycle.runtime.ktx)
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
-    implementation (libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.activity.ktx)

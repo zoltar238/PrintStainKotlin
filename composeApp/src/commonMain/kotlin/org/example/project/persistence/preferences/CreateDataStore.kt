@@ -2,12 +2,12 @@ package org.example.project.persistence.preferences
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import okio.Path.Companion.toPath
 import androidx.datastore.preferences.core.Preferences
+import okio.Path.Companion.toPath
 
 fun createDataStore(producePath: () -> String): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(
-        produceFile = {producePath().toPath()}
+        produceFile = { producePath().toPath() }
     )
 }
 

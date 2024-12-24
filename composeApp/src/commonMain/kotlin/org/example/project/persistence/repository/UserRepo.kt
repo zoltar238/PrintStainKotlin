@@ -1,10 +1,10 @@
 package org.example.project.persistence.repository
 
-import org.example.project.model.User
+import org.example.project.model.UserDto
 
 interface UserRepo {
 
-    fun registerUser(user: User): String
+    fun registerUser(userDto: UserDto): String
 
-    fun loginUser(user: User): String
+    fun loginUser(userDto: UserDto): String
 }

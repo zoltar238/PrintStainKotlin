@@ -1,6 +1,6 @@
 package org.example.project.controller
 
-import org.example.project.model.User
+import org.example.project.model.UserDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.loginUser
 
@@ -13,7 +13,7 @@ suspend fun loginController(): Boolean {
     if (username == null || password == null) {
         return false
     } else {
-        val (success, data) = loginUser(User(username = username, password = password))
+        val (success, data) = loginUser(UserDto(username = username, password = password))
         // If login is successful, save token and return true, else return false
         if (success) {
             PreferencesManager.saveToken(data)

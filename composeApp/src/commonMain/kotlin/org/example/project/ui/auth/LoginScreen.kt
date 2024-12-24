@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.example.project.model.User
+import org.example.project.model.UserDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.loginUser
 import org.example.project.ui.main.LoadingIndicator
@@ -105,7 +105,7 @@ fun LoginScreen(
                     snackBarColor.value = primaryColor
                     try {
                         val (success, data) = withContext(context = Dispatchers.IO) {
-                            loginUser(User(username = username, password = password))
+                            loginUser(UserDto(username = username, password = password))
                         }
                         isLoading = false
                         if (success) {

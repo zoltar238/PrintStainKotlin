@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.first
 
-object PreferencesManager : PreferencesManagerContract{
+object PreferencesManager : PreferencesManagerContract {
 
     // TODO: Add deletion of user credentials
     private lateinit var pref: DataStore<Preferences>

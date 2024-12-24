@@ -34,7 +34,7 @@ import com.netguru.multiplatform.charts.bar.BarChartData
 import com.netguru.multiplatform.charts.bar.BarChartEntry
 
 @Composable
-fun SalesScreen(modifier: Modifier = Modifier) {
+fun SalesScreen() {
 
 
     MaterialTheme {
@@ -47,7 +47,7 @@ fun SalesScreen(modifier: Modifier = Modifier) {
         ) {
             DropdownMenuExample()
             LineChartExample()
-            Text("Esta es la vista de Ventas", modifier = modifier.padding(16.dp))
+            Text("Esta es la vista de Ventas")
         }
     }
 }
