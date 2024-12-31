@@ -36,9 +36,6 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.example.project.controller.ItemController
 import org.example.project.model.ItemDto
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -35,8 +35,6 @@ import com.netguru.multiplatform.charts.bar.BarChartEntry
 
 @Composable
 fun SalesScreen() {
-
-
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -117,7 +115,7 @@ fun LineChartExample() {
     val barChartData = BarChartData(
         categories = listOf(
             BarChartCategory(
-                name = "Bar Chart 1",
+                name = "Item 1",
                 entries = listOf(
                     BarChartEntry(
                         x = "primary",

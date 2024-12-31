@@ -37,6 +37,9 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Horizontal carousel
+            implementation (libs.accompanist.pager)
+
             // Horizontal list of models
             implementation(libs.accompanist.flowlayout)
 
@@ -120,6 +123,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.foundation.android)
     debugImplementation(compose.uiTooling)
 }
 

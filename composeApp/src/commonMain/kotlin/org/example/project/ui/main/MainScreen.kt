@@ -39,15 +39,16 @@ fun MainScreen(navController: NavHostController) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
+        //todo: move the initialization of items to the modelscreen
         // Load models if they are empty
-        //if (ItemController.items.isEmpty()) {
+        if (ItemController.items.isEmpty()) {
             ItemController.getItems()
-        //}
+        }
 
         var username by remember { mutableStateOf<String?>(null) }
         scope.launch { username = PreferencesManager.getUsername() }
 
-        // ModalNavigationDrawer que contiene la barra lateral y la pantalla principal
+        // ModalNavigationDrawer as sidebar
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {

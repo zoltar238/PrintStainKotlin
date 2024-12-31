@@ -16,7 +16,6 @@ data class ItemDto(
     @Contextual val finishDate: Timestamp? = null,
     @Contextual val shipDate: Timestamp? = null,
     val timesUploaded: Int? = null,
-    @Contextual val cost: BigDecimal? = null,
     val base64Images: List<String>? = emptyList(),
     val bitmapImages: MutableList<ImageBitmap> = mutableListOf(),
     val hashtags: List<String>? = emptyList(),

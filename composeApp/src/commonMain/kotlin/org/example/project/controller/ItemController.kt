@@ -4,7 +4,7 @@ import org.example.project.model.ItemDto
 import org.example.project.service.getAllItems
 
 object ItemController {
-    lateinit var items: List<ItemDto>
+    var items: List<ItemDto> = emptyList()
     private var itemsSuccess: Boolean = false
     lateinit var itemStatus: String
 
