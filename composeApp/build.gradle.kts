@@ -37,6 +37,12 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Retrofit for easier http connection
+            implementation(libs.retrofit)
+            implementation( libs.converter.jackson) // Para usar Jackson
+            implementation (libs.kotlinx.coroutines.core)
+
+
             // Horizontal carousel
             implementation (libs.accompanist.pager)
 

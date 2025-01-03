@@ -52,25 +52,37 @@ fun registerUser(userDto: UserDto): Pair<Boolean, String> {
 // TODO: Improve login system, create better responses for each possible failure type
 
 fun loginUser(userDto: UserDto): Pair<Boolean, String> {
-    // Create mapper and read JSON
     val objectMapper = jacksonObjectMapper()
-    val rootNode: JsonNode =
-        objectMapper.readTree(UserRepoHttpImp.loginUser(userDto))
+    val jsonResponse = UserRepoHttpImp.loginUser(userDto)
+    print(jsonResponse.data)
+    //println("respuesta: $jsonResponse")
 
+    /*
     try {
+        // Parseo del JSON
+        val rootNode: JsonNode = objectMapper.readTree(jsonResponse)
+
+        // Extrae los valores del JSON
         val success = rootNode.get("success")?.asBoolean() ?: false
-        val response = rootNode.get("response")?.asText() ?: "Unknown response"
-        val data = rootNode.get("data")?.asText() ?: "Unknown response"
+        val responseMessage = rootNode.get("response")?.asText() ?: "Unknown response"
+        val token = rootNode.get("data")?.asText() ?: "Unknown token"
 
-        AppLogger.i("UserRegistration", response)
+        // Log de éxito o error
+        AppLogger.i("UserRegistration", responseMessage)
 
-        return if (response == "LOGIN_CORRECT") {
-            success to data
+        // Verifica el mensaje de respuesta
+        return if (responseMessage == "LOGIN_CORRECT") {
+            success to token
         } else {
             success to "Wrong data"
         }
     } catch (e: Exception) {
-        AppLogger.e("ServerConnection", "Could not connect to server", e)
-        return false to "Connection error"
+        // Manejo de errores
+        AppLogger.e("ServerConnection", "Error parsing JSON or server response", e)
+        return false to "Invalid JSON format"
     }
+     */
+    return false to "Invalid JSON format"
+
 }
+

@@ -6,4 +6,6 @@ interface SaleRepo {
     fun createNewSale(saleDto: SaleDto): String
 
     fun deleteSale(saleDto: SaleDto): String
+
+    fun getAllSales(): String
 }
