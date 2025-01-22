@@ -1,12 +1,15 @@
 package org.example.project.model
 
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.sql.Timestamp
 
-data class SaleDto(
-    @Contextual val date: Timestamp? = null,
+@Serializable
+data class AllSalesDto(
     @Contextual val cost: BigDecimal? = null,
+    @Contextual val date: Timestamp? = null,
+    val itemName: String? = null,
     @Contextual val price: BigDecimal? = null,
-    val itemId: Long? = null
+    val saleId: Long? = null,
 )

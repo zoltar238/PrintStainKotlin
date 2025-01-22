@@ -9,7 +9,7 @@ object ItemController {
     lateinit var itemStatus: String
 
     // Constructor
-    public fun getItems() {
+    fun getItems() {
         // Obtain all items
         val (success, itemsList) = getAllItems()
         this.itemsSuccess = success
@@ -29,7 +29,7 @@ object ItemController {
         }
     }
 
-    public fun getItemById(itemId: Long): ItemDto? {
+    fun getItemById(itemId: Long): ItemDto? {
         items.forEach { item ->
             if (item.itemId == itemId) {
                 return item

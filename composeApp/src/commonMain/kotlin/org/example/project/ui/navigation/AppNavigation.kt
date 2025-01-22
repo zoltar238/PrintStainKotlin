@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.runBlocking
 import org.example.project.controller.loginController
 import org.example.project.ui.auth.AuthScreen
 import org.example.project.ui.main.MainScreen
@@ -18,18 +19,17 @@ import org.example.project.ui.main.ModelDetailsScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    var loggedWithPreferences by remember { mutableStateOf<Boolean?>(null) } // Estado para manejar la lógica de login
 
-
-    // Check if login was possible with saved credential
-    LaunchedEffect(Unit) {
+    // Check if login was possible with saved credentials
+    var loggedWithPreferences: Boolean
+    runBlocking {
         loggedWithPreferences = loginController()
     }
 
     // todo: preference check is not working properly
-    println(loggedWithPreferences)
+    println("Logged in with preferences: $loggedWithPreferences")
 
-    val startDestination = if (loggedWithPreferences == true) "log_reg_screen" else "main_app_view"
+    val startDestination = if (loggedWithPreferences) "main_app_view" else  "log_reg_screen"
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("log_reg_screen") {

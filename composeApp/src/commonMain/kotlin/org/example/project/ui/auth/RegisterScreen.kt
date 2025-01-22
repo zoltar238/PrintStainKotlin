@@ -171,6 +171,7 @@ fun RegisterScreen(snackBarScope: CoroutineScope, snackbarHostState: SnackbarHos
                                     duration = SnackbarDuration.Short
                                 )
                             } catch (e: Exception) {
+                                isLoading = false
                                 snackbarHostState.showSnackbar(
                                     message = "Unexpected app error",
                                     duration = SnackbarDuration.Short

@@ -9,6 +9,7 @@ suspend fun loginController(): Boolean {
     val username = PreferencesManager.getUsername()
     val password = PreferencesManager.getPassword()
 
+    println(username)
     // if credentials are not saved, return false
     if (username == null || password == null) {
         return false

@@ -4,71 +4,37 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.example.project.logging.AppLogger
 import org.example.project.model.UserDto
+import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.repository.UserRepoHttpImp
 
-// TODO: improve null response
-fun registerUser(userDto: UserDto): Pair<Boolean, String> {
-    // Create mapper and read JSON
-    val objectMapper = jacksonObjectMapper()
-    val rootNode: JsonNode = objectMapper.readTree(UserRepoHttpImp.registerUser(userDto))
-
-    // Process received information
-    try {
-        val success = rootNode.get("success")?.asBoolean() ?: false
-        val response = rootNode.get("response")?.asText() ?: "Unknown response"
-        val data = rootNode.get("data")?.asText() ?: "Unknown response"
-
-        // Log data received from server
-        AppLogger.i("UserRegistration", data)
-
-        // Return registration status
-        return when (response) {
-            "EMAIL_ALREADY_REGISTERED" -> {
-                success to "This email is already registered"
-            }
-
-            "USERNAME_ALREADY_REGISTERED" -> {
-                success to "This username is already registered"
-            }
-
-            "UNEXPECTED_ERROR" -> {
-                success to "Unexpected error"
-            }
-
-            "OK" -> {
-                success to "New user registered successfully"
-            }
-
-            else -> {
-                false to "Unexpected error"
-            }
-        }
-    } catch (e: Exception) {
-        AppLogger.e("ServerConnection", "Could not connect to server", e)
-        return false to "Connection error"
-    }
+fun registerUser(userDto: UserDto): ResponseApi<String> {
+    // Receive response from server
+    val serverResponse = UserRepoHttpImp.registerUser(userDto)
+    println(serverResponse.success)
+    return serverResponse
 }
 
 // TODO: Improve login system, create better responses for each possible failure type
-
 fun loginUser(userDto: UserDto): Pair<Boolean, String> {
     val objectMapper = jacksonObjectMapper()
+
+    // Serialize response object to json
     val jsonResponse = UserRepoHttpImp.loginUser(userDto)
-    print(jsonResponse.data)
-    //println("respuesta: $jsonResponse")
+    val jsonString = objectMapper.writeValueAsString(jsonResponse)
 
-    /*
     try {
-        // Parseo del JSON
-        val rootNode: JsonNode = objectMapper.readTree(jsonResponse)
+        // Parse JSON
+        val rootNode: JsonNode = objectMapper.readTree(jsonString)
 
-        // Extrae los valores del JSON
+        // Extract values from JSON
         val success = rootNode.get("success")?.asBoolean() ?: false
         val responseMessage = rootNode.get("response")?.asText() ?: "Unknown response"
         val token = rootNode.get("data")?.asText() ?: "Unknown token"
 
-        // Log de éxito o error
-        AppLogger.i("UserRegistration", responseMessage)
+        print("este es el token recivido: $token")
+
+        // Log response from server
+        AppLogger.i("Authentication", responseMessage)
 
         // Verifica el mensaje de respuesta
         return if (responseMessage == "LOGIN_CORRECT") {
@@ -81,8 +47,5 @@ fun loginUser(userDto: UserDto): Pair<Boolean, String> {
         AppLogger.e("ServerConnection", "Error parsing JSON or server response", e)
         return false to "Invalid JSON format"
     }
-     */
-    return false to "Invalid JSON format"
-
 }
 

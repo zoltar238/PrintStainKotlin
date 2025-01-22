@@ -10,12 +10,17 @@ import org.example.project.persistence.repository.ItemsRepoHttpImp
 
 // Function reserved for admin privileges
 fun getAllItems(): Pair<Boolean, List<ItemDto>> {
-    // Create mapper and read JSON
+    // Create JSON mapper
     val objectMapper = jacksonObjectMapper()
-    val rootNode: JsonNode = objectMapper.readTree(ItemsRepoHttpImp.getAllItems())
+
+    // Serialize response object to json
+    val jsonResponse = ItemsRepoHttpImp.getAllItems()
+    val jsonString = objectMapper.writeValueAsString(jsonResponse)
 
     // Process received information
     try {
+        // Parse JSON
+        val rootNode: JsonNode = objectMapper.readTree(jsonString)
         val success = rootNode.get("success")?.asBoolean() ?: false
         val response = rootNode.get("response")?.asText() ?: "Unknown response"
         val data = rootNode.get("data")

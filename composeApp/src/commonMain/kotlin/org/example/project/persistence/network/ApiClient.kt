@@ -6,7 +6,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 object ApiClient {
     private const val BASE_URL = "http://localhost:8080/"
 
-    val retrofit: Retrofit by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(JacksonConverterFactory.create())
@@ -20,4 +20,9 @@ object ApiClient {
     val userApi: UserApi by lazy {
         retrofit.create(UserApi::class.java)
     }
+
+    val itemsApi: ItemsApi by lazy {
+        retrofit.create(ItemsApi::class.java)
+    }
+
 }

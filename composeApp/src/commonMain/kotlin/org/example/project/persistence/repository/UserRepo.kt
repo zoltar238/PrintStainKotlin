@@ -5,7 +5,7 @@ import org.example.project.persistence.network.ResponseApi
 
 interface UserRepo {
 
-    fun registerUser(userDto: UserDto): String
+    fun registerUser(userDto: UserDto): ResponseApi<String>
 
     fun loginUser(userDto: UserDto): ResponseApi<String>
 }

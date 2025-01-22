@@ -1,37 +1,42 @@
 package org.example.project.persistence.repository
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import kotlinx.coroutines.runBlocking
+import org.example.project.model.ItemDto
+import org.example.project.persistence.network.ApiClient
+import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.preferences.PreferencesManager
-import org.http4k.client.ApacheClient
-import org.http4k.core.HttpHandler
-import org.http4k.core.Method
-import org.http4k.core.Request
-import java.net.URI
 
+
+// Todo: improve error handling when failed authorization and
 object ItemsRepoHttpImp : ItemsRepo {
-    override fun getAllItems(): String {
+    override fun getAllItems(): ResponseApi<List<ItemDto>> {
 
         // Obtain access token
-        val token = kotlinx.coroutines.runBlocking {
+        val token = runBlocking {
             PreferencesManager.getToken()
         }
 
-        // Create uri
-        val uri = URI.create("http://localhost:8080/item/getAllItems")
-
-        // Create client
-        val client: HttpHandler = ApacheClient()
-
-        // Create get request
-        val request = Request(Method.GET, uri.toString())
-            .header("Authorization", "Bearer $token")
-
-        // Return response as json text
-        return client.invoke(request).bodyString()
+        return if (token != null) {
+            runBlocking {
+                ApiClient.itemsApi.getAllItems("Bearer $token")
+            }
+        } else {
+            return ResponseApi(false, "Error connecting to server", emptyList())
+        }
     }
 
-    override fun getAllUserItems(): String {
-        TODO("Not yet implemented")
+    override fun getAllUserItems(): ResponseApi<List<ItemDto>> {
+        // Obtain access token
+        val token = runBlocking {
+            PreferencesManager.getToken()
+        }
+
+        return if (token != null){
+            runBlocking {
+                ApiClient.itemsApi.getAllUserItems("Bearer $token")
+            }
+        } else {
+            return ResponseApi(false, "Error connecting to server", emptyList())
+        }
     }
 }

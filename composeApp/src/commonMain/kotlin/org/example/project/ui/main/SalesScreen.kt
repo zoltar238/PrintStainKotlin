@@ -32,9 +32,17 @@ import com.netguru.multiplatform.charts.bar.BarChartCategory
 import com.netguru.multiplatform.charts.bar.BarChartConfig
 import com.netguru.multiplatform.charts.bar.BarChartData
 import com.netguru.multiplatform.charts.bar.BarChartEntry
+import org.example.project.controller.SaleController
+import org.example.project.model.AllSalesDto
+import kotlin.random.Random
 
 @Composable
 fun SalesScreen() {
+    // Load sale data
+    if (SaleController.allSales.isEmpty()) {
+        SaleController.findAllSalesController()
+    }
+    println(SaleController.allSales[0].saleId)
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -44,7 +52,7 @@ fun SalesScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             DropdownMenuExample()
-            LineChartExample()
+            LineChartExample(SaleController.allSales)
             Text("Esta es la vista de Ventas")
         }
     }
@@ -111,40 +119,22 @@ fun DropdownMenuExample() {
 }
 
 @Composable
-fun LineChartExample() {
+fun LineChartExample(sales: List<AllSalesDto>) {
     val barChartData = BarChartData(
-        categories = listOf(
+        categories = sales.groupBy { it.saleId ?: "Unknown" }.map { (saleId, salesList) ->
             BarChartCategory(
-                name = "Item 1",
-                entries = listOf(
+                name = saleId.toString(),
+                entries = salesList.map { sale ->
                     BarChartEntry(
-                        x = "primary",
-                        y = 17f,
-                        color = Color.Yellow,
-                    ),
-                    BarChartEntry(
-                        x = "secondary",
-                        y = 30f,
-                        color = Color.Red,
-                    ),
-                )
-            ),
-            BarChartCategory(
-                name = "Bar Chart 2",
-                entries = listOf(
-                    BarChartEntry(
-                        x = "primary",
-                        y = -5f,
-                        color = Color.Yellow,
-                    ),
-                    BarChartEntry(
-                        x = "secondary",
-                        y = -24f,
-                        color = Color.Red,
-                    ),
-                )
-            ),
-        )
+                        //x = sale.date.toString().substring(0, sale.date.toString().lastIndexOf(" ")) + "\n",
+                        x = sale.itemName.toString(),
+                        y = sale.price?.toFloat() ?: 0f, // Valor del precio
+                        color = Color(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256)), // Color dinámico
+                        //data = sale // Incluimos el objeto completo como referencia
+                    )
+                }
+            )
+        }
     )
     BarChart(
         data = barChartData,

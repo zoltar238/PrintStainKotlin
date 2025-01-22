@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.datastore.preferences.protobuf.Timestamp
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.math.BigDecimal
 
 @Serializable
 data class ItemDto(

@@ -68,7 +68,7 @@ object PreferencesManager : PreferencesManagerContract {
     }
 
     // Delete all preferences
-    suspend fun clearPreferences() {
+    override suspend fun deleteAllPreferences() {
         pref.edit { preferences ->
             preferences.clear()
         }
