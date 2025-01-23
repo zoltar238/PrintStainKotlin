@@ -89,7 +89,11 @@ fun AuthScreen(
 
                 // Formulario de Registro
                 if (isRegisterMode) {
-                    RegisterScreen(snackBarScope, snackbarHostState)
+                    RegisterScreen(
+                        snackBarScope,
+                        snackbarHostState,
+                        snackBarColor
+                    )
                 } else {
                     LoginScreen(
                         snackBarScope,

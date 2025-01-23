@@ -8,5 +8,5 @@ data class SaleDto(
     @Contextual val date: Timestamp? = null,
     @Contextual val cost: BigDecimal? = null,
     @Contextual val price: BigDecimal? = null,
-    val itemId: Long? = null
+    val itemId: Long? = null,
 )

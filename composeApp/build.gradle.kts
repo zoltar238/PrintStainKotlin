@@ -39,12 +39,12 @@ kotlin {
 
             // Retrofit for easier http connection
             implementation(libs.retrofit)
-            implementation( libs.converter.jackson) // Para usar Jackson
-            implementation (libs.kotlinx.coroutines.core)
+            implementation(libs.converter.jackson) // Para usar Jackson
+            implementation(libs.kotlinx.coroutines.core)
 
 
             // Horizontal carousel
-            implementation (libs.accompanist.pager)
+            implementation(libs.accompanist.pager)
 
             // Horizontal list of models
             implementation(libs.accompanist.flowlayout)
@@ -82,7 +82,7 @@ kotlin {
             implementation(libs.jackson.databind)
 
             // Gson
-            implementation (libs.gson)
+            implementation(libs.gson)
 
 
             // Datastore

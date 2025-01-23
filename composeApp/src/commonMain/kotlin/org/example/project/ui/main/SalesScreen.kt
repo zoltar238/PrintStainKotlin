@@ -129,7 +129,11 @@ fun LineChartExample(sales: List<AllSalesDto>) {
                         //x = sale.date.toString().substring(0, sale.date.toString().lastIndexOf(" ")) + "\n",
                         x = sale.itemName.toString(),
                         y = sale.price?.toFloat() ?: 0f, // Valor del precio
-                        color = Color(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256)), // Color dinámico
+                        color = Color(
+                            Random.nextInt(256),
+                            Random.nextInt(256),
+                            Random.nextInt(256)
+                        ), // Color dinámico
                         //data = sale // Incluimos el objeto completo como referencia
                     )
                 }

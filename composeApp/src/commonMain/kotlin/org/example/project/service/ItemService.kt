@@ -40,8 +40,8 @@ fun getAllItems(): Pair<Boolean, List<ItemDto>> {
 
         //transform base64 images to bitmap
         if (itemDtoLists.isNotEmpty()) {
-            itemDtoLists.forEach{item ->
-                item.base64Images?.forEach{ base64image ->
+            itemDtoLists.forEach { item ->
+                item.base64Images?.forEach { base64image ->
                     item.bitmapImages.add(decodeBase64ToBitmap(base64image))
                 }
             }

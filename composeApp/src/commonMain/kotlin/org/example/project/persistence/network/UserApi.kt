@@ -5,10 +5,10 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-interface UserApi{
+interface UserApi {
     @POST("person/register")
     suspend fun registerUser(@Body user: UserDto): Response<ResponseApi<String>>
 
     @POST("person/login")
-    suspend fun loginUser(@Body user: UserDto): ResponseApi<String>
+    suspend fun loginUser(@Body user: UserDto): Response<ResponseApi<String>>
 }

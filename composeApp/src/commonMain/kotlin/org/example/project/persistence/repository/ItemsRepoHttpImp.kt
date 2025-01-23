@@ -31,7 +31,7 @@ object ItemsRepoHttpImp : ItemsRepo {
             PreferencesManager.getToken()
         }
 
-        return if (token != null){
+        return if (token != null) {
             runBlocking {
                 ClientApi.itemsApi.getAllUserItems("Bearer $token")
             }

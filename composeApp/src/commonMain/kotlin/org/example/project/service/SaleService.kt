@@ -34,7 +34,7 @@ fun createNewSale(saleDto: SaleDto): Pair<Boolean, String> {
     }
 }
 
-fun findAllSales(): Pair<Boolean, List<AllSalesDto>>{
+fun findAllSales(): Pair<Boolean, List<AllSalesDto>> {
     // Create JSON Mapper
     val objectMapper = jacksonObjectMapper()
 

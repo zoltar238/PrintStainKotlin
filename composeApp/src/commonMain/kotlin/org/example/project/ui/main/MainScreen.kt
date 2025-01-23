@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.example.project.controller.ItemController
-import org.example.project.controller.SaleController
 import org.example.project.persistence.preferences.PreferencesManager
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -108,6 +107,7 @@ fun MainScreen(navController: NavHostController) {
                             itemStatus = ItemController.itemStatus,
                             items = ItemController.items
                         )
+
                         "Settings" -> SettingsView()
                     }
                 }

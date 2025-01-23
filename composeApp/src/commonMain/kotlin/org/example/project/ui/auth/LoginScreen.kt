@@ -94,6 +94,7 @@ fun LoginScreen(
         onClick = {
             if (username.isEmpty() || password.isEmpty()) {
                 snackBarScope.launch {
+                    snackBarColor.value = errorColor
                     snackbarHostState.showSnackbar(
                         message = "Please, fill all the fields",
                         duration = SnackbarDuration.Short
@@ -104,34 +105,36 @@ fun LoginScreen(
                 snackBarScope.launch {
                     snackBarColor.value = primaryColor
                     try {
-                        val (success, data) = withContext(context = Dispatchers.IO) {
+                        val serverResponse = withContext(context = Dispatchers.IO) {
                             loginUser(UserDto(username = username, password = password))
                         }
                         isLoading = false
-                        if (success) {
+                        if (serverResponse.success) {
                             // If credentials are set to be saved, save all user data
                             if (saveCredentials) {
                                 PreferencesManager.saveUser(
                                     username = username,
                                     password = password,
-                                    token = data
+                                    token = serverResponse.data
                                 )
                             }
                             // If credentials arent set to be saved, save only token
                             else {
-                                PreferencesManager.saveToken(data)
+                                PreferencesManager.saveToken(serverResponse.data)
                             }
                             navController.navigate(route = "main_app_view")
                         } else {
                             snackBarColor.value = errorColor
                         }
                         snackbarHostState.showSnackbar(
-                            message = data,
+                            message = serverResponse.response,
                             duration = SnackbarDuration.Short
                         )
                     } catch (e: Exception) {
+                        snackBarColor.value = errorColor
+                        isLoading = false
                         snackbarHostState.showSnackbar(
-                            message = "Login failed",
+                            message = "Unexpected login error",
                             duration = SnackbarDuration.Short
                         )
                     }

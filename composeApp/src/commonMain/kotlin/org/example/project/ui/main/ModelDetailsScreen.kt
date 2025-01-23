@@ -225,7 +225,12 @@ fun RowScope.TableCell(
 }
 
 @Composable
-fun ModelSale(itemId: Long, scope: CoroutineScope, color: MutableState<Color>, snackbarHostState: SnackbarHostState) {
+fun ModelSale(
+    itemId: Long,
+    scope: CoroutineScope,
+    color: MutableState<Color>,
+    snackbarHostState: SnackbarHostState,
+) {
     // Variables
     var cost by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
@@ -318,7 +323,7 @@ fun ModelSale(itemId: Long, scope: CoroutineScope, color: MutableState<Color>, s
                     date = Timestamp.from(Instant.now())
                 )
 
-                val(success, data) = createNewSale(saleDto)
+                val (success, data) = createNewSale(saleDto)
                 if (!success) {
                     color.value = errorColor
                 } else {

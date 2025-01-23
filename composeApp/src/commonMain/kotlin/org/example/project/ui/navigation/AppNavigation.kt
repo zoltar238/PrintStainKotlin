@@ -1,11 +1,6 @@
 package org.example.project.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,9 +22,8 @@ fun AppNavigation() {
     }
 
     // todo: preference check is not working properly
-    println("Logged in with preferences: $loggedWithPreferences")
 
-    val startDestination = if (loggedWithPreferences) "main_app_view" else  "log_reg_screen"
+    val startDestination = if (loggedWithPreferences) "main_app_view" else "log_reg_screen"
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("log_reg_screen") {

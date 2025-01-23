@@ -50,7 +50,7 @@ object SaleRepoHttpImp : SaleRepo {
                 )
             }
         } else {
-            return ResponseApi(false, "Error connecting to server",  emptyList())
+            return ResponseApi(false, "Error connecting to server", emptyList())
         }
     }
 }
