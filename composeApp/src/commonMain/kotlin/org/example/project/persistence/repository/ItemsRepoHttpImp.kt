@@ -2,7 +2,7 @@ package org.example.project.persistence.repository
 
 import kotlinx.coroutines.runBlocking
 import org.example.project.model.ItemDto
-import org.example.project.persistence.network.ApiClient
+import org.example.project.persistence.network.ClientApi
 import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.preferences.PreferencesManager
 
@@ -18,7 +18,7 @@ object ItemsRepoHttpImp : ItemsRepo {
 
         return if (token != null) {
             runBlocking {
-                ApiClient.itemsApi.getAllItems("Bearer $token")
+                ClientApi.itemsApi.getAllItems("Bearer $token")
             }
         } else {
             return ResponseApi(false, "Error connecting to server", emptyList())
@@ -33,7 +33,7 @@ object ItemsRepoHttpImp : ItemsRepo {
 
         return if (token != null){
             runBlocking {
-                ApiClient.itemsApi.getAllUserItems("Bearer $token")
+                ClientApi.itemsApi.getAllUserItems("Bearer $token")
             }
         } else {
             return ResponseApi(false, "Error connecting to server", emptyList())

@@ -18,4 +18,8 @@ actual object AppLogger {
     actual fun i(tag: String, message: String) {
         Log.i(tag, message)
     }
+
+    actual fun w(tag: String, message: String) {
+        Log.w(tag, message)
+    }
 }

@@ -30,4 +30,8 @@ actual object AppLogger {
     actual fun i(tag: String, message: String) {
         logger.info("INFO: [$tag] $message")
     }
+
+    actual fun w(tag: String, message: String) {
+        logger.warning("INFO: [$tag] $message")
+    }
 }

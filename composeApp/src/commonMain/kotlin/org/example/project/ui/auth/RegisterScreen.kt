@@ -152,31 +152,23 @@ fun RegisterScreen(snackBarScope: CoroutineScope, snackbarHostState: SnackbarHos
                     } else {
                         isLoading = true // Activar el indicador de carga
                         snackBarScope.launch {
-                            try {
-                                val (success, response) = withContext(context = Dispatchers.IO) {
-                                    registerUser(
-                                        UserDto(
-                                            name = name,
-                                            email = email,
-                                            password = password,
-                                            username = username,
-                                            surname = surname,
-                                            roles = listOf("USER")
-                                        )
+                            val serverResponse = withContext(context = Dispatchers.IO) {
+                                registerUser(
+                                    UserDto(
+                                        name = name,
+                                        email = email,
+                                        password = password,
+                                        username = username,
+                                        surname = surname,
+                                        roles = listOf("USER")
                                     )
-                                }
-                                isLoading = false
-                                snackbarHostState.showSnackbar(
-                                    message = response,
-                                    duration = SnackbarDuration.Short
-                                )
-                            } catch (e: Exception) {
-                                isLoading = false
-                                snackbarHostState.showSnackbar(
-                                    message = "Unexpected app error",
-                                    duration = SnackbarDuration.Short
                                 )
                             }
+                            isLoading = false
+                            snackbarHostState.showSnackbar(
+                                message = serverResponse.response,
+                                duration = SnackbarDuration.Short
+                            )
                         }
                     }
                 }

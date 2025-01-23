@@ -3,7 +3,7 @@ package org.example.project.persistence.repository
 import kotlinx.coroutines.runBlocking
 import org.example.project.model.AllSalesDto
 import org.example.project.model.SaleDto
-import org.example.project.persistence.network.ApiClient
+import org.example.project.persistence.network.ClientApi
 import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.preferences.PreferencesManager
 
@@ -17,7 +17,7 @@ object SaleRepoHttpImp : SaleRepo {
 
         return if (token != null) {
             runBlocking {
-                ApiClient.saleApi.createNewSale(
+                ClientApi.saleApi.createNewSale(
                     saleDto = saleDto,
                     token = "Bearer $token"
                 )
@@ -45,7 +45,7 @@ object SaleRepoHttpImp : SaleRepo {
 
         return if (token != null) {
             runBlocking {
-                ApiClient.saleApi.findAllSales(
+                ClientApi.saleApi.findAllSales(
                     token = "Bearer $token"
                 )
             }

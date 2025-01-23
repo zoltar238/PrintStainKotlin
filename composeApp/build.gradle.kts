@@ -81,6 +81,10 @@ kotlin {
             implementation(libs.jackson.module.kotlin)
             implementation(libs.jackson.databind)
 
+            // Gson
+            implementation (libs.gson)
+
+
             // Datastore
             api(libs.datastore.preferences)
             api(libs.datastore)

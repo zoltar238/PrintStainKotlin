@@ -3,7 +3,7 @@ package org.example.project.persistence.network
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
-object ApiClient {
+object ClientApi {
     private const val BASE_URL = "http://localhost:8080/"
 
     private val retrofit: Retrofit by lazy {
@@ -11,6 +11,7 @@ object ApiClient {
             .baseUrl(BASE_URL)
             .addConverterFactory(JacksonConverterFactory.create())
             .build()
+
     }
 
     val saleApi: SaleApi by lazy {

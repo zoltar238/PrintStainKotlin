@@ -2,6 +2,7 @@ package org.example.project.service
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.runBlocking
 import org.example.project.logging.AppLogger
 import org.example.project.model.UserDto
 import org.example.project.persistence.network.ResponseApi
@@ -9,9 +10,10 @@ import org.example.project.persistence.repository.UserRepoHttpImp
 
 fun registerUser(userDto: UserDto): ResponseApi<String> {
     // Receive response from server
-    val serverResponse = UserRepoHttpImp.registerUser(userDto)
-    println(serverResponse.success)
-    return serverResponse
+    val serverResponse: ResponseApi<String>? = runBlocking {
+        UserRepoHttpImp.registerUser(userDto)
+    }
+    return serverResponse!!
 }
 
 // TODO: Improve login system, create better responses for each possible failure type
