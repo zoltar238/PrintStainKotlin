@@ -14,10 +14,10 @@ suspend fun loginController(): Boolean {
     if (username == null || password == null) {
         return false
     } else {
-        val (success, data) = loginUser(UserDto(username = username, password = password))
+        val serverResponse = loginUser(UserDto(username = username, password = password))
         // If login is successful, save token and return true, else return false
-        if (success) {
-            PreferencesManager.saveToken(data)
+        if (serverResponse.success) {
+            PreferencesManager.saveToken(serverResponse.data)
             return true
         } else {
             return false

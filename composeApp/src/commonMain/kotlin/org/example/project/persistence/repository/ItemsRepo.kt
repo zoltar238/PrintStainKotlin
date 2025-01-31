@@ -5,7 +5,7 @@ import org.example.project.persistence.network.ResponseApi
 
 interface ItemsRepo {
     // function reserved for admin privileges
-    fun getAllItems(): ResponseApi<List<ItemDto>>
+    fun getAllItems(): ResponseApi<List<ItemDto>>?
 
-    fun getAllUserItems(): ResponseApi<List<ItemDto>>
+    fun getAllUserItems(): ResponseApi<List<ItemDto>>?
 }

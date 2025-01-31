@@ -2,6 +2,7 @@ package org.example.project.persistence.network
 
 import org.example.project.model.AllSalesDto
 import org.example.project.model.SaleDto
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -13,12 +14,12 @@ interface SaleApi {
     suspend fun createNewSale(
         @Body saleDto: SaleDto,
         @Header("Authorization") token: String,
-    ): ResponseApi<String>
+    ): Response<ResponseApi<String>>
 
     @GET("sale/getAllSales")
     suspend fun findAllSales(
         @Header("Authorization") token: String,
-    ): ResponseApi<List<AllSalesDto>>
+    ): Response<ResponseApi<List<AllSalesDto>>>
 
     @DELETE("sale/deleteSale")
     suspend fun deleteSale(

@@ -84,7 +84,6 @@ kotlin {
             // Gson
             implementation(libs.gson)
 
-
             // Datastore
             api(libs.datastore.preferences)
             api(libs.datastore)
