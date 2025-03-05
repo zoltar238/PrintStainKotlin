@@ -6,68 +6,18 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.example.project.logging.AppLogger
 import org.example.project.model.AllSalesDto
 import org.example.project.model.SaleDto
+import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.repository.SaleRepoHttpImp
+import org.http4k.core.Response
 
-fun createNewSale(saleDto: SaleDto): Pair<Boolean, String> {
-    // Create JSON Mapper
-    val objectMapper = jacksonObjectMapper()
-
-    // Serialize response object to json
-    val jsonResponse = SaleRepoHttpImp.createNewSale(saleDto)
-    val jsonString = objectMapper.writeValueAsString(jsonResponse)
-
-    try {
-        // Parse JSON
-        val rootNode: JsonNode = objectMapper.readTree(jsonString)
-        val success = rootNode.get("success")?.asBoolean() ?: false
-        val response = rootNode.get("response")?.asText() ?: "Unknown response"
-        val data = rootNode.get("data")?.asText() ?: "Unknown response"
-
-        AppLogger.i("NewSaleCreation", response)
-
-        // Return response
-        return success to data
-
-    } catch (e: Exception) {
-        AppLogger.e("ServerConnection", "Could not connect to server", e)
-        return false to "Connection error"
-    }
+fun createNewSale(saleDto: SaleDto): ResponseApi<String> {
+    // Receive the information from server
+    val serverResponse = SaleRepoHttpImp.createNewSale(saleDto)
+    return serverResponse!!
 }
 
-fun findAllSales(): Pair<Boolean, List<AllSalesDto>> {
-    // Create JSON Mapper
-    val objectMapper = jacksonObjectMapper()
-
-    // Serialize response object to json
-    val jsonResponse = SaleRepoHttpImp.findAllSales()
-    val jsonString = objectMapper.writeValueAsString(jsonResponse)
-
-    try {
-        // Parse JSON
-        val rootNode: JsonNode = objectMapper.readTree(jsonString)
-        val success = rootNode.get("success")?.asBoolean() ?: false
-        val response = rootNode.get("response")?.asText() ?: "Unknown response"
-        val data = rootNode.get("data")
-
-        AppLogger.i("FindAllSaleData", response)
-
-        println(data.toString())
-
-        // Map JSON response to object
-        val allSalesDtoList: List<AllSalesDto> = if (data != null && data.isArray) {
-            objectMapper.readValue(data.toString(), object : TypeReference<List<AllSalesDto>>() {})
-        } else {
-            emptyList()
-        }
-
-        // Log
-        AppLogger.i("FindAllSaleData", response)
-
-        // Return response
-        return success to allSalesDtoList
-
-    } catch (e: Exception) {
-        AppLogger.e("ServerConnection", "Could not connect to server", e)
-        return false to emptyList()
-    }
+fun findAllSales(): ResponseApi<List<AllSalesDto>> {
+    // Receive all sales from server
+    val serverResponse = SaleRepoHttpImp.findAllSales()
+    return serverResponse!!
 }

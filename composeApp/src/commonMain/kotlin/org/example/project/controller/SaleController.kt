@@ -9,7 +9,7 @@ object SaleController {
     // load all sales
     // TODO: Make all sale loading only available for admin users
     fun findAllSalesController() {
-        var (succes, allSalesList) = findAllSales()
-        allSales = allSalesList
+        val serverResponse = findAllSales()
+        allSales = serverResponse.data
     }
 }

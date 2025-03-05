@@ -11,9 +11,9 @@ object ItemController {
     // Constructor
     fun getItems() {
         // Obtain all items
-        val (success, itemsList) = getAllItems()
-        this.itemsSuccess = success
-        this.items = itemsList
+        val serverResponse = getAllItems()
+        this.itemsSuccess = serverResponse.success
+        this.items = serverResponse.data
         itemStatus = setItemStatus()
     }
 

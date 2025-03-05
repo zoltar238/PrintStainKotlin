@@ -6,51 +6,19 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.logging.AppLogger
 import org.example.project.model.ItemDto
+import org.example.project.persistence.network.ResponseApi
 import org.example.project.persistence.repository.ItemsRepoHttpImp
 
 // Function reserved for admin privileges
-fun getAllItems(): Pair<Boolean, List<ItemDto>> {
-    // Create JSON mapper
-    val objectMapper = jacksonObjectMapper()
-
-    // Serialize response object to json
-    val jsonResponse = ItemsRepoHttpImp.getAllItems()
-    val jsonString = objectMapper.writeValueAsString(jsonResponse)
-
-    // Process received information
-    try {
-        // Parse JSON
-        val rootNode: JsonNode = objectMapper.readTree(jsonString)
-        val success = rootNode.get("success")?.asBoolean() ?: false
-        val response = rootNode.get("response")?.asText() ?: "Unknown response"
-        val data = rootNode.get("data")
-
-        // Log response received from server
-        AppLogger.i("GetAllImages", response)
-
-        // Map JSON response to object
-        val itemDtoLists: List<ItemDto> = if (data != null && data.isArray) {
-            objectMapper.readValue(data.toString(), object : TypeReference<List<ItemDto>>() {})
-        } else {
-            emptyList()
-        }
-
-        // Log amount of items received
-        AppLogger.i("Items received: ", itemDtoLists.size.toString())
-
-        //transform base64 images to bitmap
-        if (itemDtoLists.isNotEmpty()) {
-            itemDtoLists.forEach { item ->
-                item.base64Images?.forEach { base64image ->
-                    item.bitmapImages.add(decodeBase64ToBitmap(base64image))
-                }
-            }
-        }
-
-        // Return data
-        return success to itemDtoLists
-    } catch (e: Exception) {
-        AppLogger.e("ServerConnection", "Could not connect to server", e)
-        return false to emptyList()
+fun getAllItems(): ResponseApi<List<ItemDto>> {
+    // Receive all items from server
+    val serverResponse = ItemsRepoHttpImp.getAllItems()
+    // Decode base64 images to bitmap
+    if (serverResponse?.data?.isNotEmpty() == true) {
+        serverResponse.data.forEach { item ->
+        item.base64Images?.forEach { image ->
+            item.bitmapImages.add(decodeBase64ToBitmap(image))
+        } }
     }
+    return serverResponse!!
 }

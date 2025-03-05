@@ -167,7 +167,7 @@ fun RegisterScreen(
                         isLoading = true
                         snackBarScope.launch {
                             try {
-                                val serverResponse = withContext(context = Dispatchers.IO) {
+                                val serverResponse =
                                     registerUser(
                                         UserDto(
                                             name = name,
@@ -178,7 +178,6 @@ fun RegisterScreen(
                                             roles = listOf("USER")
                                         )
                                     )
-                                }
                                 if (serverResponse.success) {
                                     snackBarColor.value = primaryColor
                                 } else {
