@@ -1,4 +1,4 @@
-package org.example.project.controller
+package org.example.project.util
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap

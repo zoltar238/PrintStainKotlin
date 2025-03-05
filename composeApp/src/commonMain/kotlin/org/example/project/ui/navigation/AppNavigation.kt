@@ -5,7 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.runBlocking
-import org.example.project.controller.loginController
+import org.example.project.service.autoLogin
 import org.example.project.ui.auth.AuthScreen
 import org.example.project.ui.main.MainScreen
 import org.example.project.ui.main.ModelDetailsScreen
@@ -18,7 +18,7 @@ fun AppNavigation() {
     // Check if login was possible with saved credentials
     var loggedWithPreferences: Boolean
     runBlocking {
-        loggedWithPreferences = loginController()
+        loggedWithPreferences = autoLogin()
     }
 
     // todo: preference check is not working properly

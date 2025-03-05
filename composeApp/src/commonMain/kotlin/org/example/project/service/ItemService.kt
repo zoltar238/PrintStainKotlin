@@ -3,7 +3,7 @@ package org.example.project.service
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.example.project.controller.decodeBase64ToBitmap
+import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.logging.AppLogger
 import org.example.project.model.ItemDto
 import org.example.project.persistence.repository.ItemsRepoHttpImp
