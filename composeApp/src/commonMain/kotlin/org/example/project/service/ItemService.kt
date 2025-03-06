@@ -1,24 +1,35 @@
 package org.example.project.service
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.example.project.util.decodeBase64ToBitmap
-import org.example.project.logging.AppLogger
+import kotlinx.coroutines.runBlocking
+import org.example.project.controller.ClientController
+import org.example.project.controller.ResponseApi
+import org.example.project.logging.LoggingTags
 import org.example.project.model.ItemDto
-import org.example.project.persistence.network.ResponseApi
-import org.example.project.persistence.repository.ItemsRepoHttpImp
+import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.repository.responseHandler
+import org.example.project.util.decodeBase64ToBitmap
 
 // Function reserved for admin privileges
 fun getAllItems(): ResponseApi<List<ItemDto>> {
-    // Receive all items from server
-    val serverResponse = ItemsRepoHttpImp.getAllItems()
-    // Decode base64 images to bitmap
-    if (serverResponse?.data?.isNotEmpty() == true) {
-        serverResponse.data.forEach { item ->
-        item.base64Images?.forEach { image ->
-            item.bitmapImages.add(decodeBase64ToBitmap(image))
-        } }
+    // Get access token
+    val token = runBlocking {
+        PreferencesManager.getToken()
     }
-    return serverResponse!!
+
+    // Get all items from server
+    val serverResponse = responseHandler(
+        "Get all items from server",
+        LoggingTags.ItemsGetAll.name,
+        "List"
+    ) { ClientController.itemController.getAllItems("Bearer $token") }
+
+    // Decode base64 images to bitmap
+    if (serverResponse.data.isNotEmpty()) {
+        serverResponse.data.forEach { item ->
+            item.base64Images?.forEach { image ->
+                item.bitmapImages.add(decodeBase64ToBitmap(image))
+            }
+        }
+    }
+    return serverResponse
 }

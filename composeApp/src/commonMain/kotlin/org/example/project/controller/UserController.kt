@@ -1,11 +1,11 @@
-package org.example.project.persistence.network
+package org.example.project.controller
 
 import org.example.project.model.UserDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-interface UserApi {
+interface UserController {
     @POST("person/register")
     suspend fun registerUser(@Body user: UserDto): Response<ResponseApi<String>>
 

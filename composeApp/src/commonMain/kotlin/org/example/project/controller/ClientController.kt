@@ -1,9 +1,9 @@
-package org.example.project.persistence.network
+package org.example.project.controller
 
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
-object ClientApi {
+object ClientController {
     private const val BASE_URL = "http://localhost:8080/"
 
     private val retrofit: Retrofit by lazy {
@@ -14,16 +14,16 @@ object ClientApi {
 
     }
 
-    val saleApi: SaleApi by lazy {
-        retrofit.create(SaleApi::class.java)
+    val saleController: SaleController by lazy {
+        retrofit.create(SaleController::class.java)
     }
 
-    val userApi: UserApi by lazy {
-        retrofit.create(UserApi::class.java)
+    val userController: UserController by lazy {
+        retrofit.create(UserController::class.java)
     }
 
-    val itemsApi: ItemsApi by lazy {
-        retrofit.create(ItemsApi::class.java)
+    val itemController: ItemController by lazy {
+        retrofit.create(ItemController::class.java)
     }
 
 }

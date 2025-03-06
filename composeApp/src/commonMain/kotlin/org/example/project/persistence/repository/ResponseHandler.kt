@@ -2,90 +2,120 @@ package org.example.project.persistence.repository
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import org.example.project.controller.ResponseApi
 import org.example.project.logging.AppLogger
-import org.example.project.persistence.network.HttpStatusUtil
-import org.example.project.persistence.network.ResponseApi
+import org.example.project.util.HttpStatusUtil
 import retrofit2.Response
 
 @OptIn(DelicateCoroutinesApi::class)
-@Suppress("UNCHECKED_CAST")
 fun <T> responseHandler(
-    loggingTag: String,
+    process: String,
+    processTag: String,
     returnType: String,
     apiFunction: suspend () -> Response<ResponseApi<T>>,
-): ResponseApi<T>? {
-    var result: ResponseApi<T>? = null
-    val deferredResult = CompletableDeferred<ResponseApi<T>?>()
+): ResponseApi<T> {
+    val deferredResult = CompletableDeferred<ResponseApi<T>>()
 
     GlobalScope.launch(Dispatchers.IO) {
         try {
             // Connect to server
-            AppLogger.i(loggingTag, "Attempting connection")
+            AppLogger.i(
+                processTag,
+                """Process: $process.
+                Status: Attempting connection.""".trimIndent()
+            )
             val response: Response<ResponseApi<T>> = apiFunction()
 
             if (response.isSuccessful) {
                 // Log successful attempt and return body
                 AppLogger.i(
-                    loggingTag,
-                    "Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}," +
-                            " Response: ${response.body()?.response!!}"
+                    processTag,
+                    """Process: $process.
+                    Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}.
+                    Response: ${response.body()?.response ?: "No response body"}.""".trimIndent()
                 )
-                result = response.body()
+                // Ensure the body is not null
+                val responseBody =
+                    response.body() ?: createErrorResponse(
+                        "Error receiving response from server",
+                        returnType
+                    )
+                deferredResult.complete(responseBody)
             } else {
                 // Register failed attempt and return error body
                 val errorBody = response.errorBody()?.string()
                 val gson = Gson()
                 val type = object : TypeToken<ResponseApi<T>>() {}.type
-                val errorResponse: ResponseApi<T> = gson.fromJson(errorBody, type)
+
+                // Error-free json parsing
+                val errorResponse: ResponseApi<T> = try {
+                    gson.fromJson(errorBody, type)
+                } catch (e: Exception) {
+                    AppLogger.e(
+                        processTag,
+                        """Process: $process.
+                        Status: 422 ${HttpStatusUtil.getStatusName(422)}.
+                        Response: Error parsing error response.""".trimIndent(),
+                        e
+                    )
+                    createErrorResponse("Internal error parsing response", returnType)
+                }
 
                 AppLogger.w(
-                    loggingTag,
-                    "Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}," +
-                            " Response: ${errorResponse.response}"
+                    processTag,
+                    """Process: $process.
+                    Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}.
+                    Response: ${errorResponse.response}.""".trimIndent()
                 )
-                result = errorResponse
+                deferredResult.complete(errorResponse)
             }
-            deferredResult.complete(result)
         } catch (e: java.net.ConnectException) {
-            // Network error -> log error and return error response according to necessary type
+            // Network error -> log error and return error response
             AppLogger.e(
-                loggingTag,
-                "Status: 503 ${HttpStatusUtil.getStatusName(503)}," +
-                        " Response: Error connecting to server",
+                processTag,
+                """Process: $process.
+                Status: 503 ${HttpStatusUtil.getStatusName(503)}.
+                Response: Error connecting to server.""".trimIndent(),
                 e
             )
-            result = if (returnType == "String") {
-                ResponseApi(
-                    false,
-                    "Error connecting to server",
-                    "Error connecting to server"
-                ) as ResponseApi<T>
-            } else {
-                ResponseApi(false, "Error connecting to server", emptyList<T>()) as ResponseApi<T>
-            }
-            deferredResult.complete(result)
+            deferredResult.complete(createErrorResponse("Error connecting to server", returnType))
         } catch (e: Exception) {
-            // Other exceptions -> log the error and return error response according to necessary type
+            // Other exceptions -> log the error and return error response
             AppLogger.e(
-                loggingTag,
-                "Status: ___, Unknown error",
+                processTag,
+                """Process: $process.
+                Status: Unknown error.
+                Response: Internal app error.""".trimIndent(),
                 e
             )
-            result = if (returnType == "String") {
-                ResponseApi(false, "Internal app error", "Internal app error") as ResponseApi<T>
-            } else {
-                ResponseApi(false, "Internal app error", emptyList<T>()) as ResponseApi<T>
-            }
-            deferredResult.complete(result)
+            deferredResult.complete(createErrorResponse("Internal app error", returnType))
         }
     }
 
-    println(result?.response)
     return runBlocking { deferredResult.await() }
+}
+
+// Auxiliary function to create error response
+@Suppress("UNCHECKED_CAST")
+private fun <T> createErrorResponse(response: String, returnType: String): ResponseApi<T> {
+    return when (returnType) {
+        "String" -> ResponseApi(
+            false,
+            response,
+            response
+        ) as ResponseApi<T>
+
+        "List" -> ResponseApi(
+            false,
+            response,
+            emptyList<T>()
+        ) as ResponseApi<T>
+
+        else -> ResponseApi(
+            false,
+            response,
+            null
+        ) as ResponseApi<T>
+    }
 }

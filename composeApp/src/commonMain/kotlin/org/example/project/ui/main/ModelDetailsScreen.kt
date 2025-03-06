@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.example.project.controller.ItemController
+import org.example.project.controller.ItemControllerFake
 import org.example.project.model.ItemDto
 import org.example.project.model.SaleDto
 import org.example.project.service.createNewSale
@@ -63,7 +63,7 @@ import kotlin.reflect.full.memberProperties
 @Composable
 fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
     val longItemId = itemId?.toLong()
-    val item = longItemId?.let { ItemController.getItemById(it) }
+    val item = longItemId?.let { ItemControllerFake.getItemById(it) }
     // Scope
     val coroutineScope = rememberCoroutineScope()
     // Snack bar state
@@ -323,14 +323,14 @@ fun ModelSale(
                     date = Timestamp.from(Instant.now())
                 )
 
-                val (success, data) = createNewSale(saleDto)
-                if (!success) {
+                val serverResponse = createNewSale(saleDto)
+                if (!serverResponse.success) {
                     color.value = errorColor
                 } else {
                     color.value = primaryColor
                 }
                 snackbarHostState.showSnackbar(
-                    message = data,
+                    message = serverResponse.data,
                     duration = SnackbarDuration.Short
                 )
             }

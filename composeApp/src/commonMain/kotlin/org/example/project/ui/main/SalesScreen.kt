@@ -32,17 +32,17 @@ import com.netguru.multiplatform.charts.bar.BarChartCategory
 import com.netguru.multiplatform.charts.bar.BarChartConfig
 import com.netguru.multiplatform.charts.bar.BarChartData
 import com.netguru.multiplatform.charts.bar.BarChartEntry
-import org.example.project.controller.SaleController
+import org.example.project.controller.SaleControllerFake
 import org.example.project.model.AllSalesDto
 import kotlin.random.Random
 
 @Composable
 fun SalesScreen() {
     // Load sale data
-    if (SaleController.allSales.isEmpty()) {
-        SaleController.findAllSalesController()
+    if (SaleControllerFake.allSales.isEmpty()) {
+        SaleControllerFake.findAllSalesController()
     }
-    println(SaleController.allSales[0].saleId)
+    println(SaleControllerFake.allSales[0].saleId)
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -52,7 +52,7 @@ fun SalesScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             DropdownMenuExample()
-            LineChartExample(SaleController.allSales)
+            LineChartExample(SaleControllerFake.allSales)
             Text("Esta es la vista de Ventas")
         }
     }

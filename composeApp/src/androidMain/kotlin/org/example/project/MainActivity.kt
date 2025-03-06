@@ -5,11 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
+import org.example.project.model.entity.Image
+import org.example.project.model.entity.Item
+import org.example.project.model.entity.Person
 import org.example.project.persistence.createAndroidDataStore
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.ui.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var realm: Realm
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +27,17 @@ class MainActivity : ComponentActivity() {
             // Initialize preferences datastore
             PreferencesManager.initPreferences(
                 createAndroidDataStore(applicationContext)
+            )
+
+            // Initialize Realm database
+            realm = Realm.open(
+                configuration = RealmConfiguration.create(
+                    schema = setOf(
+                        Item::class,
+                        Person::class,
+                        Image::class
+                    )
+                )
             )
 
             // Launch application

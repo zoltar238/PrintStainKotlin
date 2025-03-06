@@ -1,7 +1,7 @@
 package org.example.project.persistence.repository
 
 import org.example.project.model.ItemDto
-import org.example.project.persistence.network.ResponseApi
+import org.example.project.controller.ResponseApi
 
 interface ItemsRepo {
     // function reserved for admin privileges

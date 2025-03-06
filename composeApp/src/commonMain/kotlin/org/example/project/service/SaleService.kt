@@ -1,23 +1,46 @@
 package org.example.project.service
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.example.project.logging.AppLogger
+import kotlinx.coroutines.runBlocking
+import org.example.project.controller.ClientController
+import org.example.project.controller.ResponseApi
+import org.example.project.logging.LoggingTags
 import org.example.project.model.AllSalesDto
 import org.example.project.model.SaleDto
-import org.example.project.persistence.network.ResponseApi
-import org.example.project.persistence.repository.SaleRepoHttpImp
-import org.http4k.core.Response
+import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.repository.responseHandler
 
 fun createNewSale(saleDto: SaleDto): ResponseApi<String> {
-    // Receive the information from server
-    val serverResponse = SaleRepoHttpImp.createNewSale(saleDto)
-    return serverResponse!!
+    // Get access token
+    val token = runBlocking {
+        PreferencesManager.getToken()
+    }
+
+    // Return the information from server
+    return responseHandler(
+        "Create new sale",
+        LoggingTags.SaleCreateNew.name,
+        "String",
+    ) {
+        ClientController.saleController.createNewSale(
+            saleDto = saleDto,
+            token = "Bearer $token"
+        )
+    }
 }
 
 fun findAllSales(): ResponseApi<List<AllSalesDto>> {
+    // Get access token
+    val token = runBlocking {
+        PreferencesManager.getToken()
+    }
     // Receive all sales from server
-    val serverResponse = SaleRepoHttpImp.findAllSales()
-    return serverResponse!!
+    return responseHandler(
+        "Find all sales",
+        LoggingTags.SaleFindAll.name,
+        "String",
+    ) {
+        ClientController.saleController.findAllSales(
+            token = "Bearer $token"
+        )
+    }
 }

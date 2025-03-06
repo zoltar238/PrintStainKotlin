@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import org.example.project.controller.ItemController
+import org.example.project.controller.ItemControllerFake
 import org.example.project.persistence.preferences.PreferencesManager
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -41,8 +41,8 @@ fun MainScreen(navController: NavHostController) {
 
         //todo: move the initialization of items to the modelscreen
         // Load models if they are empty
-        if (ItemController.items.isEmpty()) {
-            ItemController.getItems()
+        if (ItemControllerFake.items.isEmpty()) {
+            ItemControllerFake.getItems()
         }
 
 
@@ -109,8 +109,8 @@ fun MainScreen(navController: NavHostController) {
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,
-                            itemStatus = ItemController.itemStatus,
-                            items = ItemController.items
+                            itemStatus = ItemControllerFake.itemStatus,
+                            items = ItemControllerFake.items
                         )
                         "Settings" -> SettingsView()
                         "Ner" -> NerTrainingView()

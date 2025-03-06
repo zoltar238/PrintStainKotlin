@@ -1,4 +1,4 @@
-package org.example.project.persistence.network
+package org.example.project.util
 
 
 object HttpStatusUtil {

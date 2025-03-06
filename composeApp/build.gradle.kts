@@ -56,6 +56,7 @@ kotlin {
             runtimeOnly(libs.androidx.lifecycle.lifecycle.viewmodel)
             runtimeOnly(libs.androidx.lifecycle.livedata)
 
+            // Serialization
             implementation(libs.kotlinx.serialization.json)
 
             // charts
@@ -87,6 +88,9 @@ kotlin {
             // Datastore
             api(libs.datastore.preferences)
             api(libs.datastore)
+
+            // Realm database
+            implementation(libs.library.base)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
