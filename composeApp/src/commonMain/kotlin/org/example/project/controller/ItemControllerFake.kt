@@ -1,19 +1,20 @@
 package org.example.project.controller
 
 import org.example.project.model.dto.ItemDto
+import org.example.project.model.entity.Item
 import org.example.project.service.getAllItems
 
 object ItemControllerFake {
-    var items: List<ItemDto> = emptyList()
+    var items: MutableList<Item> = mutableListOf()
     private var itemsSuccess: Boolean = false
     lateinit var itemStatus: String
 
     // Constructor
     fun getItems() {
         // Obtain all items
-        val serverResponse = getAllItems()
-        this.itemsSuccess = serverResponse.success
-        this.items = serverResponse.data
+        val items = getAllItems()
+        this.itemsSuccess = true
+        this.items = items
         itemStatus = setItemStatus()
     }
 
@@ -29,9 +30,9 @@ object ItemControllerFake {
         }
     }
 
-    fun getItemById(itemId: Long): ItemDto? {
+    fun getItemById(itemId: Long): Item? {
         items.forEach { item ->
-            if (item.itemId == itemId) {
+            if (item.id == itemId) {
                 return item
             }
         }

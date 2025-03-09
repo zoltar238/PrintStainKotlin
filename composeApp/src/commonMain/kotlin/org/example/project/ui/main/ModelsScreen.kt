@@ -37,10 +37,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemDto
+import org.example.project.model.entity.Item
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ModelsScreen(navController: NavHostController, itemStatus: String, items: List<ItemDto>) {
+fun ModelsScreen(navController: NavHostController, itemStatus: String, items: MutableList<Item>) {
     // Scrollbar status
     val scrollState = rememberScrollState()
     // Searchbar value
@@ -102,7 +103,7 @@ fun SearchBar(
 
 // Model individual cards
 @Composable
-fun ModelCard(item: ItemDto, navController: NavHostController) {
+fun ModelCard(item: Item, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -110,7 +111,7 @@ fun ModelCard(item: ItemDto, navController: NavHostController) {
             .padding(10.dp)
             .clickable(onClick = {
                 // change screen and pass item id
-                navController.navigate("model_details_screen/${item.itemId}")
+                navController.navigate("model_details_screen/${item.id}")
             }),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility
@@ -122,12 +123,12 @@ fun ModelCard(item: ItemDto, navController: NavHostController) {
                 .background(MaterialTheme.colors.background)
         ) {
             // Imagen
-            Image(
-                painter = BitmapPainter(item.bitmapImages[0]),
-                contentDescription = item.description,
-                contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
-                modifier = Modifier.fillMaxSize()
-            )
+//            Image(
+//                painter = BitmapPainter(item.bitmapImages[0]),
+//                contentDescription = item.description,
+//                contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
+//                modifier = Modifier.fillMaxSize()
+//            )
 
             // Caja de texto en la parte inferior
             Box(

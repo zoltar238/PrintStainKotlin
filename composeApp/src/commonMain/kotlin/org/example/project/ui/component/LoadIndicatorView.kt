@@ -1,4 +1,4 @@
-package org.example.project.ui.main
+package org.example.project.ui.component
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme

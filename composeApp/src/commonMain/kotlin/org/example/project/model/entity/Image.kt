@@ -6,6 +6,6 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 class Image: RealmObject {
 
     @PrimaryKey
-    var imageId: Long? = null
-    var base64ImageUrl: String? = null
+    var id: Long? = null
+    var base64Image: String? = null
 }

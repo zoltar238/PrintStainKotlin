@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import org.apache.commons.validator.routines.EmailValidator
 import org.example.project.model.dto.PersonDto
 import org.example.project.service.registerUser
-import org.example.project.ui.main.LoadingIndicator
+import org.example.project.ui.component.LoadingIndicator
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.email_field

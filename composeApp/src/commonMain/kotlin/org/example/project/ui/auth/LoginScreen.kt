@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 import org.example.project.model.dto.LoginDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.loginUser
-import org.example.project.ui.main.LoadingIndicator
+import org.example.project.ui.component.LoadingIndicator
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.password_field

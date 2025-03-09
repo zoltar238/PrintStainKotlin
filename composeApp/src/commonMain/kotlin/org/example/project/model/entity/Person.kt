@@ -5,6 +5,6 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 
 class Person: RealmObject {
 
-    @PrimaryKey var personId: Long? = null
+    @PrimaryKey var id: Long? = null
     var username : String? = null
 }

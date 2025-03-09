@@ -9,7 +9,7 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 class Item : RealmObject {
 
     @PrimaryKey
-    var itemId: Long? = null
+    var id: Long? = null
     var name: String? = null
     var description: String? = null
     var postDate: RealmInstant? = null
@@ -20,4 +20,7 @@ class Item : RealmObject {
 
     //  One item contains a multiple images
     var images: RealmList<Image>? = realmListOf()
+
+    // Person that posted the item
+    var person: Person? = null
 }
