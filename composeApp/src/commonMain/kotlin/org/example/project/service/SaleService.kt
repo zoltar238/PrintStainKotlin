@@ -4,8 +4,8 @@ import kotlinx.coroutines.runBlocking
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
 import org.example.project.logging.LoggingTags
-import org.example.project.model.AllSalesDto
-import org.example.project.model.SaleDto
+import org.example.project.model.dto.AllSalesDto
+import org.example.project.model.dto.SaleDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.persistence.repository.responseHandler
 

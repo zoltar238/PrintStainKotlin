@@ -2,6 +2,7 @@
 
 package org.example.project.ui.main
 
+import org.example.project.model.dto.ItemDto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,8 +54,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.project.controller.ItemControllerFake
-import org.example.project.model.ItemDto
-import org.example.project.model.SaleDto
+import org.example.project.model.dto.SaleDto
 import org.example.project.service.createNewSale
 import java.sql.Timestamp
 import java.time.Instant

@@ -1,10 +1,10 @@
 package org.example.project.persistence.repository
 
-import org.example.project.model.UserDto
+import org.example.project.model.dto.PersonDto
 import org.example.project.controller.ResponseApi
 
 interface UserRepo {
-    fun registerUser(userDto: UserDto): ResponseApi<String>?
+    fun registerUser(personDto: PersonDto): ResponseApi<String>?
 
-    fun loginUser(userDto: UserDto): ResponseApi<String>?
+    fun loginUser(personDto: PersonDto): ResponseApi<String>?
 }

@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.example.project.model.UserDto
+import org.example.project.model.dto.LoginDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.loginUser
 import org.example.project.ui.main.LoadingIndicator
@@ -77,7 +77,7 @@ fun LoginScreen(
         visualTransformation = PasswordVisualTransformation()
     )
 
-    // Save credentials checkbox
+    // Save credential checkbox
     Row(
         modifier = commonModifier,
         verticalAlignment = Alignment.CenterVertically
@@ -106,7 +106,7 @@ fun LoginScreen(
                     snackBarColor.value = primaryColor
                     try {
                         val serverResponse = withContext(context = Dispatchers.IO) {
-                            loginUser(UserDto(username = username, password = password))
+                            loginUser(LoginDto(username = username, password = password))
                         }
                         isLoading = false
                         if (serverResponse.success) {

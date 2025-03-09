@@ -1,4 +1,4 @@
-package org.example.project.model
+package org.example.project.model.dto
 
 import kotlinx.serialization.Contextual
 import java.math.BigDecimal

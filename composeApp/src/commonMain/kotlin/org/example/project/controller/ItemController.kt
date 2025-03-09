@@ -1,6 +1,6 @@
 package org.example.project.controller
 
-import org.example.project.model.ItemDto
+import org.example.project.model.dto.ItemDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header

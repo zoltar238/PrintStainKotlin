@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import org.example.project.model.ItemDto
+import org.example.project.model.dto.ItemDto
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

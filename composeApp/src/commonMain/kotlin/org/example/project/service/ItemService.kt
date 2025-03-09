@@ -1,10 +1,10 @@
 package org.example.project.service
 
+import org.example.project.model.dto.ItemDto
 import kotlinx.coroutines.runBlocking
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
 import org.example.project.logging.LoggingTags
-import org.example.project.model.ItemDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.persistence.repository.responseHandler
 import org.example.project.util.decodeBase64ToBitmap

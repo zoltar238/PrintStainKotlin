@@ -1,6 +1,6 @@
 package org.example.project.controller
 
-import org.example.project.model.AllSalesDto
+import org.example.project.model.dto.AllSalesDto
 import org.example.project.service.findAllSales
 
 object SaleControllerFake {

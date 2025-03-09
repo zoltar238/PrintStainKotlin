@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+
+    id("io.realm.kotlin")
 }
 
 kotlin {
@@ -42,6 +44,8 @@ kotlin {
             implementation(libs.converter.jackson) // Para usar Jackson
             implementation(libs.kotlinx.coroutines.core)
 
+            // Reflexion
+            implementation(libs.kotlin.reflect)
 
             // Horizontal carousel
             implementation(libs.accompanist.pager)
@@ -58,6 +62,7 @@ kotlin {
 
             // Serialization
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.retrofit2.kotlinx.serialization.converter)
 
             // charts
             implementation(libs.multiplatform.charts.desktop)
@@ -78,12 +83,7 @@ kotlin {
             implementation(libs.http4k.server.undertow)
             implementation(libs.http4k.client.apache)
 
-            // JSON
-            implementation(libs.jackson.module.kotlin)
-            implementation(libs.jackson.databind)
 
-            // Gson
-            implementation(libs.gson)
 
             // Datastore
             api(libs.datastore.preferences)
@@ -91,6 +91,8 @@ kotlin {
 
             // Realm database
             implementation(libs.library.base)
+
+            implementation(libs.okhttp)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

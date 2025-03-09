@@ -23,11 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.apache.commons.validator.routines.EmailValidator
-import org.example.project.model.UserDto
+import org.example.project.model.dto.PersonDto
 import org.example.project.service.registerUser
 import org.example.project.ui.main.LoadingIndicator
 import org.jetbrains.compose.resources.stringResource
@@ -169,7 +167,7 @@ fun RegisterScreen(
                             try {
                                 val serverResponse =
                                     registerUser(
-                                        UserDto(
+                                        PersonDto(
                                             name = name,
                                             email = email,
                                             password = password,

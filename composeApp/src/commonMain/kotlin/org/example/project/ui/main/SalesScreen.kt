@@ -33,7 +33,7 @@ import com.netguru.multiplatform.charts.bar.BarChartConfig
 import com.netguru.multiplatform.charts.bar.BarChartData
 import com.netguru.multiplatform.charts.bar.BarChartEntry
 import org.example.project.controller.SaleControllerFake
-import org.example.project.model.AllSalesDto
+import org.example.project.model.dto.AllSalesDto
 import kotlin.random.Random
 
 @Composable

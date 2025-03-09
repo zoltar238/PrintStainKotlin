@@ -1,7 +1,7 @@
 package org.example.project.persistence.repository
 
-import org.example.project.model.AllSalesDto
-import org.example.project.model.SaleDto
+import org.example.project.model.dto.AllSalesDto
+import org.example.project.model.dto.SaleDto
 import org.example.project.controller.ResponseApi
 
 interface SaleRepo {

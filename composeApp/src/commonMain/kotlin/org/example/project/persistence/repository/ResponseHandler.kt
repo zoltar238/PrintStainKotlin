@@ -1,7 +1,6 @@
 package org.example.project.persistence.repository
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.*
 import org.example.project.controller.ResponseApi
 import org.example.project.logging.AppLogger
@@ -45,12 +44,17 @@ fun <T> responseHandler(
             } else {
                 // Register failed attempt and return error body
                 val errorBody = response.errorBody()?.string()
-                val gson = Gson()
-                val type = object : TypeToken<ResponseApi<T>>() {}.type
+                val json = Json {
+                    ignoreUnknownKeys = true
+                    coerceInputValues = true
+                    isLenient = true
+                }
 
                 // Error-free json parsing
                 val errorResponse: ResponseApi<T> = try {
-                    gson.fromJson(errorBody, type)
+                    // Use kotlinx.serialization to parse the error response
+                    errorBody?.let { json.decodeFromString(it) }
+                        ?: createErrorResponse("Error parsing error response", returnType)
                 } catch (e: Exception) {
                     AppLogger.e(
                         processTag,
