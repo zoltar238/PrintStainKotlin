@@ -55,7 +55,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.project.controller.ItemControllerFake
 import org.example.project.model.dto.SaleDto
-import org.example.project.model.entity.Item
 import org.example.project.service.createNewSale
 import java.sql.Timestamp
 import java.time.Instant
@@ -170,7 +169,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                             .padding(16.dp)
                     ) {
                         // Filtrar y agrupar las propiedades de dos en dos
-                        val properties = Item::class.memberProperties
+                        val properties = ItemDto::class.memberProperties
                             .filter { it.name != "base64Images" && it.name != "bitmapImages" }
                             .chunked(2) // Agrupar de 2 en 2
 

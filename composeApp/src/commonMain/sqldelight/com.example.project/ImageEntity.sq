@@ -1,0 +1,16 @@
+CREATE TABLE Image(
+    imageId INTEGER PRIMARY KEY,
+    base64Image TEXT,
+    item_id INTEGER,
+    FOREIGN KEY (item_id) REFERENCES Item(itemId)
+);
+
+-- Insert images
+insertImage:
+INSERT INTO Image(
+    imageId,
+    base64Image,
+    item_id)
+VALUES (?, ?, ?);
+
+-- Select images by item id

@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
 
-    id("io.realm.kotlin")
+    id("app.cash.sqldelight") version "2.0.1"
 }
 
 kotlin {
@@ -29,6 +29,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.android.driver)
+
         }
         commonMain.dependencies {
             // Basic dependencies
@@ -84,19 +86,23 @@ kotlin {
             implementation(libs.http4k.client.apache)
 
 
-
             // Datastore
             api(libs.datastore.preferences)
             api(libs.datastore)
 
-            // Realm database
-            implementation(libs.library.base)
+            // Dagger
+            implementation(libs.dagger)
+            implementation(libs.coroutines.extensions)
 
             implementation(libs.okhttp)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+
+            // SqlDelight
+            implementation(libs.sqlite.driver)
+
         }
     }
 }
@@ -150,6 +156,14 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.example.project"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("PrintStainDatabase") {
+            packageName.set("org.example.project")
         }
     }
 }

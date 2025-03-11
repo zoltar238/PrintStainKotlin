@@ -6,11 +6,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
-import org.example.project.model.entity.Image
-import org.example.project.model.entity.Item
-import org.example.project.model.entity.Person
 import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.persistence.preferences.createDataStore

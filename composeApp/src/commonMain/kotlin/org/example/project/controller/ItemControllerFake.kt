@@ -1,17 +1,19 @@
 package org.example.project.controller
 
 import org.example.project.model.dto.ItemDto
-import org.example.project.model.entity.Item
+import org.example.project.service.ItemViewModel
 import org.example.project.service.getAllItems
 
 object ItemControllerFake {
-    var items: MutableList<Item> = mutableListOf()
+    var items: MutableList<ItemDto> = mutableListOf()
     private var itemsSuccess: Boolean = false
     lateinit var itemStatus: String
 
     // Constructor
     fun getItems() {
         // Obtain all items
+        val itemViewModel: ItemViewModel = ItemViewModel()
+        itemViewModel.getAllItems()
         val items = getAllItems()
         this.itemsSuccess = true
         this.items = items
@@ -30,9 +32,9 @@ object ItemControllerFake {
         }
     }
 
-    fun getItemById(itemId: Long): Item? {
+    fun getItemById(itemId: Long): ItemDto? {
         items.forEach { item ->
-            if (item.id == itemId) {
+            if (item.itemId == itemId) {
                 return item
             }
         }

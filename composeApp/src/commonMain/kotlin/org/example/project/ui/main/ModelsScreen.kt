@@ -37,11 +37,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemDto
-import org.example.project.model.entity.Item
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ModelsScreen(navController: NavHostController, itemStatus: String, items: MutableList<Item>) {
+fun ModelsScreen(navController: NavHostController, itemStatus: String, items: MutableList<ItemDto>) {
     // Scrollbar status
     val scrollState = rememberScrollState()
     // Searchbar value
@@ -103,7 +102,7 @@ fun SearchBar(
 
 // Model individual cards
 @Composable
-fun ModelCard(item: Item, navController: NavHostController) {
+fun ModelCard(item: ItemDto, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -111,7 +110,7 @@ fun ModelCard(item: Item, navController: NavHostController) {
             .padding(10.dp)
             .clickable(onClick = {
                 // change screen and pass item id
-                navController.navigate("model_details_screen/${item.id}")
+                navController.navigate("model_details_screen/${item.itemId}")
             }),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility
