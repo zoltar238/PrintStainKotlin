@@ -9,7 +9,6 @@ import comexampleproject.SelectAllItemWithRelations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import org.example.project.PrintStainDatabase
 import org.example.project.model.dto.ItemWithRelations
 import org.example.project.persistence.repository.ItemDao
@@ -17,37 +16,10 @@ import org.example.project.persistence.repository.ItemDao
 
 class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
 
-    private val queries = db.itemEntityQueries
+    private val query = db.itemEntityQueries
 
-    fun mapItem(
-        itemId: Long,
-        name: String?,
-        description: String?,
-        postDate: String?,
-        startDate: String?,
-        finishDate: String?,
-        shipDate: String?,
-        timesUploaded: Long?,
-        person_id: Long?,
-    ): Item {
-        return Item(
-            itemId = itemId,
-            name = name,
-            description = description,
-            postDate = postDate,
-            startDate = startDate,
-            finishDate = finishDate,
-            shipDate = shipDate,
-            timesUploaded = timesUploaded,
-            person_id = person_id
-        )
-    }
-
-    override suspend fun getItemById(id: Long): Item? {
-        return withContext(Dispatchers.IO) {
-            queries.selectItemById(id).executeAsOneOrNull()
-        }
-    }
+    override fun getItemById(id: Long): Item? =
+        query.selectItemById(id).executeAsOneOrNull()
 
     override suspend fun insertItem(
         itemId: Long,
@@ -60,7 +32,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
         timesUploaded: Long?,
         person_id: Long?,
     ) {
-        queries.insertItem(
+        query.insertItem(
             itemId = itemId,
             name = name,
             description = description,
@@ -92,6 +64,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     person_id = firstRow.person_id
                 )
 
+                println("Item id: ${item.itemId}")
+
                 // Mapear la Persona (relación uno a uno)
                 val person = firstRow.person_personId?.let {
                     Person(
@@ -99,6 +73,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                         name = firstRow.person_name ?: ""
                     )
                 }
+
+                println("Person name: ${person?.name}")
 
                 // Mapear las Imágenes (relación uno a muchos)
                 val images = rows.mapNotNull { row ->
@@ -111,12 +87,12 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     }
                 }
 
-                ItemWithRelations(item, person!!, images)
+                ItemWithRelations(item, person, images)
             }
     }
 
     override fun getAllItemsWithRelation(): Flow<List<ItemWithRelations>> {
-        return queries.selectAllItemWithRelations()
+        return query.selectAllItemWithRelations()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { rows ->
@@ -125,7 +101,6 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
     }
 
     override fun getAllItems(): Flow<List<Item>> {
-        TODO("Not")
-//        return queries.selectAllItems().asFlow().mapToList()
+        return query.selectAllItems().asFlow().mapToList(Dispatchers.IO)
     }
 }

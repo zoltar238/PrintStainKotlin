@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PersonDto(
-    val id: Long? = null,
+    val personId: Long? = null,
     val name: String? = null,
     val surname: String? = null,
     val username: String? = null,

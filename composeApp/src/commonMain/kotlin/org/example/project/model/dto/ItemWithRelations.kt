@@ -7,6 +7,6 @@ import comexampleproject.Person
 
 data class ItemWithRelations(
     val item: Item,
-    val person: Person,
+    val person: Person? = null,
     val images: List<Image>
 )

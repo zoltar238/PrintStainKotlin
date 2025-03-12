@@ -7,26 +7,14 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import org.example.project.controller.ItemControllerFake
 import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.service.ItemViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -38,13 +26,6 @@ fun MainScreen(navController: NavHostController) {
         var selectedView by remember { mutableStateOf("Models") }
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
-
-        //todo: move the initialization of items to the modelscreen
-        // Load models if they are empty
-        if (ItemControllerFake.items.isEmpty()) {
-            ItemControllerFake.getItems()
-        }
-
 
         var username by remember { mutableStateOf<String?>(null) }
         scope.launch { username = PreferencesManager.getUsername() }
@@ -109,8 +90,7 @@ fun MainScreen(navController: NavHostController) {
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,
-                            itemStatus = ItemControllerFake.itemStatus,
-                            items = ItemControllerFake.items
+                            viewModel = ItemViewModel(),
                         )
                         "Settings" -> SettingsView()
                         "Ner" -> NerTrainingView()

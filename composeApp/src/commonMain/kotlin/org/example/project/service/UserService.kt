@@ -2,7 +2,7 @@ package org.example.project.service
 
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
-import org.example.project.logging.LoggingTags
+import org.example.project.logging.ProcessTags
 import org.example.project.model.dto.LoginDto
 import org.example.project.model.dto.PersonDto
 import org.example.project.persistence.preferences.PreferencesManager
@@ -12,7 +12,7 @@ fun registerUser(personDto: PersonDto): ResponseApi<String> {
     // Receive response from server and return it
     return responseHandler(
         "Register user",
-        LoggingTags.UserRegistration.name,
+        ProcessTags.UserRegistration.name,
         "String"
     ) { ClientController.userController.registerUser(personDto) }
 }
@@ -21,7 +21,7 @@ fun loginUser(loginDto: LoginDto): ResponseApi<String> {
     // Receive response from server and return it
     return responseHandler(
         "Login user",
-        LoggingTags.Userlogin.name,
+        ProcessTags.Userlogin.name,
         "String"
     ) { ClientController.userController.loginUser(loginDto) }
 }

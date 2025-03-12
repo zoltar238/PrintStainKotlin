@@ -3,7 +3,7 @@ package org.example.project.service
 import kotlinx.coroutines.runBlocking
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
-import org.example.project.logging.LoggingTags
+import org.example.project.logging.ProcessTags
 import org.example.project.model.dto.AllSalesDto
 import org.example.project.model.dto.SaleDto
 import org.example.project.persistence.preferences.PreferencesManager
@@ -18,7 +18,7 @@ fun createNewSale(saleDto: SaleDto): ResponseApi<String> {
     // Return the information from server
     return responseHandler(
         "Create new sale",
-        LoggingTags.SaleCreateNew.name,
+        ProcessTags.SaleCreateNew.name,
         "String",
     ) {
         ClientController.saleController.createNewSale(
@@ -36,7 +36,7 @@ fun findAllSales(): ResponseApi<List<AllSalesDto>> {
     // Receive all sales from server
     return responseHandler(
         "Find all sales",
-        LoggingTags.SaleFindAll.name,
+        ProcessTags.SaleFindAll.name,
         "String",
     ) {
         ClientController.saleController.findAllSales(

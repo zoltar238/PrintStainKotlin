@@ -7,7 +7,7 @@ CREATE TABLE Image(
 
 -- Insert images
 insertImage:
-INSERT INTO Image(
+INSERT OR REPLACE INTO Image(
     imageId,
     base64Image,
     item_id)

@@ -38,9 +38,9 @@ SELECT * FROM Item;
 selectImagesForItem:
 SELECT * FROM Image WHERE item_id = ?;
 
--- Insert new item
+-- Insert new item or replace it
 insertItem:
-INSERT INTO Item(
+INSERT OR REPLACE INTO Item(
     itemId,
     name,
     description,

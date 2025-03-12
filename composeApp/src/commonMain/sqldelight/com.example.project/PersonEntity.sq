@@ -1,5 +1,9 @@
-
 CREATE TABLE Person(
     personId INTEGER PRIMARY KEY,
     name TEXT
 );
+
+INSERT OR REPLACE INTO Person(
+    personId,
+    name)
+VALUES(?,?);

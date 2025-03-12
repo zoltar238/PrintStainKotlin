@@ -1,34 +1,14 @@
 package org.example.project.ui.main
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowOverflow
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,15 +16,24 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import org.example.project.model.dto.ItemDto
+import org.example.project.model.dto.ItemWithRelations
+import org.example.project.service.ItemViewModel
+import org.example.project.util.decodeBase64ToBitmap
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ModelsScreen(navController: NavHostController, itemStatus: String, items: MutableList<ItemDto>) {
+fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
     // Scrollbar status
     val scrollState = rememberScrollState()
     // Searchbar value
     var searchValue by remember { mutableStateOf("") }
+
+    val uiState by viewModel.uiState.collectAsState()
+    if (uiState.isLoading) {
+        CircularProgressIndicator()
+    } else {
+        println(uiState.response)
+    }
 
     MaterialTheme {
         Column(
@@ -64,14 +53,14 @@ fun ModelsScreen(navController: NavHostController, itemStatus: String, items: Mu
                     .fillMaxSize(),
                 overflow = FlowRowOverflow.Visible
             ) {
-                if (itemStatus == "OK") {
-                    items.forEach { item ->
-                        if (item.name?.contains(searchValue) == true || searchValue.length <= 2) {
+                if (uiState.success) {
+                    uiState.items.forEach{ item ->
+                        if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
                             ModelCard(item, navController)
                         }
                     }
                 } else {
-                    Text(itemStatus)
+                    Text(uiState.response!!)
                 }
             }
         }
@@ -102,7 +91,7 @@ fun SearchBar(
 
 // Model individual cards
 @Composable
-fun ModelCard(item: ItemDto, navController: NavHostController) {
+fun ModelCard(item: ItemWithRelations, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -110,7 +99,7 @@ fun ModelCard(item: ItemDto, navController: NavHostController) {
             .padding(10.dp)
             .clickable(onClick = {
                 // change screen and pass item id
-                navController.navigate("model_details_screen/${item.itemId}")
+                navController.navigate("model_details_screen/${item.item.itemId}")
             }),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility
@@ -121,13 +110,13 @@ fun ModelCard(item: ItemDto, navController: NavHostController) {
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
         ) {
-            // Imagen
-//            Image(
-//                painter = BitmapPainter(item.bitmapImages[0]),
-//                contentDescription = item.description,
-//                contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
-//                modifier = Modifier.fillMaxSize()
-//            )
+            // Image
+            Image(
+                painter = BitmapPainter(decodeBase64ToBitmap(item.images[0].base64Image!!)),
+                contentDescription = item.item.description,
+                contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
+                modifier = Modifier.fillMaxSize()
+            )
 
             // Caja de texto en la parte inferior
             Box(
@@ -138,14 +127,12 @@ fun ModelCard(item: ItemDto, navController: NavHostController) {
                     .padding(8.dp), // Espaciado interno
                 contentAlignment = Alignment.Center
             ) {
-                item.name?.let {
                     Text(
-                        text = it,
+                        text = item.item.name!!,
                         style = MaterialTheme.typography.subtitle1,
                         color = Color.White, // Texto claro para contraste
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                }
             }
         }
     }

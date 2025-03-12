@@ -6,7 +6,7 @@ import org.example.project.model.dto.ItemWithRelations
 
 interface ItemDao {
 
-    suspend fun getItemById(id: Long): Item?
+    fun getItemById(id: Long): Item?
 
     suspend fun insertItem(
         itemId: Long,
