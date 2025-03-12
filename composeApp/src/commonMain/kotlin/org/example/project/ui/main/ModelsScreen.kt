@@ -54,7 +54,7 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
                 overflow = FlowRowOverflow.Visible
             ) {
                 if (uiState.success) {
-                    uiState.items.forEach{ item ->
+                    uiState.items.forEach { item ->
                         if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
                             ModelCard(item, navController)
                         }
@@ -127,12 +127,12 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController) {
                     .padding(8.dp), // Espaciado interno
                 contentAlignment = Alignment.Center
             ) {
-                    Text(
-                        text = item.item.name!!,
-                        style = MaterialTheme.typography.subtitle1,
-                        color = Color.White, // Texto claro para contraste
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
+                Text(
+                    text = item.item.name!!,
+                    style = MaterialTheme.typography.subtitle1,
+                    color = Color.White, // Texto claro para contraste
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
     }

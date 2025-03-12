@@ -21,8 +21,6 @@ fun AppNavigation() {
         loggedWithPreferences = autoLogin()
     }
 
-    // todo: preference check is not working properly
-
     val startDestination = if (loggedWithPreferences) "main_app_view" else "log_reg_screen"
 
     NavHost(navController = navController, startDestination = startDestination) {
