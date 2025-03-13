@@ -1,23 +1,9 @@
 package org.example.project.ui.auth
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material3.Checkbox
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +17,7 @@ import kotlinx.coroutines.withContext
 import org.example.project.model.dto.LoginDto
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.loginUser
+import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.Res
@@ -49,11 +36,6 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var saveCredentials by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-
-    // SnackBarColors
-    val primaryColor = MaterialTheme.colors.primary
-    val errorColor = MaterialTheme.colors.error
-
 
     val commonModifier =
         Modifier.fillMaxWidth(1f).padding(horizontal = 40.dp).padding(vertical = 10.dp)
@@ -94,7 +76,7 @@ fun LoginScreen(
         onClick = {
             if (username.isEmpty() || password.isEmpty()) {
                 snackBarScope.launch {
-                    snackBarColor.value = errorColor
+                    snackBarColor.value = AppColors.errorColor
                     snackbarHostState.showSnackbar(
                         message = "Please, fill all the fields",
                         duration = SnackbarDuration.Short
@@ -103,7 +85,7 @@ fun LoginScreen(
             } else {
                 isLoading = true
                 snackBarScope.launch {
-                    snackBarColor.value = primaryColor
+                    snackBarColor.value = AppColors.primaryColor
                     try {
                         val serverResponse = withContext(context = Dispatchers.IO) {
                             loginUser(LoginDto(username = username, password = password))
@@ -124,14 +106,14 @@ fun LoginScreen(
                             }
                             navController.navigate(route = "main_app_view")
                         } else {
-                            snackBarColor.value = errorColor
+                            snackBarColor.value = AppColors.errorColor
                         }
                         snackbarHostState.showSnackbar(
                             message = serverResponse.response,
                             duration = SnackbarDuration.Short
                         )
                     } catch (e: Exception) {
-                        snackBarColor.value = errorColor
+                        snackBarColor.value = AppColors.errorColor
                         isLoading = false
                         snackbarHostState.showSnackbar(
                             message = "Unexpected login error",

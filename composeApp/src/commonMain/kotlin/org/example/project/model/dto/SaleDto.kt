@@ -1,11 +1,14 @@
 package org.example.project.model.dto
 
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import org.example.project.util.OffsetDateTimeSerializer
 import java.math.BigDecimal
-import java.sql.Timestamp
+import java.time.OffsetDateTime
 
+@Serializable
 data class SaleDto(
-    @Contextual val date: Timestamp? = null,
+    @Serializable(with = OffsetDateTimeSerializer::class) val date: OffsetDateTime? = null,
     @Contextual val cost: BigDecimal? = null,
     @Contextual val price: BigDecimal? = null,
     val itemId: Long? = null,

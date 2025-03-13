@@ -79,7 +79,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
 
                             )
                         },
-                        title = { Text("PrintStain - $selectedView - $username") },
+                        title = { Text("PrintStain - $selectedView") },
                         backgroundColor = MaterialTheme.colors.primary
                     )
                 },

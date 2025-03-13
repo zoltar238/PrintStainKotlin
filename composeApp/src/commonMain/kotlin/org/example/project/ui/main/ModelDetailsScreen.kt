@@ -35,8 +35,7 @@ import org.example.project.model.dto.SaleDto
 import org.example.project.service.ItemViewModel
 import org.example.project.service.createNewSale
 import org.example.project.util.decodeBase64ToBitmap
-import java.sql.Timestamp
-import java.time.Instant
+import java.time.OffsetDateTime
 import kotlin.reflect.full.memberProperties
 
 @Composable
@@ -298,7 +297,7 @@ fun ModelSale(
                     cost = cost.toBigDecimal(),
                     price = price.toBigDecimal(),
                     itemId = itemId,
-                    date = Timestamp.from(Instant.now())
+                    date = OffsetDateTime.now()
                 )
 
                 val serverResponse = createNewSale(saleDto)

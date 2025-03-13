@@ -35,7 +35,9 @@ class ItemViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(ItemUiState(isLoading = true))
     val uiState: StateFlow<ItemUiState> = _uiState.asStateFlow()
 
+    // Auxiliary view models
     private val imageViewModel = ImageViewModel()
+    private val personViewModel = PersonViewModel()
 
     init {
         getAllItems()
@@ -115,6 +117,11 @@ class ItemViewModel() : ViewModel() {
                                 item_id = item.itemId
                             )
                         }
+                        println(item.person?.personId)
+                        personViewModel.insertPerson(
+                            item.person?.personId!!,
+                            item.person.name!!
+                        )
                     }
 
                     // Get updated items from the database

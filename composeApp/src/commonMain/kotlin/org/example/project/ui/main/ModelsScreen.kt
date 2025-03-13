@@ -2,22 +2,34 @@ package org.example.project.ui.main
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemWithRelations
 import org.example.project.service.ItemViewModel
+import org.example.project.ui.AppColors
+import org.example.project.ui.component.LoadingIndicator
 import org.example.project.util.decodeBase64ToBitmap
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -27,42 +39,109 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
     val scrollState = rememberScrollState()
     // Searchbar value
     var searchValue by remember { mutableStateOf("") }
-
+    // Database flow
     val uiState by viewModel.uiState.collectAsState()
-    if (uiState.isLoading) {
-        CircularProgressIndicator()
-    } else {
-        println(uiState.response)
+    // Scaffold
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
+
+    // Change color based on state
+    LaunchedEffect(uiState.success) {
+        snackBarColor.value = if (uiState.success) AppColors.primaryColor else AppColors.errorColor
+    }
+
+    // Show snackbar when response changes
+    LaunchedEffect(uiState.response) {
+        if (!uiState.isLoading && uiState.response != null && uiState.response != "Item selected successfully") {
+            snackbarHostState.showSnackbar(
+                message = uiState.response!!,
+                duration = SnackbarDuration.Short
+            )
+        }
     }
 
     MaterialTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            // Search bar
-            SearchBar(
-                query = searchValue, // Pasa directamente el estado actual
-                onQueryChange = { newValue -> searchValue = newValue } // Actualiza el estado
-            )
-            // Model rows
-            FlowRow(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(scrollState)
-                    .fillMaxSize(),
-                overflow = FlowRowOverflow.Visible
-            ) {
-                if (uiState.success) {
-                    uiState.items.forEach { item ->
-                        if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
-                            ModelCard(item, navController, viewModel)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                bottomBar = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp, end = 16.dp),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(color = AppColors.primaryColor, shape = CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            IconButton(onClick = {}) {
+                                Text(
+                                    text = "+",
+                                    fontSize = 30.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
+                }
+            ) { paddingValues ->
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { LoadingIndicator() }
                 } else {
-                    Text(uiState.response!!)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        // Search bar
+                        SearchBar(
+                            query = searchValue,
+                            onQueryChange = { newValue -> searchValue = newValue }
+                        )
+                        // Model rows
+                        FlowRow(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .verticalScroll(scrollState)
+                                .fillMaxSize(),
+                            overflow = FlowRowOverflow.Visible
+                        ) {
+                            if (uiState.success) {
+                                uiState.items.forEach { item ->
+                                    if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
+                                        ModelCard(item, navController, viewModel)
+                                    }
+                                }
+                            } else {
+                                Text(uiState.response ?: "Unknown error")
+                            }
+                        }
+                    }
                 }
             }
+
+            // Snackbar on top of the screen
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+                    .zIndex(3f),
+                snackbar = { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        backgroundColor = snackBarColor.value,
+                        contentColor = MaterialTheme.colors.onPrimary,
+                        elevation = 5.dp
+                    )
+                }
+            )
         }
     }
 }

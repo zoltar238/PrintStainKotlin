@@ -3,6 +3,8 @@ CREATE TABLE Person(
     name TEXT
 );
 
+-- Insert or replace person
+insertOrReplacePerson:
 INSERT OR REPLACE INTO Person(
     personId,
     name)
