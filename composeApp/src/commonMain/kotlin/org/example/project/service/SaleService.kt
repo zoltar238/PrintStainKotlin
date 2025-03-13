@@ -3,11 +3,11 @@ package org.example.project.service
 import kotlinx.coroutines.runBlocking
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
+import org.example.project.controller.responseHandler
 import org.example.project.logging.ProcessTags
 import org.example.project.model.dto.AllSalesDto
 import org.example.project.model.dto.SaleDto
 import org.example.project.persistence.preferences.PreferencesManager
-import org.example.project.persistence.repository.responseHandler
 
 fun createNewSale(saleDto: SaleDto): ResponseApi<String> {
     // Get access token

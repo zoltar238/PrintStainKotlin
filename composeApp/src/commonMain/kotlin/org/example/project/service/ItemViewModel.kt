@@ -7,15 +7,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.project.PrintStainDatabase
 import org.example.project.controller.ClientController
+import org.example.project.controller.responseHandler
 import org.example.project.logging.AppLogger
 import org.example.project.logging.ProcessTags
 import org.example.project.logging.ServiceTags
 import org.example.project.model.dto.ItemWithRelations
-import org.example.project.persistence.DriverFactory
-import org.example.project.persistence.ItemDaoImpl
+import org.example.project.persistence.database.DriverFactory
+import org.example.project.persistence.database.ItemDao
+import org.example.project.persistence.database.ItemDaoImpl
 import org.example.project.persistence.preferences.PreferencesManager
-import org.example.project.persistence.repository.ItemDao
-import org.example.project.persistence.repository.responseHandler
 
 
 data class ItemUiState(
@@ -39,6 +39,34 @@ class ItemViewModel() : ViewModel() {
 
     init {
         getAllItems()
+    }
+
+    fun getItemById(id: Long) {
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                // Select item from the list
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        response = "Item selected successfully",
+                        success = true,
+                        selectedItem = _uiState.value.items.first { individualItem ->
+                            individualItem.item.itemId == id
+                        })
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        success = false,
+                        response = "Internal error loading this item",
+                        selectedItem = null
+                    )
+                }
+            }
+        }
     }
 
     fun getAllItems() {

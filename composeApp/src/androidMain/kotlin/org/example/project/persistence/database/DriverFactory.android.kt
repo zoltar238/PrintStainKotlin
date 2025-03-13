@@ -1,4 +1,4 @@
-package org.example.project.persistence
+package org.example.project.persistence.database
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver

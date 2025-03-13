@@ -1,4 +1,4 @@
-package org.example.project.persistence
+package org.example.project.persistence.database
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.example.project.PrintStainDatabase
 import org.example.project.model.dto.ItemWithRelations
-import org.example.project.persistence.repository.ItemDao
 
 
 class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {

@@ -2,47 +2,24 @@
 
 package org.example.project.ui.main
 
-import org.example.project.model.dto.ItemDto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Snackbar
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,19 +28,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import comexampleproject.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.example.project.controller.ItemControllerFake
 import org.example.project.model.dto.SaleDto
+import org.example.project.service.ItemViewModel
 import org.example.project.service.createNewSale
+import org.example.project.util.decodeBase64ToBitmap
 import java.sql.Timestamp
 import java.time.Instant
 import kotlin.reflect.full.memberProperties
 
 @Composable
-fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
-    val longItemId = itemId?.toLong()
-    val item = longItemId?.let { ItemControllerFake.getItemById(it) }
+fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
+    val uiState by itemViewModel.uiState.collectAsState()
     // Scope
     val coroutineScope = rememberCoroutineScope()
     // Snack bar state
@@ -89,10 +67,9 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                if (item != null) {
+                if (uiState.selectedItem?.images?.isNotEmpty() == true) {
                     // Pager status
-//                    val pagerState = rememberPagerState(pageCount = { item.bitmapImages.size })
-                    val pagerState = rememberPagerState(pageCount = { 12 })
+                    val pagerState = rememberPagerState(pageCount = { uiState.selectedItem!!.images.size })
 
                     // Horizontal pager of items
                     HorizontalPager(
@@ -101,15 +78,15 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                             .fillMaxWidth()
                             .align(Alignment.CenterHorizontally),
                     ) { page ->
-//                        Image(
-//                            painter = BitmapPainter(item.bitmapImages[page]),
-//                            contentDescription = item.description,
-//                            contentScale = ContentScale.Fit,
-//                            modifier = Modifier
-//                                .width(200.dp)
-//                                .padding(20.dp)
-//                                .align(Alignment.CenterHorizontally),
-//                        )
+                        Image(
+                            painter = BitmapPainter(decodeBase64ToBitmap(uiState.selectedItem!!.images[page].base64Image!!)),
+                            contentDescription = uiState.selectedItem!!.item.description,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .width(200.dp)
+                                .padding(20.dp)
+                                .align(Alignment.CenterHorizontally),
+                        )
                     }
 
                     // Button container
@@ -169,7 +146,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                             .padding(16.dp)
                     ) {
                         // Filtrar y agrupar las propiedades de dos en dos
-                        val properties = ItemDto::class.memberProperties
+                        val properties = Item::class.memberProperties
                             .filter { it.name != "base64Images" && it.name != "bitmapImages" }
                             .chunked(2) // Agrupar de 2 en 2
 
@@ -181,7 +158,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                             ) {
                                 pair.forEach { property ->
                                     TableCell(
-                                        text = "${property.name}: ${property.get(item)}",
+                                        text = "${property.name}: ${property.get(uiState.selectedItem!!.item)}",
                                         weight = 1f
                                     )
                                 }
@@ -196,7 +173,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemId: String?) {
                     }
 
                     // Sale view
-                    ModelSale(itemId.toLong(), coroutineScope, snackBarColor, snackbarHostState)
+                    ModelSale(uiState.selectedItem!!.item.itemId, coroutineScope, snackBarColor, snackbarHostState)
                 }
 
                 Button(

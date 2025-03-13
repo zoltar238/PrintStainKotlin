@@ -1,4 +1,4 @@
-package org.example.project.persistence
+package org.example.project.persistence.database
 
 import android.content.Context
 import androidx.datastore.core.DataStore

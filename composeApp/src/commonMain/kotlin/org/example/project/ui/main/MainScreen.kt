@@ -19,7 +19,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
 
     MaterialTheme {
         // Estado que controla el menú seleccionado y el estado del drawer
@@ -90,7 +90,7 @@ fun MainScreen(navController: NavHostController) {
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,
-                            viewModel = ItemViewModel(),
+                            viewModel = itemViewModel,
                         )
                         "Settings" -> SettingsView()
                         "Ner" -> NerTrainingView()

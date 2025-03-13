@@ -1,6 +1,5 @@
-package org.example.project.persistence
+package org.example.project.persistence.database
 
-import androidx.compose.material3.DatePicker
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import org.example.project.PrintStainDatabase

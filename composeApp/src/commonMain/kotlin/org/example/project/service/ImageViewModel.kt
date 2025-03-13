@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.PrintStainDatabase
-import org.example.project.persistence.DriverFactory
-import org.example.project.persistence.repository.ImageDaoImpl
+import org.example.project.persistence.database.DriverFactory
+import org.example.project.persistence.database.ImageDaoImpl
 
 class ImageViewModel : ViewModel() {
 

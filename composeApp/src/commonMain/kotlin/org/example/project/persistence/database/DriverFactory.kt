@@ -1,4 +1,4 @@
-package org.example.project.persistence
+package org.example.project.persistence.database
 
 import app.cash.sqldelight.db.SqlDriver
 import org.example.project.PrintStainDatabase

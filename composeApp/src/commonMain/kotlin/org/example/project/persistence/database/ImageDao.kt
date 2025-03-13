@@ -1,4 +1,4 @@
-package org.example.project.persistence.repository
+package org.example.project.persistence.database
 
 interface ImageDao {
     suspend fun insertImage(

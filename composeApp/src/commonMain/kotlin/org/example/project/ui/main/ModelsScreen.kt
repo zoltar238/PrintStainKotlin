@@ -56,7 +56,7 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
                 if (uiState.success) {
                     uiState.items.forEach { item ->
                         if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
-                            ModelCard(item, navController)
+                            ModelCard(item, navController, viewModel)
                         }
                     }
                 } else {
@@ -91,15 +91,19 @@ fun SearchBar(
 
 // Model individual cards
 @Composable
-fun ModelCard(item: ItemWithRelations, navController: NavHostController) {
+fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
+    val uiState by itemViewModel.uiState.collectAsState()
     Card(
         modifier = Modifier
             .width(200.dp)
             .height(200.dp)
             .padding(10.dp)
             .clickable(onClick = {
-                // change screen and pass item id
-                navController.navigate("model_details_screen/${item.item.itemId}")
+                itemViewModel.getItemById(item.item.itemId)
+                // change screen
+                if (uiState.success and uiState.response.equals("Item selected successfully") && uiState.selectedItem != null) {
+                    navController.navigate("model_details_screen")
+                }
             }),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility

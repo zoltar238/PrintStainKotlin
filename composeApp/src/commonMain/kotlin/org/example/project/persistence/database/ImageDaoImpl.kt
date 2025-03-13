@@ -1,4 +1,4 @@
-package org.example.project.persistence.repository
+package org.example.project.persistence.database
 
 import org.example.project.PrintStainDatabase
 

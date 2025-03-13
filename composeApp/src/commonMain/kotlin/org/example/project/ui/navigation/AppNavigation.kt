@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.runBlocking
+import org.example.project.service.ItemViewModel
 import org.example.project.service.autoLogin
 import org.example.project.ui.auth.AuthScreen
 import org.example.project.ui.main.MainScreen
@@ -14,6 +15,7 @@ import org.example.project.ui.main.ModelDetailsScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val sharedItemViewModel = ItemViewModel()
 
     // Check if login was possible with saved credentials
     var loggedWithPreferences: Boolean
@@ -28,14 +30,14 @@ fun AppNavigation() {
             AuthScreen(navController = navController)
         }
         composable("main_app_view") {
-            MainScreen(navController = navController) // La vista principal después del login
+            MainScreen(
+                navController = navController,
+                itemViewModel = sharedItemViewModel
+            )
         }
-        composable("model_details_screen/{itemId}") {
-            // Transfer item object
-            val itemId = it.arguments?.getString("itemId")
-            if (itemId != null) {
-                ModelDetailsScreen(navController = navController, itemId)
-            }
+        composable("model_details_screen") {
+            ModelDetailsScreen(navController = navController, itemViewModel = sharedItemViewModel)
         }
     }
 }
+
