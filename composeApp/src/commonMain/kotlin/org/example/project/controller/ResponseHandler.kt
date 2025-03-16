@@ -7,11 +7,11 @@ import org.example.project.util.HttpStatusUtil
 import retrofit2.Response
 
 @OptIn(DelicateCoroutinesApi::class)
-fun <T> responseHandler(
+inline fun <reified T> responseHandler(
     process: String,
     processTag: String,
     returnType: String,
-    apiFunction: suspend () -> Response<ResponseApi<T>>,
+    crossinline apiFunction: suspend () -> Response<ResponseApi<T>>,
 ): ResponseApi<T> {
     val deferredResult = CompletableDeferred<ResponseApi<T>>()
 
@@ -101,7 +101,7 @@ fun <T> responseHandler(
 
 // Auxiliary function to create error response
 @Suppress("UNCHECKED_CAST")
-private fun <T> createErrorResponse(response: String, returnType: String): ResponseApi<T> {
+fun <T> createErrorResponse(response: String, returnType: String): ResponseApi<T> {
     return when (returnType) {
         "String" -> ResponseApi(
             false,

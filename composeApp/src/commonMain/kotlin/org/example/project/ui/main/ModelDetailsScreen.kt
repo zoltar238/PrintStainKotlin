@@ -1,206 +1,335 @@
-@file:Suppress("UNREACHABLE_CODE")
-
 package org.example.project.ui.main
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import comexampleproject.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.project.model.dto.SaleDto
+import org.example.project.service.ItemUiState
 import org.example.project.service.ItemViewModel
 import org.example.project.service.createNewSale
+import org.example.project.ui.AppColors
+import org.example.project.ui.component.BenefitSummary
+import org.example.project.ui.component.CurrencyTextField
 import org.example.project.util.decodeBase64ToBitmap
+import java.math.BigDecimal
+import java.text.NumberFormat
 import java.time.OffsetDateTime
-import kotlin.reflect.full.memberProperties
+import java.util.*
 
 @Composable
 fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
     val uiState by itemViewModel.uiState.collectAsState()
     // Scope
     val coroutineScope = rememberCoroutineScope()
-    // Snack bar state
+    // Snack bar
     val snackbarHostState = remember { SnackbarHostState() }
-    // Initial snack-bar color
-    val color = MaterialTheme.colors.primary
-    val snackBarColor = remember { mutableStateOf(color) }
+    val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
+    // Scroll state
+    val scrollState = rememberScrollState()
 
     MaterialTheme {
-        // Scaffold to host snack bar
-        Scaffold(snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    backgroundColor = snackBarColor.value,
-                    contentColor = MaterialTheme.colors.onPrimary,
-                    elevation = 5.dp
-                )
-            }
-        }) {
+        // Scaffold
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        backgroundColor = snackBarColor.value,
+                        contentColor = MaterialTheme.colors.onPrimary,
+                        elevation = 8.dp
+                    )
+                }
+            },
+            backgroundColor = AppColors.backgroundColor
+        ) {
             Column(
-                Modifier.fillMaxWidth().padding(16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top
             ) {
                 if (uiState.selectedItem?.images?.isNotEmpty() == true) {
-                    // Pager status
-                    val pagerState = rememberPagerState(pageCount = { uiState.selectedItem!!.images.size })
-
-                    // Horizontal pager of items
-                    HorizontalPager(
-                        state = pagerState,
+                    // Image Gallery Card
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.CenterHorizontally),
-                    ) { page ->
-                        Image(
-                            painter = BitmapPainter(decodeBase64ToBitmap(uiState.selectedItem!!.images[page].base64Image!!)),
-                            contentDescription = uiState.selectedItem!!.item.description,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .width(200.dp)
-                                .padding(20.dp)
-                                .align(Alignment.CenterHorizontally),
-                        )
-                    }
-
-                    // Button container
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.Center
+                            .padding(vertical = 16.dp),
+                        elevation = 4.dp,
+                        backgroundColor = AppColors.surfaceColor,
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-
-                        // "Previous" button
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .background(Color.Blue, shape = CircleShape)
-                                .clickable {
-                                    coroutineScope.launch {
-                                        // Scroll to the previous item
-                                        pagerState.scrollToPage(pagerState.currentPage - 1)
-                                    }
-                                }
-                                .padding(12.dp)
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Previous",
-                                tint = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
+                            // Title
+                            Text(
+                                text = uiState.selectedItem?.item?.name ?: "Product Details",
+                                style = MaterialTheme.typography.h6,
+                                fontWeight = FontWeight.Bold,
+                                color = AppColors.textOnPrimaryColor,
+                                modifier = Modifier.padding(bottom = 16.dp)
                             )
-                        }
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                            // Pager status with indicator
+                            val pagerState = rememberPagerState(pageCount = { uiState.selectedItem!!.images.size })
 
-                        //"Next" button
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .background(Color.Blue, shape = CircleShape)
-                                .clickable {
-                                    coroutineScope.launch {
-                                        // Scroll to the next item
-                                        pagerState.scrollToPage(pagerState.currentPage + 1)
-                                    }
-                                }
-                                .padding(12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Next",
-                                tint = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
+                            // Image counter
+                            Text(
+                                text = "${pagerState.currentPage + 1}/${uiState.selectedItem!!.images.size}",
+                                style = MaterialTheme.typography.caption,
+                                color = AppColors.textOnBackgroundSecondaryColor,
+                                modifier = Modifier.padding(bottom = 8.dp)
                             )
-                        }
-                    }
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(16.dp)
-                    ) {
-                        // Filtrar y agrupar las propiedades de dos en dos
-                        val properties = Item::class.memberProperties
-                            .filter { it.name != "base64Images" && it.name != "bitmapImages" }
-                            .chunked(2) // Agrupar de 2 en 2
 
-                        // Iterar sobre los pares
-                        items(properties) { pair ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                            // Horizontal pager with improved image display
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp)
+                                    .background(
+                                        color = AppColors.secondaryBackgroundColor,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .padding(8.dp)
                             ) {
-                                pair.forEach { property ->
-                                    TableCell(
-                                        text = "${property.name}: ${property.get(uiState.selectedItem!!.item)}",
-                                        weight = 1f
+                                HorizontalPager(
+                                    state = pagerState,
+                                    modifier = Modifier.fillMaxSize(),
+                                ) { page ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(8.dp)
+                                    ) {
+                                        Image(
+                                            painter = BitmapPainter(decodeBase64ToBitmap(uiState.selectedItem!!.images[page].base64Image!!)),
+                                            contentDescription = uiState.selectedItem!!.item.description,
+                                            contentScale = ContentScale.Fit,
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(8.dp))
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Horizontal dots indicator
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                repeat(pagerState.pageCount) { iteration ->
+                                    val color = if (pagerState.currentPage == iteration)
+                                        AppColors.accentColor else AppColors.secondaryColor.copy(alpha = 0.5f)
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(4.dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                            .size(8.dp)
+                                            .clickable {
+                                                coroutineScope.launch {
+                                                    pagerState.scrollToPage(iteration)
+                                                }
+                                            }
                                     )
                                 }
-                                if (pair.size < 2) {
-                                    TableCell(
-                                        text = "",
-                                        weight = 1f
+                            }
+
+                            // Navigation buttons with improved styling
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                // "Previous" button
+                                OutlinedButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            if (pagerState.currentPage > 0) {
+                                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                            } else {
+                                                // Loop to the last page
+                                                pagerState.animateScrollToPage(pagerState.pageCount - 1)
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        backgroundColor = AppColors.primaryColor.copy(alpha = 0.2f),
+                                        contentColor = AppColors.textOnPrimaryColor
+                                    ),
+                                    border = BorderStroke(0.dp, Color.Transparent)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Previous",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Previous")
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                                // "Next" button
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            if (pagerState.currentPage < pagerState.pageCount - 1) {
+                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            } else {
+                                                // Loop to the first page
+                                                pagerState.animateScrollToPage(0)
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = AppColors.primaryColor,
+                                        contentColor = Color.White
                                     )
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text("Next")
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                            contentDescription = "Next",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
 
-                    // Sale view
+                    // Product info block
+                    infoBlock(uiState)
+
+                    // Sale view with updated styling
                     ModelSale(uiState.selectedItem!!.item.itemId, coroutineScope, snackBarColor, snackbarHostState)
                 }
 
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Back button with improved styling
                 Button(
                     onClick = { navController.navigate("main_app_view") },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.secondaryColor,
+                        contentColor = AppColors.textOnSecondaryColor
+                    )
                 ) {
-                    Text("Go back")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Go back",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Return to Products", style = MaterialTheme.typography.button)
+                    }
                 }
             }
         }
-
     }
 }
 
 @Composable
-fun RowScope.TableCell(
-    text: String,
-    weight: Float,
-) {
-    Text(
-        text = text,
-        Modifier
-            .border(1.dp, Color.Black)
-            .weight(weight)
-            .padding(8.dp)
-    )
+private fun infoBlock(uiState: ItemUiState) {
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Text(
+            text = "${uiState.selectedItem!!.item.name}",
+            color = AppColors.textOnBackgroundColor,
+            modifier = Modifier.padding(top = 8.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "${uiState.selectedItem.item.description}",
+            color = AppColors.textOnBackgroundSecondaryColor,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Divider(
+            color = Color.Gray,
+            thickness = 2.dp,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Text(
+            text = "Poster:",
+            color = AppColors.textOnBackgroundColor,
+            modifier = Modifier.padding(top = 8.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "${uiState.selectedItem.person?.name}",
+            color = AppColors.textOnBackgroundColor,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Divider(
+            color = Color.Gray,
+            thickness = 2.dp,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Text(
+            text = "Additional info:",
+            color = AppColors.textOnBackgroundColor,
+            modifier = Modifier.padding(top = 8.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Published on: ${uiState.selectedItem.item.postDate}",
+            color = AppColors.textOnBackgroundColor,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+    }
 }
-
 @Composable
 fun ModelSale(
     itemId: Long,
@@ -211,108 +340,102 @@ fun ModelSale(
     // Variables
     var cost by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    // SnackBarColors
-    val primaryColor = MaterialTheme.colors.primary
-    val errorColor = MaterialTheme.colors.error
+    // Currency format
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
 
     Column(
-        Modifier.fillMaxWidth().padding(16.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        OutlinedTextField(
+        // Cost field
+        CurrencyTextField(
             value = cost,
-            onValueChange = { newText ->
-                // Validar que el texto solo contenga números y un punto decimal
-                if (newText.isEmpty() || newText.matches("^[0-9]*\\.?[0-9]*$".toRegex())) {
-                    // Asegurarse de que tenga dos decimales
-                    var formattedText = newText
-
-                    // Si tiene un punto decimal, asegurarse de que haya dos decimales
-                    if (formattedText.contains(".")) {
-                        val parts = formattedText.split(".")
-                        if (parts.size == 2) {
-                            // Limitar la parte decimal a dos decimales
-                            val decimalPart = parts[1].take(2)
-                            formattedText = "${parts[0]}.$decimalPart"
-                        }
-                    } else {
-                        // Si no hay punto decimal, añadir .00
-                        formattedText = "$formattedText.00"
-                    }
-
-                    // Actualizar el valor del texto con el formato
-                    cost = formattedText
-                }
-            },
-            label = { Text("Cost") },
-            placeholder = { Text("0.00") },
-            singleLine = true,
-            // Show only number keyboard
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            )
+            onValueChange = { cost = it },
+            label = "Cost"
         )
 
-        // Price text field
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Price field
+        CurrencyTextField(
             value = price,
-            onValueChange = { newText ->
-                // Validar que el texto solo contenga números y un punto decimal
-                if (newText.isEmpty() || newText.matches("^[0-9]*\\.?[0-9]*$".toRegex())) {
-                    // Asegurarse de que tenga dos decimales
-                    var formattedText = newText
-
-                    // Si tiene un punto decimal, asegurarse de que haya dos decimales
-                    if (formattedText.contains(".")) {
-                        val parts = formattedText.split(".")
-                        if (parts.size == 2) {
-                            // Limitar la parte decimal a dos decimales
-                            val decimalPart = parts[1].take(2)
-                            formattedText = "${parts[0]}.$decimalPart"
-                        }
-                    } else {
-                        // Si no hay punto decimal, añadir .00
-                        formattedText = "$formattedText.00"
-                    }
-
-                    // Actualizar el valor del texto con el formato
-                    price = formattedText
-                }
-            },
-            label = { Text("Price") },
-            placeholder = { Text("0.00") },
-            singleLine = true,
-            // Show only number keyboard
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            )
+            onValueChange = { price = it },
+            label = "Price"
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Summary
+        if (cost.isNotEmpty() || price.isNotEmpty()) {
+            BenefitSummary(
+                cost = cost,
+                price = price,
+                currencyFormat = currencyFormat
+            )
+        }
     }
 
+    Spacer(modifier = Modifier.height(16.dp))
+
     Button(
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = AppColors.primaryColor,
+            contentColor = AppColors.textOnPrimaryColor
+        ),
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .height(48.dp),
+        shape = RoundedCornerShape(12.dp),
         onClick = {
             scope.launch {
-                val saleDto: SaleDto = SaleDto(
-                    cost = cost.toBigDecimal(),
-                    price = price.toBigDecimal(),
-                    itemId = itemId,
-                    date = OffsetDateTime.now()
-                )
+                try {
+                    val costDecimal = cost.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                    val priceDecimal = price.toBigDecimalOrNull() ?: BigDecimal.ZERO
 
-                val serverResponse = createNewSale(saleDto)
-                if (!serverResponse.success) {
-                    color.value = errorColor
-                } else {
-                    color.value = primaryColor
+                    val saleDto = SaleDto(
+                        cost = costDecimal,
+                        price = priceDecimal,
+                        itemId = itemId,
+                        date = OffsetDateTime.now()
+                    )
+
+                    val serverResponse = createNewSale(saleDto)
+                    color.value = if (serverResponse.success) AppColors.successColor else AppColors.errorColor
+                    snackbarHostState.showSnackbar(
+                        message = serverResponse.data,
+                        duration = SnackbarDuration.Short
+                    )
+
+                    // Limpiar campos después de éxito
+                    if (serverResponse.success) {
+                        cost = ""
+                        price = ""
+                    }
+                } catch (e: Exception) {
+                    color.value = AppColors.errorColor
+                    snackbarHostState.showSnackbar(
+                        message = "Error: ${e.message ?: "Unknown error"}",
+                        duration = SnackbarDuration.Short
+                    )
                 }
-                snackbarHostState.showSnackbar(
-                    message = serverResponse.data,
-                    duration = SnackbarDuration.Short
-                )
             }
         },
     ) {
-        Text("Add sale")
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCart,
+                contentDescription = "Add sale",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add Sale", fontWeight = FontWeight.Medium)
+        }
     }
 }
+

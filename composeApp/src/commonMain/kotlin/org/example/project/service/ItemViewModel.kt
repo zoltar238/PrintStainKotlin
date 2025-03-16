@@ -26,7 +26,7 @@ data class ItemUiState(
     val success: Boolean = true,
 )
 
-class ItemViewModel() : ViewModel() {
+class ItemViewModel : ViewModel() {
 
     private val db: DriverFactory = DriverFactory()
     private val database = PrintStainDatabase.invoke(driver = db.createDriver())
@@ -117,7 +117,6 @@ class ItemViewModel() : ViewModel() {
                                 item_id = item.itemId
                             )
                         }
-                        println(item.person?.personId)
                         personViewModel.insertPerson(
                             item.person?.personId!!,
                             item.person.name!!

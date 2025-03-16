@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.ItemViewModel
+import org.example.project.ui.AppColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -80,7 +81,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
                             )
                         },
                         title = { Text("PrintStain - $selectedView") },
-                        backgroundColor = MaterialTheme.colors.primary
+                        backgroundColor = AppColors.tertiaryColor
                     )
                 },
                 content = {
