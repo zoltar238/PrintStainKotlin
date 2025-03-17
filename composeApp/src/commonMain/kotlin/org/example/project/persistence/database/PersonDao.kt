@@ -2,7 +2,7 @@ package org.example.project.persistence.database
 
 interface PersonDao {
 
-    fun insertPerson(
+    suspend fun insertPerson(
         personId: Long,
         name: String?,
     )

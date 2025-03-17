@@ -40,7 +40,7 @@ import java.util.*
 
 @Composable
 fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
-    val uiState by itemViewModel.uiState.collectAsState()
+    val uiState by itemViewModel.itemUiState.collectAsState()
     // Scope
     val coroutineScope = rememberCoroutineScope()
     // Snack bar
@@ -330,6 +330,7 @@ private fun infoBlock(uiState: ItemUiState) {
         )
     }
 }
+
 @Composable
 fun ModelSale(
     itemId: Long,

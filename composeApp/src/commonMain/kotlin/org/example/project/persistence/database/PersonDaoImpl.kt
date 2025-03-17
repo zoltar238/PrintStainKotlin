@@ -6,7 +6,7 @@ class PersonDaoImpl(db: PrintStainDatabase) : PersonDao {
 
     val query = db.personEntityQueries
 
-    override fun insertPerson(personId: Long, name: String?) {
+    override suspend fun insertPerson(personId: Long, name: String?) {
         query.insertOrReplacePerson(
             personId = personId,
             name = name

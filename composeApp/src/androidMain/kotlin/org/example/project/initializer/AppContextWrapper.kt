@@ -14,6 +14,6 @@ internal class ContextInitializer : Initializer<Context> {
             AppContextWrapper.appContext = it
         }
 
-    override  fun dependencies(): MutableList<Class<out Initializer<*>>> = mutableListOf()
+    override fun dependencies(): MutableList<Class<out Initializer<*>>> = mutableListOf()
 
 }

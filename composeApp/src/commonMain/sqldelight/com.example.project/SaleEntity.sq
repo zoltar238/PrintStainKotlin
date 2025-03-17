@@ -1,0 +1,25 @@
+CREATE TABLE Sale (
+    saleId INTEGER PRIMARY KEY,
+    date TEXT,
+    cost REAL,
+    price REAl,
+    itemId INTEGER,
+    FOREIGN KEY (itemId) REFERENCES Item(itemId)
+);
+
+-- Create or replace sale
+insertOrReplaceSale:
+INSERT OR REPLACE INTO Sale (
+    saleId,
+    date,
+    cost,
+    price,
+    itemId)
+VALUES(?, ?, ?, ?, ?);
+
+-- Get all sales
+selectAllSales:
+SELECT
+    s.*
+FROM Sale s
+LEFT JOIN Item i ON s.itemId = i.itemId;

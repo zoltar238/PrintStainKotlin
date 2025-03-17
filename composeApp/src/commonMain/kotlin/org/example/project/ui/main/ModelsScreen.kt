@@ -40,7 +40,7 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
     // Searchbar value
     var searchValue by remember { mutableStateOf("") }
     // Database flow
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.itemUiState.collectAsState()
     // Scaffold
     val snackbarHostState = remember { SnackbarHostState() }
     val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
@@ -171,7 +171,7 @@ fun SearchBar(
 // Model individual cards
 @Composable
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
-    val uiState by itemViewModel.uiState.collectAsState()
+    val uiState by itemViewModel.itemUiState.collectAsState()
     Card(
         modifier = Modifier
             .width(200.dp)

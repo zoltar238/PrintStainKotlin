@@ -50,7 +50,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
             .map { (itemId, rows) ->
                 val firstRow = rows.first()
 
-                // Mapear el Item
+                // Map Item
                 val item = Item(
                     itemId = itemId,
                     name = firstRow.name,
@@ -65,17 +65,17 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
 
                 println("Item id: ${item.itemId}")
 
-                // Mapear la Persona (relación uno a uno)
+                // Map person
                 val person = firstRow.person_personId?.let {
                     Person(
                         personId = it,
-                        name = firstRow.person_name ?: ""
+                        name = firstRow.person_name ?: "",
                     )
                 }
 
                 println("Person name: ${person?.name}")
 
-                // Mapear las Imágenes (relación uno a muchos)
+                // Map images
                 val images = rows.mapNotNull { row ->
                     row.image_id?.let { imageId ->
                         Image(

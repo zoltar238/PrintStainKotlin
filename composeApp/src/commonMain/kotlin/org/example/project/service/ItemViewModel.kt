@@ -12,7 +12,6 @@ import org.example.project.logging.AppLogger
 import org.example.project.logging.ProcessTags
 import org.example.project.logging.ServiceTags
 import org.example.project.model.dto.ItemWithRelations
-import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.ItemDao
 import org.example.project.persistence.database.ItemDaoImpl
 import org.example.project.persistence.preferences.PreferencesManager
@@ -26,18 +25,16 @@ data class ItemUiState(
     val success: Boolean = true,
 )
 
-class ItemViewModel : ViewModel() {
+class ItemViewModel(database: PrintStainDatabase) : ViewModel() {
 
-    private val db: DriverFactory = DriverFactory()
-    private val database = PrintStainDatabase.invoke(driver = db.createDriver())
     private val itemDao: ItemDao = ItemDaoImpl(database)
 
-    private val _uiState = MutableStateFlow(ItemUiState(isLoading = true))
-    val uiState: StateFlow<ItemUiState> = _uiState.asStateFlow()
+    private val _itemUiState = MutableStateFlow(ItemUiState(isLoading = true))
+    val itemUiState: StateFlow<ItemUiState> = _itemUiState.asStateFlow()
 
     // Auxiliary view models
-    private val imageViewModel = ImageViewModel()
-    private val personViewModel = PersonViewModel()
+    private val imageViewModel = ImageViewModel(database)
+    private val personViewModel = PersonViewModel(database)
 
     init {
         getAllItems()
@@ -46,20 +43,20 @@ class ItemViewModel : ViewModel() {
     fun getItemById(id: Long) {
         viewModelScope.launch(Dispatchers.Default) {
             try {
-                _uiState.update { it.copy(isLoading = true) }
+                _itemUiState.update { it.copy(isLoading = true) }
 
                 // Select item from the list
-                _uiState.update {
+                _itemUiState.update {
                     it.copy(
                         isLoading = false,
                         response = "Item selected successfully",
                         success = true,
-                        selectedItem = _uiState.value.items.first { individualItem ->
+                        selectedItem = _itemUiState.value.items.first { individualItem ->
                             individualItem.item.itemId == id
                         })
                 }
             } catch (e: Exception) {
-                _uiState.update {
+                _itemUiState.update {
                     it.copy(
                         isLoading = false,
                         success = false,
@@ -75,7 +72,7 @@ class ItemViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Default) {
             try {
                 // Update state to loading
-                _uiState.update { it.copy(isLoading = true, response = null) }
+                _itemUiState.update { it.copy(isLoading = true, response = null) }
 
                 // Obtain token
                 val token = PreferencesManager.getToken()
@@ -89,7 +86,7 @@ class ItemViewModel : ViewModel() {
 
                 if (!serverResponse.success) {
                     // Update state with the newly received items
-                    _uiState.update {
+                    _itemUiState.update {
                         it.copy(
                             isLoading = false,
                             response = serverResponse.response,
@@ -127,7 +124,7 @@ class ItemViewModel : ViewModel() {
                     val localItems = itemDao.getAllItemsWithRelation().first()
 
                     // Update state with the newly received items
-                    _uiState.update {
+                    _itemUiState.update {
                         it.copy(
                             items = localItems,
                             isLoading = false,
@@ -142,14 +139,14 @@ class ItemViewModel : ViewModel() {
                     ProcessTags.HTTP_REQUEST_STARTED.name,
                     """
                         Process: ${ServiceTags.GET_ALL_ITEMS.name}.
-                        Status: Attempting connection.
+                        Status: Internal sql error loading all items.
                     """.trimIndent(),
                     e
                 )
-                _uiState.update {
+                _itemUiState.update {
                     it.copy(
                         isLoading = false,
-                        response = "Error: ${e.message}",
+                        response = "Error: ${e.localizedMessage}",
                         success = false
                     )
                 }

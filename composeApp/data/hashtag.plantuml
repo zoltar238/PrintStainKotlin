@@ -1,0 +1,86 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class hashtag {
+   name: varchar(80)
+   hashtag_id: bigint
+}
+class image {
+   item_id: bigint
+   url: varchar(255)
+   link: varchar(255)
+   image_id: bigint
+}
+class item {
+   cost: numeric(6,2)
+   times_uploaded: integer
+   finish_date: timestamp(6)
+   post_date: timestamp(6)
+   ship_date: timestamp(6)
+   start_date: timestamp(6)
+   name: varchar(80)
+   description: varchar(340)
+   person_id: bigint
+   link: varchar(255)
+   item_id: bigint
+}
+class item_hashtag {
+   hashtag_id: bigint
+   item_id: bigint
+}
+class person {
+   create_date: timestamp(6)
+   email: varchar(80)
+   name: varchar(80)
+   surname: varchar(80)
+   username: varchar(80)
+   password: varchar(255)
+   person_id: bigint
+}
+class person_role {
+   person_id: bigint
+   role_id: bigint
+}
+class person_sale {
+   person_id: bigint
+   sale_id: bigint
+}
+class piece {
+   scale: integer
+   item_id: bigint
+   status_id: bigint
+   name: varchar(80)
+   piece_id: bigint
+}
+class role {
+   description: varchar(200)
+   name: varchar(255)
+   role_id: bigint
+}
+class sale {
+   date: timestamp(6)
+   item_id: bigint
+   cost: numeric(6,2)
+   price: numeric(6,2)
+   sale_id: bigint
+}
+class status {
+   name: varchar(255)
+   status_id: bigint
+}
+
+image         -[#595959,plain]-^  item         : "item_id"
+item          -[#595959,plain]-^  person       : "person_id"
+item_hashtag  -[#595959,plain]-^  hashtag      : "hashtag_id"
+item_hashtag  -[#595959,plain]-^  item         : "item_id"
+person_role   -[#595959,plain]-^  person       : "person_id"
+person_role   -[#595959,plain]-^  role         : "role_id"
+person_sale   -[#595959,plain]-^  person       : "person_id"
+person_sale   -[#595959,plain]-^  sale         : "sale_id"
+piece         -[#595959,plain]-^  item         : "item_id"
+piece         -[#595959,plain]-^  status       : "status_id"
+sale          -[#595959,plain]-^  item         : "item_id"
+@enduml

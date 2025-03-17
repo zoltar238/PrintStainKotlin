@@ -123,6 +123,7 @@ fun RegisterScreen(
                                 )
                             }
                         }
+
                         !passwordCoincide -> {
                             snackBarScope.launch {
                                 snackBarColor.value = AppColors.errorColor
@@ -132,6 +133,7 @@ fun RegisterScreen(
                                 )
                             }
                         }
+
                         !isEmailValid -> {
                             snackBarScope.launch {
                                 snackBarColor.value = AppColors.errorColor
@@ -141,6 +143,7 @@ fun RegisterScreen(
                                 )
                             }
                         }
+
                         else -> {
                             isLoading = true
                             snackBarScope.launch {

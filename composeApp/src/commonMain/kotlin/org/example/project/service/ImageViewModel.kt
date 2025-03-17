@@ -5,13 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.PrintStainDatabase
-import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.ImageDaoImpl
 
-class ImageViewModel : ViewModel() {
+class ImageViewModel(database: PrintStainDatabase) : ViewModel() {
 
-    private val db: DriverFactory = DriverFactory()
-    private val database = PrintStainDatabase.invoke(driver = db.createDriver())
     private val imageDao = ImageDaoImpl(database)
 
     fun insertImage(

@@ -5,20 +5,21 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.PrintStainDatabase
-import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.PersonDao
 import org.example.project.persistence.database.PersonDaoImpl
 
-class PersonViewModel : ViewModel() {
+class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
 
-    private val db: DriverFactory = DriverFactory()
-    private val database = PrintStainDatabase.invoke(driver = db.createDriver())
     private val personDao: PersonDao = PersonDaoImpl(database)
+
+//    fun loginPerson(
+//
+//    )
 
     fun insertPerson(
         personId: Long,
-        name: String)
-    {
+        name: String,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             personDao.insertPerson(
                 personId = personId,

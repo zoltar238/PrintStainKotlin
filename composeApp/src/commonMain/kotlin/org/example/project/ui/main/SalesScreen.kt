@@ -1,48 +1,25 @@
 package org.example.project.ui.main
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.netguru.multiplatform.charts.ChartAnimation
-import com.netguru.multiplatform.charts.bar.BarChart
-import com.netguru.multiplatform.charts.bar.BarChartCategory
-import com.netguru.multiplatform.charts.bar.BarChartConfig
-import com.netguru.multiplatform.charts.bar.BarChartData
-import com.netguru.multiplatform.charts.bar.BarChartEntry
-import org.example.project.controller.SaleControllerFake
-import org.example.project.model.dto.AllSalesDto
+import com.netguru.multiplatform.charts.bar.*
+import comexampleproject.Sale
+import org.example.project.service.SaleViewModel
 import kotlin.random.Random
 
 @Composable
-fun SalesScreen() {
+fun SalesScreen(saleViewModel: SaleViewModel) {
     // Load sale data
-    if (SaleControllerFake.allSales.isEmpty()) {
-        SaleControllerFake.findAllSalesController()
-    }
-    println(SaleControllerFake.allSales[0].saleId)
+    val saleUiState by saleViewModel.saleUiState.collectAsState()
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -51,15 +28,15 @@ fun SalesScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            DropdownMenuExample()
-            LineChartExample(SaleControllerFake.allSales)
+            DropdownMenu()
+            LineChartExample(saleUiState.sales)
             Text("Esta es la vista de Ventas")
         }
     }
 }
 
 @Composable
-fun DropdownMenuExample() {
+fun DropdownMenu() {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Selecciona una opción") }
 
@@ -119,7 +96,7 @@ fun DropdownMenuExample() {
 }
 
 @Composable
-fun LineChartExample(sales: List<AllSalesDto>) {
+fun LineChartExample(sales: List<Sale>) {
     val barChartData = BarChartData(
         categories = sales.groupBy { it.saleId ?: "Unknown" }.map { (saleId, salesList) ->
             BarChartCategory(
@@ -127,7 +104,8 @@ fun LineChartExample(sales: List<AllSalesDto>) {
                 entries = salesList.map { sale ->
                     BarChartEntry(
                         //x = sale.date.toString().substring(0, sale.date.toString().lastIndexOf(" ")) + "\n",
-                        x = sale.itemName.toString(),
+                        // Todo: implement item names
+                        x = "randomItemName",
                         y = sale.price?.toFloat() ?: 0f, // Valor del precio
                         color = Color(
                             Random.nextInt(256),

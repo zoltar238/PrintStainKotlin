@@ -7,7 +7,7 @@ import org.example.project.initializer.AppContextWrapper
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class DriverFactory actual constructor() {
-    actual fun createDriver(): SqlDriver {
+    actual suspend fun createDriver(): SqlDriver {
         return AndroidSqliteDriver(PrintStainDatabase.Schema, AppContextWrapper.appContext!!, DB_NAME)
     }
 }

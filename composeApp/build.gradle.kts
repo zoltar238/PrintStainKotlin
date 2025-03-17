@@ -165,6 +165,8 @@ sqldelight {
     databases {
         create("PrintStainDatabase") {
             packageName.set("org.example.project")
+            version = 4
+            generateAsync.set(true)
         }
     }
 }

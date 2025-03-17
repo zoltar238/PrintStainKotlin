@@ -7,12 +7,12 @@ import java.io.File
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class DriverFactory actual constructor() {
-    actual fun createDriver(): SqlDriver {
+    actual suspend fun createDriver(): SqlDriver {
         val dbFilePath: String = getPath(isDebug = false)
         val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:${dbFilePath}")
 
         if (!File(dbFilePath).exists()) {
-            PrintStainDatabase.Schema.create(driver)
+            PrintStainDatabase.Schema.create(driver).await()
         }
 
         return driver

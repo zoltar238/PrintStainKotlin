@@ -12,7 +12,6 @@ import org.example.project.persistence.preferences.createDataStore
 import org.example.project.ui.navigation.AppNavigation
 
 
-
 fun main() = application {
 
     // Initialize preferences datastore

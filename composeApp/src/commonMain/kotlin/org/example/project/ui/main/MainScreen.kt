@@ -15,12 +15,13 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesManager
 import org.example.project.service.ItemViewModel
+import org.example.project.service.SaleViewModel
 import org.example.project.ui.AppColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
+fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, saleViewModel: SaleViewModel) {
 
     MaterialTheme {
         // Estado que controla el menú seleccionado y el estado del drawer
@@ -87,12 +88,13 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
                 content = {
                     // Pantalla principal según la vista seleccionada
                     when (selectedView) {
-                        "Sales" -> SalesScreen()
+                        "Sales" -> SalesScreen(saleViewModel)
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,
                             viewModel = itemViewModel,
                         )
+
                         "Settings" -> SettingsView()
                         "Ner" -> NerTrainingView()
                     }

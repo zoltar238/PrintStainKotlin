@@ -8,9 +8,9 @@ val DB_NAME = "printStainDatabase.db"
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect class DriverFactory() {
-    fun createDriver(): SqlDriver
+    suspend fun createDriver(): SqlDriver
 }
 
-fun createDatabase(driverFactory: DriverFactory): PrintStainDatabase {
+suspend fun createDatabase(driverFactory: DriverFactory): PrintStainDatabase {
     return PrintStainDatabase(driverFactory.createDriver())
 }
