@@ -5,9 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.first
 
-object PreferencesManager : PreferencesManagerContract {
+object PreferencesDaoImpl : PreferencesDao {
 
-    // TODO: Add deletion of user credentials
     private lateinit var pref: DataStore<Preferences>
 
     // Initialize dataStore
@@ -27,13 +26,13 @@ object PreferencesManager : PreferencesManagerContract {
     }
 
     // Save username
-    suspend fun saveUsername(username: String) = saveData(AuthPreferenceKeys.USERNAME_KEY, username)
+    suspend fun saveUsername(username: String) = saveData(PreferenceKeys.USERNAME_KEY, username)
 
     // Save password
-    suspend fun savePassword(password: String) = saveData(AuthPreferenceKeys.PASSWORD_KEY, password)
+    suspend fun savePassword(password: String) = saveData(PreferenceKeys.PASSWORD_KEY, password)
 
     // Save token
-    suspend fun saveToken(token: String) = saveData(AuthPreferenceKeys.TOKEN_KEY, token)
+    suspend fun saveToken(token: String) = saveData(PreferenceKeys.TOKEN_KEY, token)
 
 
     // #######################################################
@@ -47,13 +46,13 @@ object PreferencesManager : PreferencesManagerContract {
     }
 
     // Read username
-    suspend fun getUsername(): String? = getPreference(AuthPreferenceKeys.USERNAME_KEY)
+    suspend fun getUsername(): String? = getPreference(PreferenceKeys.USERNAME_KEY)
 
     // Read password
-    suspend fun getPassword(): String? = getPreference(AuthPreferenceKeys.PASSWORD_KEY)
+    suspend fun getPassword(): String? = getPreference(PreferenceKeys.PASSWORD_KEY)
 
     // Read token
-    suspend fun getToken(): String? = getPreference(AuthPreferenceKeys.TOKEN_KEY)
+    suspend fun getToken(): String? = getPreference(PreferenceKeys.TOKEN_KEY)
 
 
     // #######################################################
@@ -63,7 +62,7 @@ object PreferencesManager : PreferencesManagerContract {
     // Delete token
     suspend fun clearToken() {
         pref.edit { preferences ->
-            preferences.remove(AuthPreferenceKeys.TOKEN_KEY)
+            preferences.remove(PreferenceKeys.TOKEN_KEY)
         }
     }
 

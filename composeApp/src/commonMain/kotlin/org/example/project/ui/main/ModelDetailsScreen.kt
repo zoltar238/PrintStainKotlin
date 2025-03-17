@@ -26,13 +26,13 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.project.model.dto.SaleDto
-import org.example.project.service.ItemUiState
-import org.example.project.service.ItemViewModel
-import org.example.project.service.createNewSale
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.BenefitSummary
 import org.example.project.ui.component.CurrencyTextField
 import org.example.project.util.decodeBase64ToBitmap
+import org.example.project.viewModel.ItemUiState
+import org.example.project.viewModel.ItemViewModel
+import org.example.project.viewModel.createNewSale
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.OffsetDateTime

@@ -13,7 +13,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.netguru.multiplatform.charts.ChartAnimation
 import com.netguru.multiplatform.charts.bar.*
 import comexampleproject.Sale
-import org.example.project.service.SaleViewModel
+import org.example.project.viewModel.SaleViewModel
 import kotlin.random.Random
 
 @Composable

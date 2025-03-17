@@ -24,37 +24,37 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemWithRelations
-import org.example.project.service.ItemViewModel
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
+import org.example.project.ui.component.SnackBarComponent
 import org.example.project.util.decodeBase64ToBitmap
+import org.example.project.viewModel.ItemViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
+fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
     // Scrollbar status
     val scrollState = rememberScrollState()
     // Searchbar value
     var searchValue by remember { mutableStateOf("") }
     // Database flow
-    val uiState by viewModel.itemUiState.collectAsState()
+    val itemUiState by itemViewModel.itemUiState.collectAsState()
     // Scaffold
     val snackbarHostState = remember { SnackbarHostState() }
     val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
 
     // Change color based on state
-    LaunchedEffect(uiState.success) {
-        snackBarColor.value = if (uiState.success) AppColors.primaryColor else AppColors.errorColor
+    LaunchedEffect(itemUiState.success) {
+        snackBarColor.value = if (itemUiState.success) AppColors.primaryColor else AppColors.errorColor
     }
 
     // Show snackbar when response changes
-    LaunchedEffect(uiState.response) {
-        if (!uiState.isLoading && uiState.response != null && uiState.response != "Item selected successfully") {
+    LaunchedEffect(itemUiState.response) {
+        if (!itemUiState.isLoading && itemUiState.response != null && itemUiState.response != "Item selected successfully") {
             snackbarHostState.showSnackbar(
-                message = uiState.response!!,
+                message = itemUiState.response!!,
                 duration = SnackbarDuration.Short
             )
         }
@@ -88,7 +88,7 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
                     }
                 }
             ) { paddingValues ->
-                if (uiState.isLoading) {
+                if (itemUiState.isLoading) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -112,35 +112,24 @@ fun ModelsScreen(navController: NavHostController, viewModel: ItemViewModel) {
                                 .fillMaxSize(),
                             overflow = FlowRowOverflow.Visible
                         ) {
-                            if (uiState.success) {
-                                uiState.items.forEach { item ->
+                            if (itemUiState.success) {
+                                itemUiState.items.forEach { item ->
                                     if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
-                                        ModelCard(item, navController, viewModel)
+                                        ModelCard(item, navController, itemViewModel)
                                     }
                                 }
                             } else {
-                                Text(uiState.response ?: "Unknown error")
+                                Text(itemUiState.response ?: "Unknown error")
                             }
                         }
                     }
                 }
             }
 
-            // Snackbar on top of the screen
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
-                    .zIndex(3f),
-                snackbar = { data ->
-                    Snackbar(
-                        snackbarData = data,
-                        backgroundColor = snackBarColor.value,
-                        contentColor = MaterialTheme.colors.onPrimary,
-                        elevation = 5.dp
-                    )
-                }
+            // Snackbar
+            SnackBarComponent(
+                snackbarHostState = snackbarHostState,
+                snackBarColor = snackBarColor
             )
         }
     }

@@ -1,4 +1,4 @@
-package org.example.project.service
+package org.example.project.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

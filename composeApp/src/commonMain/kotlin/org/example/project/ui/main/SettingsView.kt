@@ -6,7 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 
 @Composable
 fun SettingsView() {
@@ -17,7 +17,7 @@ fun SettingsView() {
         // Button for deleting all preferences
         Button(onClick = {
             scope.launch {
-                PreferencesManager.deleteAllPreferences()
+                PreferencesDaoImpl.deleteAllPreferences()
             }
         }) {
             Text("Delete all saved data")

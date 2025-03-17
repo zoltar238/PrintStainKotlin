@@ -17,7 +17,6 @@ inline fun <reified T> responseHandler(
 
     GlobalScope.launch(Dispatchers.IO) {
         try {
-            // Connect to server
             AppLogger.i(
                 processTag,
                 """Process: $process.
@@ -26,55 +25,60 @@ inline fun <reified T> responseHandler(
             val response: Response<ResponseApi<T>> = apiFunction()
 
             if (response.isSuccessful) {
-                // Log successful attempt and return body
                 AppLogger.i(
                     processTag,
                     """Process: $process.
                     Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}.
                     Response: ${response.body()?.response ?: "No response body"}.""".trimIndent()
                 )
-                // Ensure the body is not null
                 val responseBody =
-                    response.body() ?: createErrorResponse(
-                        "Error receiving response from server",
-                        returnType
-                    )
+                    response.body() ?: createErrorResponse("Error receiving response from server", returnType)
                 deferredResult.complete(responseBody)
             } else {
-                // Register failed attempt and return error body
-                val errorBody = response.errorBody()?.string()
-                val json = Json {
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                    isLenient = true
-                }
+                when (response.code()) {
+                    401 -> {
+                        AppLogger.w(
+                            processTag,
+                            """Process: $process.
+                            Status: 401 Unauthorized.
+                            Response: Unauthorized access.""".trimIndent()
+                        )
+                        deferredResult.complete(createErrorResponse("Unauthorized", returnType))
+                    }
 
-                // Error-free json parsing
-                val errorResponse: ResponseApi<T> = try {
-                    // Use kotlinx.serialization to parse the error response
-                    errorBody?.let { json.decodeFromString(it) }
-                        ?: createErrorResponse("Error parsing error response", returnType)
-                } catch (e: Exception) {
-                    AppLogger.e(
-                        processTag,
-                        """Process: $process.
-                        Status: 422 ${HttpStatusUtil.getStatusName(422)}.
-                        Response: Error parsing error response.""".trimIndent(),
-                        e
-                    )
-                    createErrorResponse("Internal error parsing response", returnType)
-                }
+                    else -> {
+                        val errorBody = response.errorBody()?.string()
+                        val json = Json {
+                            ignoreUnknownKeys = true
+                            coerceInputValues = true
+                            isLenient = true
+                        }
 
-                AppLogger.w(
-                    processTag,
-                    """Process: $process.
-                    Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}.
-                    Response: ${errorResponse.response}.""".trimIndent()
-                )
-                deferredResult.complete(errorResponse)
+                        val errorResponse: ResponseApi<T> = try {
+                            errorBody?.let { json.decodeFromString(it) }
+                                ?: createErrorResponse("Error parsing error response", returnType)
+                        } catch (e: Exception) {
+                            AppLogger.e(
+                                processTag,
+                                """Process: $process.
+                                Status: 422 ${HttpStatusUtil.getStatusName(422)}.
+                                Response: Error parsing error response.""".trimIndent(),
+                                e
+                            )
+                            createErrorResponse("Internal error parsing response", returnType)
+                        }
+
+                        AppLogger.w(
+                            processTag,
+                            """Process: $process.
+                            Status: ${response.code()} ${HttpStatusUtil.getStatusName(response.code())}.
+                            Response: ${errorResponse.response}.""".trimIndent()
+                        )
+                        deferredResult.complete(errorResponse)
+                    }
+                }
             }
         } catch (e: java.net.ConnectException) {
-            // Network error -> log error and return error response
             AppLogger.e(
                 processTag,
                 """Process: $process.
@@ -84,7 +88,6 @@ inline fun <reified T> responseHandler(
             )
             deferredResult.complete(createErrorResponse("Error connecting to server", returnType))
         } catch (e: Exception) {
-            // Other exceptions -> log the error and return error response
             AppLogger.e(
                 processTag,
                 """Process: $process.
@@ -99,7 +102,6 @@ inline fun <reified T> responseHandler(
     return runBlocking { deferredResult.await() }
 }
 
-// Auxiliary function to create error response
 @Suppress("UNCHECKED_CAST")
 fun <T> createErrorResponse(response: String, returnType: String): ResponseApi<T> {
     return when (returnType) {

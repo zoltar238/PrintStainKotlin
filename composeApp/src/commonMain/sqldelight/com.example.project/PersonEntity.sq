@@ -10,3 +10,7 @@ INSERT OR REPLACE INTO Person(
     personId,
     name)
 VALUES(?,?);
+
+-- Get all persons
+selectAllPersons:
+SELECT * FROM Person;

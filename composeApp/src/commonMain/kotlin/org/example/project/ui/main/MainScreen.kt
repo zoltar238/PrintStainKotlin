@@ -13,10 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import org.example.project.persistence.preferences.PreferencesManager
-import org.example.project.service.ItemViewModel
-import org.example.project.service.SaleViewModel
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
+import org.example.project.viewModel.ItemViewModel
+import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -30,7 +30,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
         val scope = rememberCoroutineScope()
 
         var username by remember { mutableStateOf<String?>(null) }
-        scope.launch { username = PreferencesManager.getUsername() }
+        scope.launch { username = PreferencesDaoImpl.getUsername() }
 
         // ModalNavigationDrawer as sidebar
         ModalNavigationDrawer(
@@ -92,7 +92,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,
-                            viewModel = itemViewModel,
+                            itemViewModel = itemViewModel,
                         )
 
                         "Settings" -> SettingsView()

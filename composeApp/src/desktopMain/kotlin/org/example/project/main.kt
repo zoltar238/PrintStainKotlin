@@ -7,7 +7,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
-import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.persistence.preferences.createDataStore
 import org.example.project.ui.navigation.AppNavigation
 
@@ -15,7 +15,7 @@ import org.example.project.ui.navigation.AppNavigation
 fun main() = application {
 
     // Initialize preferences datastore
-    PreferencesManager.initPreferences(
+    PreferencesDaoImpl.initPreferences(
         createDataStore { DATA_STORE_FILE_NAME }
     )
 

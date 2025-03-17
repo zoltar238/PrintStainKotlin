@@ -1,28 +1,24 @@
 package org.example.project.ui.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.apache.commons.validator.routines.EmailValidator
 import org.example.project.model.dto.PersonDto
-import org.example.project.service.registerUser
-import org.example.project.ui.AppColors
-import org.example.project.ui.component.LoadingIndicator
+import org.example.project.viewModel.PersonViewModel
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.*
 
 @Composable
 fun RegisterScreen(
-    snackBarScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
-    snackBarColor: MutableState<Color>,
+    onShowSnackBar: (String, Boolean) -> Unit,
+    personViewModel: PersonViewModel,
 ) {
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
@@ -32,7 +28,6 @@ fun RegisterScreen(
     var repeatedPassword by remember { mutableStateOf("") }
     var isEmailValid by remember { mutableStateOf(true) }
     var passwordCoincide by remember { mutableStateOf(true) }
-    var isLoading by remember { mutableStateOf(false) }
 
     val commonModifier =
         Modifier.fillMaxWidth(1f).padding(horizontal = 40.dp).padding(vertical = 10.dp)
@@ -46,7 +41,6 @@ fun RegisterScreen(
                 value = name,
                 onValueChange = { newText -> name = newText },
                 label = { Text(stringResource(Res.string.name_field)) },
-                placeholder = { Text("Ejemplo: Hola Mundo") },
                 singleLine = true,
                 modifier = commonModifier
             )
@@ -55,7 +49,6 @@ fun RegisterScreen(
                 value = surname,
                 onValueChange = { newText -> surname = newText },
                 label = { Text(stringResource(Res.string.surname_field)) },
-                placeholder = { Text("Ejemplo: Hola Mundo") },
                 singleLine = true,
                 modifier = commonModifier
             )
@@ -64,7 +57,6 @@ fun RegisterScreen(
                 value = username,
                 onValueChange = { newText -> username = newText },
                 label = { Text(stringResource(Res.string.username_field)) },
-                placeholder = { Text("Ejemplo: Hola Mundo") },
                 singleLine = true,
                 modifier = commonModifier
             )
@@ -76,7 +68,6 @@ fun RegisterScreen(
                     isEmailValid = EmailValidator.getInstance().isValid(newText)
                 },
                 label = { Text(stringResource(Res.string.email_field)) },
-                placeholder = { Text("Ejemplo: Hola Mundo") },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isEmailValid
@@ -115,80 +106,34 @@ fun RegisterScreen(
                 onClick = {
                     when {
                         name.isEmpty() || surname.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty() || repeatedPassword.isEmpty() -> {
-                            snackBarScope.launch {
-                                snackBarColor.value = AppColors.errorColor
-                                snackbarHostState.showSnackbar(
-                                    message = "Please, fill all the fields",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
+                            onShowSnackBar("Please, fill all the fields", true)
                         }
 
                         !passwordCoincide -> {
-                            snackBarScope.launch {
-                                snackBarColor.value = AppColors.errorColor
-                                snackbarHostState.showSnackbar(
-                                    message = "Passwords do not coincide",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
+                            onShowSnackBar("Passwords do not coincide", true)
                         }
 
                         !isEmailValid -> {
-                            snackBarScope.launch {
-                                snackBarColor.value = AppColors.errorColor
-                                snackbarHostState.showSnackbar(
-                                    message = "Email is not valid",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
+                            onShowSnackBar("Email is not valid", true)
                         }
 
                         else -> {
-                            isLoading = true
-                            snackBarScope.launch {
-                                try {
-                                    val serverResponse =
-                                        registerUser(
-                                            PersonDto(
-                                                name = name,
-                                                email = email,
-                                                password = password,
-                                                username = username,
-                                                surname = surname,
-                                                roles = listOf("USER")
-                                            )
-                                        )
-                                    if (serverResponse.success) {
-                                        snackBarColor.value = AppColors.primaryColor
-                                    } else {
-                                        snackBarColor.value = AppColors.errorColor
-                                    }
-                                    isLoading = false
-                                    snackbarHostState.showSnackbar(
-                                        message = serverResponse.response,
-                                        duration = SnackbarDuration.Short
-                                    )
-                                } catch (e: Exception) {
-                                    snackBarColor.value = AppColors.errorColor
-                                    isLoading = false
-                                    snackbarHostState.showSnackbar(
-                                        message = "Unexpected registering error",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
+                            personViewModel.registerUser(
+                                PersonDto(
+                                    name = name,
+                                    email = email,
+                                    password = password,
+                                    username = username,
+                                    surname = surname,
+                                    roles = listOf("USER")
+                                )
+                            )
                         }
                     }
                 }
             ) {
                 Text("Register")
             }
-        }
-
-        // Loading indicator
-        if (isLoading) {
-            LoadingIndicator()
         }
     }
 }

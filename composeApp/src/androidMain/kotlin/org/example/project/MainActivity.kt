@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.example.project.persistence.database.createAndroidDataStore
-import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // Initialize preferences datastore
-            PreferencesManager.initPreferences(
+            PreferencesDaoImpl.initPreferences(
                 createAndroidDataStore(applicationContext)
             )
 

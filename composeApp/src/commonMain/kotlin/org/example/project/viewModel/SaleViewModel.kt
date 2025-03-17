@@ -1,4 +1,4 @@
-package org.example.project.service
+package org.example.project.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import org.example.project.logging.AppLogger
 import org.example.project.logging.ProcessTags
 import org.example.project.persistence.database.SaleDao
 import org.example.project.persistence.database.SaleDaoImpl
-import org.example.project.persistence.preferences.PreferencesManager
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 
 data class SaleUiState(
     val sales: List<Sale> = emptyList(),
@@ -39,7 +39,7 @@ class SaleViewModel(database: PrintStainDatabase) : ViewModel() {
                 _saleUiState.update { it.copy(isLoading = true) }
 
                 // Obtain token
-                val token = PreferencesManager.getToken()
+                val token = PreferencesDaoImpl.getToken()
 
                 // Get items from server
                 val serverResponse = responseHandler(
