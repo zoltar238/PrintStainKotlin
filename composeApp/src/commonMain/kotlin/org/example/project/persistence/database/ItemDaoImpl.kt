@@ -63,8 +63,6 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     person_id = firstRow.person_id
                 )
 
-                println("Item id: ${item.itemId}")
-
                 // Map person
                 val person = firstRow.person_personId?.let {
                     Person(
@@ -72,8 +70,6 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                         name = firstRow.person_name ?: "",
                     )
                 }
-
-                println("Person name: ${person?.name}")
 
                 // Map images
                 val images = rows.mapNotNull { row ->

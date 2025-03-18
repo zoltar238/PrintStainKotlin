@@ -12,8 +12,7 @@ import org.example.project.logging.AppLogger
 import org.example.project.logging.ProcessTags
 import org.example.project.logging.ServiceTags
 import org.example.project.model.dto.ItemWithRelations
-import org.example.project.persistence.database.ItemDao
-import org.example.project.persistence.database.ItemDaoImpl
+import org.example.project.persistence.database.*
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 
 
@@ -28,17 +27,11 @@ data class ItemUiState(
 class ItemViewModel(database: PrintStainDatabase) : ViewModel() {
 
     private val itemDao: ItemDao = ItemDaoImpl(database)
+    private val imageDao: ImageDao = ImageDaoImpl(database)
+    private val personDao: PersonDao = PersonDaoImpl(database)
 
     private val _itemUiState = MutableStateFlow(ItemUiState(isLoading = true))
     val itemUiState: StateFlow<ItemUiState> = _itemUiState.asStateFlow()
-
-    // Auxiliary view models
-    private val imageViewModel = ImageViewModel(database)
-    private val personViewModel = PersonViewModel(database)
-
-    init {
-        getAllItems()
-    }
 
     fun getItemById(id: Long) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -108,13 +101,13 @@ class ItemViewModel(database: PrintStainDatabase) : ViewModel() {
                             person_id = item.person?.personId
                         )
                         item.images?.forEach { image ->
-                            imageViewModel.insertImage(
+                            imageDao.insertImage(
                                 imageId = image.imageId!!,
                                 base64Image = image.base64Image!!,
                                 item_id = item.itemId
                             )
                         }
-                        personViewModel.insertPerson(
+                        personDao.insertPerson(
                             item.person?.personId!!,
                             item.person.name!!
                         )

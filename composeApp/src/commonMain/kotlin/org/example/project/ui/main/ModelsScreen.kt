@@ -60,7 +60,14 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
         }
     }
 
+    if (itemUiState.items.isEmpty()) {
+        itemViewModel.getAllItems()
+    }
+
     MaterialTheme {
+        // Loading indicator
+        if (itemUiState.isLoading) LoadingIndicator()
+
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 bottomBar = {
@@ -88,43 +95,37 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                     }
                 }
             ) { paddingValues ->
-                if (itemUiState.isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) { LoadingIndicator() }
-                } else {
-                    Column(
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    // Search bar
+                    SearchBar(
+                        query = searchValue,
+                        onQueryChange = { newValue -> searchValue = newValue }
+                    )
+                    // Model rows
+                    FlowRow(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
+                            .padding(16.dp)
+                            .verticalScroll(scrollState)
+                            .fillMaxSize(),
+                        overflow = FlowRowOverflow.Visible
                     ) {
-                        // Search bar
-                        SearchBar(
-                            query = searchValue,
-                            onQueryChange = { newValue -> searchValue = newValue }
-                        )
-                        // Model rows
-                        FlowRow(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .verticalScroll(scrollState)
-                                .fillMaxSize(),
-                            overflow = FlowRowOverflow.Visible
-                        ) {
-                            if (itemUiState.success) {
-                                itemUiState.items.forEach { item ->
-                                    if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
-                                        ModelCard(item, navController, itemViewModel)
-                                    }
+                        if (itemUiState.success) {
+                            itemUiState.items.forEach { item ->
+                                if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
+                                    ModelCard(item, navController, itemViewModel)
                                 }
-                            } else {
-                                Text(itemUiState.response ?: "Unknown error")
                             }
+                        } else {
+                            Text(itemUiState.response ?: "Unknown error")
                         }
                     }
                 }
             }
+
 
             // Snackbar
             SnackBarComponent(

@@ -13,6 +13,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.netguru.multiplatform.charts.ChartAnimation
 import com.netguru.multiplatform.charts.bar.*
 import comexampleproject.Sale
+import org.example.project.ui.component.LoadingIndicator
 import org.example.project.viewModel.SaleViewModel
 import kotlin.random.Random
 
@@ -20,7 +21,13 @@ import kotlin.random.Random
 fun SalesScreen(saleViewModel: SaleViewModel) {
     // Load sale data
     val saleUiState by saleViewModel.saleUiState.collectAsState()
+
+    if (saleUiState.sales.isEmpty()) {
+        saleViewModel.getAllSales()
+    }
     MaterialTheme {
+        // Loading indicator
+        if (saleUiState.isLoading) LoadingIndicator()
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -29,7 +36,9 @@ fun SalesScreen(saleViewModel: SaleViewModel) {
             verticalArrangement = Arrangement.Center
         ) {
             DropdownMenu()
-            LineChartExample(saleUiState.sales)
+            if (saleUiState.sales.isNotEmpty()) {
+                LineChartExample(saleUiState.sales)
+            }
             Text("Esta es la vista de Ventas")
         }
     }

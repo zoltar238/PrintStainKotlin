@@ -6,6 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import kotlinx.coroutines.runBlocking
 import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.persistence.preferences.createDataStore
@@ -27,7 +28,10 @@ fun main() = application {
     )
 
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = {
+            runBlocking { PreferencesDaoImpl.clearToken() }
+            exitApplication()
+        },
         title = "PrintStain",
         state = windowState
     ) {

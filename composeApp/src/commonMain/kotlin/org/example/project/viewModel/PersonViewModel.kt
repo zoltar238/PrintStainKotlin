@@ -33,7 +33,6 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
 
     init {
         autologin()
-        getAllPersons()
     }
 
     fun registerUser(personDto: PersonDto) {
@@ -113,11 +112,15 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                             )
                         }
                         // Save user
-                        PreferencesDaoImpl.saveUser(
-                            username = if (rememberMe) loginDto.username!! else "",
-                            password = if (rememberMe) loginDto.password!! else "",
-                            token = serverResponse.data
-                        )
+                        if (rememberMe) {
+                            PreferencesDaoImpl.saveUser(
+                                username = loginDto.username!!,
+                                password = loginDto.password!!,
+                                token = serverResponse.data
+                            )
+                        } else {
+                            PreferencesDaoImpl.saveToken(serverResponse.data)
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -149,11 +152,12 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
             val password = PreferencesDaoImpl.getPassword()
 
             // If credentials are not saved, return false
-            if (username == null || password == null) {
+            if (username.isNullOrBlank() || password.isNullOrBlank()) {
                 _personUiState.update {
                     it.copy(
-                        isLoading = true,
-                        success = false
+                        isLoading = false,
+                        success = false,
+                        response = null
                     )
                 }
             } else {
@@ -231,7 +235,6 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         response = "Error: ${e.localizedMessage}"
                     )
                 }
-                throw e
             }
         }
     }
@@ -252,9 +255,9 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                 val persons = personDao.getAllPersons().first()
                 _personUiState.update {
                     it.copy(
-                        isLoading = true,
+                        isLoading = false,
                         success = true,
-                        response = "Successfully retrieved all persons.",
+                        response = null,
                         persons = persons
                     )
                 }
@@ -275,7 +278,6 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         response = "Error: ${e.localizedMessage}"
                     )
                 }
-                throw e
             }
         }
     }

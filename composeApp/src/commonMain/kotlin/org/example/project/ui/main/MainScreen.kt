@@ -22,13 +22,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, saleViewModel: SaleViewModel) {
+    // Estado que controla el menú seleccionado y el estado del drawer
+    var selectedView by remember { mutableStateOf("Models") }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     MaterialTheme {
-        // Estado que controla el menú seleccionado y el estado del drawer
-        var selectedView by remember { mutableStateOf("Models") }
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val scope = rememberCoroutineScope()
-
         var username by remember { mutableStateOf<String?>(null) }
         scope.launch { username = PreferencesDaoImpl.getUsername() }
 

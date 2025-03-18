@@ -29,10 +29,6 @@ class SaleViewModel(database: PrintStainDatabase) : ViewModel() {
     private val _saleUiState = MutableStateFlow(SaleUiState(isLoading = true))
     val saleUiState: StateFlow<SaleUiState> = _saleUiState.asStateFlow()
 
-    init {
-        getAllSales()
-    }
-
     fun getAllSales() {
         viewModelScope.launch(Dispatchers.Default) {
             try {
