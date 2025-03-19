@@ -19,13 +19,12 @@ import androidx.compose.ui.zIndex
 fun SnackBarComponent(snackbarHostState: SnackbarHostState, snackBarColor: MutableState<Color>) {
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().zIndex(99f)
     ) {
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .padding(top = 16.dp)
-                .zIndex(3f),
+                .padding(top = 16.dp),
             snackbar = { data ->
                 Snackbar(
                     snackbarData = data,

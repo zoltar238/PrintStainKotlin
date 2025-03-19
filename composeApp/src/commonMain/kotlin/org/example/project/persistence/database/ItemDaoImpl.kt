@@ -25,22 +25,16 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
         name: String?,
         description: String?,
         postDate: String?,
-        startDate: String?,
-        finishDate: String?,
-        shipDate: String?,
         timesUploaded: Long?,
-        person_id: Long?,
+        personId: Long?,
     ) {
         query.insertItem(
             itemId = itemId,
             name = name,
             description = description,
             postDate = postDate,
-            startDate = startDate,
-            finishDate = finishDate,
-            shipDate = shipDate,
             timesUploaded = timesUploaded,
-            person_id = person_id
+            personId = personId
         )
     }
 
@@ -56,11 +50,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     name = firstRow.name,
                     description = firstRow.description,
                     postDate = firstRow.postDate,
-                    startDate = firstRow.startDate,
-                    finishDate = firstRow.finishDate,
-                    shipDate = firstRow.shipDate,
                     timesUploaded = firstRow.timesUploaded,
-                    person_id = firstRow.person_id
+                    personId = firstRow.personId
                 )
 
                 // Map person

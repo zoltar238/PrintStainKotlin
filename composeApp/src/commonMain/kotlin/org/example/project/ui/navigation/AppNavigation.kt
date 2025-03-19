@@ -37,7 +37,7 @@ fun AppNavigation() {
             )
         }
         composable("model_details_screen") {
-            ModelDetailsScreen(navController = navController, itemViewModel = itemViewModel)
+            ModelDetailsScreen(navController = navController, itemViewModel = itemViewModel, previousRoute = "main_app_view")
         }
     }
 }

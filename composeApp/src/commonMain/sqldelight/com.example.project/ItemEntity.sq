@@ -3,12 +3,9 @@ CREATE TABLE Item (
     name TEXT,
     description TEXT,
     postDate TEXT,
-    startDate TEXT,
-    finishDate TEXT,
-    shipDate TEXT,
     timesUploaded INTEGER DEFAULT 0,
-    person_id INTEGER,
-    FOREIGN KEY (person_id) REFERENCES Person(personId)
+    personId INTEGER,
+    FOREIGN KEY (personId) REFERENCES Person(personId)
 );
 
 -- Get item with all its relations
@@ -20,7 +17,7 @@ SELECT
     img.imageId AS image_id,
     img.base64Image AS image_data
 FROM Item i
-LEFT JOIN Person p ON i.person_id = p.personId
+LEFT JOIN Person p ON i.personId = p.personId
 LEFT JOIN Image img ON img.item_id = i.itemId;
 
 -- Get item by ID
@@ -45,12 +42,9 @@ INSERT OR REPLACE INTO Item(
     name,
     description,
     postDate,
-    startDate,
-    finishDate,
-    shipDate,
     timesUploaded,
-    person_id
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+    personId
+) VALUES (?, ?, ?, ?, ?, ?);
 
 -- Update an item
 updateItem:
@@ -58,9 +52,6 @@ UPDATE Item
 SET name = ?,
     description = ?,
     postDate = ?,
-    startDate = ?,
-    finishDate = ?,
-    shipDate = ?,
     timesUploaded = ?,
-    person_id = ?
+    personId = ?
 WHERE itemId = ?;

@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -67,7 +68,7 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
         ) {
             // Row para botones de alternancia (Registro | Iniciar sesión)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().zIndex(1f),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Button(

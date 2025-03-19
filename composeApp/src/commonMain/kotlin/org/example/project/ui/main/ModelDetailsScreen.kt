@@ -29,6 +29,7 @@ import org.example.project.model.dto.SaleDto
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.BenefitSummary
 import org.example.project.ui.component.CurrencyTextField
+import org.example.project.ui.component.ReturnButton
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemUiState
 import org.example.project.viewModel.ItemViewModel
@@ -39,7 +40,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @Composable
-fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
+fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel, previousRoute: String) {
     val uiState by itemViewModel.itemUiState.collectAsState()
     // Scope
     val coroutineScope = rememberCoroutineScope()
@@ -61,6 +62,13 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                         elevation = 8.dp
                     )
                 }
+            },
+            floatingActionButtonPosition = FabPosition.Start,
+            floatingActionButton = {
+                ReturnButton(
+                    navController = navController,
+                    navigationRoute = previousRoute
+                )
             },
             backgroundColor = AppColors.backgroundColor
         ) {
@@ -253,30 +261,6 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                // Back button with improved styling
-                Button(
-                    onClick = { navController.navigate("main_app_view") },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = AppColors.secondaryColor,
-                        contentColor = AppColors.textOnSecondaryColor
-                    )
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Go back",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Return to Products", style = MaterialTheme.typography.button)
-                    }
-                }
             }
         }
     }

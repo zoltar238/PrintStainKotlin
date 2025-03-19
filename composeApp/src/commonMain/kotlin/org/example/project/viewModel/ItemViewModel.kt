@@ -94,11 +94,8 @@ class ItemViewModel(database: PrintStainDatabase) : ViewModel() {
                             name = item.name,
                             description = item.description,
                             postDate = item.postDate.toString(),
-                            startDate = item.startDate.toString(),
-                            finishDate = item.finishDate.toString(),
-                            shipDate = item.shipDate.toString(),
                             timesUploaded = item.timesUploaded,
-                            person_id = item.person?.personId
+                            personId = item.person?.personId
                         )
                         item.images?.forEach { image ->
                             imageDao.insertImage(

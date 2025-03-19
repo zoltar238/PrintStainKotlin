@@ -13,11 +13,8 @@ interface ItemDao {
         name: String?,
         description: String?,
         postDate: String?,
-        startDate: String?,
-        finishDate: String?,
-        shipDate: String?,
         timesUploaded: Long?,
-        person_id: Long?,
+        personId: Long?,
     )
 
     fun getAllItemsWithRelation(): Flow<List<ItemWithRelations>>
