@@ -90,8 +90,6 @@ kotlin {
             api(libs.datastore.preferences)
             api(libs.datastore)
 
-            // Dagger
-            implementation(libs.dagger)
             implementation(libs.coroutines.extensions)
 
             implementation(libs.okhttp)
@@ -102,7 +100,6 @@ kotlin {
 
             // SqlDelight
             implementation(libs.sqlite.driver)
-
         }
     }
 }

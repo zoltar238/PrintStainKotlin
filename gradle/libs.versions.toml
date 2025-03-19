@@ -9,18 +9,19 @@ commonsValidator = "1.9.0"
 compose-multiplatform = "1.7.0"
 converterJackson = "2.9.0"
 core = "1.15.0"
-dagger = "2.55"
 datastore = "1.1.3"
 http4kBom = "5.38.0.0"
+kamelImageVersion = "1.0.0"
 kotlin = "2.0.21"
 kotlinLoggingJvm = "5.0.0"
 kotlinReflect = "2.0.20"
-kotlinx-coroutines = "1.9.0"
-kotlinxCoroutinesCore = "1.9.0"
+kotlinx-coroutines = "1.10.1"
+kotlinxCoroutinesCore = "1.10.1"
+ktorClientCio = "2.1.0"
 lifecycleExtensions = "2.8.7"
-lifecycleLivedata = "2.9.0-alpha11"
-lifecycleRuntime = "2.9.0-alpha11"
-lifecycleViewmodel = "2.9.0-alpha11"
+lifecycleLivedata = "2.9.0-alpha12"
+lifecycleRuntime = "2.9.0-alpha12"
+lifecycleViewmodel = "2.9.0-alpha12"
 logbackClassic = "1.2.6"
 material3 = "1.3.1"
 multiplatformChartsDesktop = "1.0.0"
@@ -51,9 +52,10 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 
 converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "converterJackson" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "nativeDriver" }
-dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
+media-kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImageVersion" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 
 

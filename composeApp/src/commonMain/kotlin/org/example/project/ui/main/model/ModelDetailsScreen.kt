@@ -1,4 +1,4 @@
-package org.example.project.ui.main
+package org.example.project.ui.main.model
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -114,7 +114,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
 
-                            // Horizontal pager with improved image display
+                            // Horizontal pager for images
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()

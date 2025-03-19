@@ -9,7 +9,8 @@ import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.createDatabase
 import org.example.project.ui.auth.AuthScreen
 import org.example.project.ui.main.MainScreen
-import org.example.project.ui.main.ModelDetailsScreen
+import org.example.project.ui.main.model.ModelDetailsScreen
+import org.example.project.ui.main.model.ModelNewScreen
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.PersonViewModel
 import org.example.project.viewModel.SaleViewModel
@@ -36,8 +37,13 @@ fun AppNavigation() {
                 saleViewModel = saleViewModel
             )
         }
+        // Detailed view of a model
         composable("model_details_screen") {
             ModelDetailsScreen(navController = navController, itemViewModel = itemViewModel, previousRoute = "main_app_view")
+        }
+        // Screen to add new model to the database
+        composable("model_add_new"){
+            ModelNewScreen(navController = navController, itemViewModel = itemViewModel, previousRoute = "main_app_view")
         }
     }
 }

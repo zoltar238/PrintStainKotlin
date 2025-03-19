@@ -1,4 +1,4 @@
-package org.example.project.ui.main
+package org.example.project.ui.main.model
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -60,6 +60,7 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
         }
     }
 
+    // Load items if the list of items is empty
     if (itemUiState.items.isEmpty()) {
         itemViewModel.getAllItems()
     }
@@ -68,6 +69,11 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
         // Loading indicator
         if (itemUiState.isLoading) LoadingIndicator()
 
+        // Snackbar
+        SnackBarComponent(
+            snackbarHostState = snackbarHostState,
+            snackBarColor = snackBarColor
+        )
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 bottomBar = {
@@ -83,7 +89,9 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                                 .background(color = AppColors.primaryColor, shape = CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {
+                                navController.navigate("model_add_new")
+                            }) {
                                 Text(
                                     text = "+",
                                     fontSize = 30.sp,
@@ -94,11 +102,10 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                         }
                     }
                 }
-            ) { paddingValues ->
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
                 ) {
                     // Search bar
                     SearchBar(
@@ -121,17 +128,11 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                             }
                         } else {
                             Text(itemUiState.response ?: "Unknown error")
+                            // Snackbar
                         }
                     }
                 }
             }
-
-
-            // Snackbar
-            SnackBarComponent(
-                snackbarHostState = snackbarHostState,
-                snackBarColor = snackBarColor
-            )
         }
     }
 }
@@ -166,14 +167,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
         modifier = Modifier
             .width(200.dp)
             .height(200.dp)
-            .padding(10.dp)
-            .clickable(onClick = {
-                itemViewModel.getItemById(item.item.itemId)
-                // change screen
-                if (uiState.success and uiState.response.equals("Item selected successfully") && uiState.selectedItem != null) {
-                    navController.navigate("model_details_screen")
-                }
-            }),
+            .padding(10.dp),
         shape = RoundedCornerShape(30.dp),
         // Shadow for better visibility
         elevation = CardDefaults.cardElevation(8.dp)
@@ -181,16 +175,24 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colors.background)
+                .background(AppColors.accentColor)
         ) {
             // Image
             Image(
                 painter = BitmapPainter(decodeBase64ToBitmap(item.images[0].base64Image!!)),
                 contentDescription = item.item.description,
-                contentScale = ContentScale.FillBounds, // Asegura que la imagen llena el área disponible
-                modifier = Modifier.fillMaxSize()
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = {
+                        itemViewModel.getItemById(item.item.itemId)
+                        // change screen
+                        if (uiState.success and uiState.response.equals("Item selected successfully") && uiState.selectedItem != null) {
+                            navController.navigate("model_details_screen")
+                        }
+                    }
+                    )
             )
-
             // Caja de texto en la parte inferior
             Box(
                 modifier = Modifier

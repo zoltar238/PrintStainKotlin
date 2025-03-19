@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
+import org.example.project.ui.main.model.ModelsScreen
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
