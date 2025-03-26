@@ -35,5 +35,4 @@ object ClientController {
     val itemController: ItemController by lazy {
         retrofit.create(ItemController::class.java)
     }
-
 }

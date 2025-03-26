@@ -22,9 +22,6 @@ fun SalesScreen(saleViewModel: SaleViewModel) {
     // Load sale data
     val saleUiState by saleViewModel.saleUiState.collectAsState()
 
-    if (saleUiState.sales.isEmpty()) {
-        saleViewModel.getAllSales()
-    }
     MaterialTheme {
         // Loading indicator
         if (saleUiState.isLoading) LoadingIndicator()
@@ -37,7 +34,7 @@ fun SalesScreen(saleViewModel: SaleViewModel) {
         ) {
             DropdownMenu()
             if (saleUiState.sales.isNotEmpty()) {
-                LineChartExample(saleUiState.sales)
+                LineChart(saleUiState.sales)
             }
             Text("Esta es la vista de Ventas")
         }
@@ -105,7 +102,7 @@ fun DropdownMenu() {
 }
 
 @Composable
-fun LineChartExample(sales: List<Sale>) {
+fun LineChart(sales: List<Sale>) {
     val barChartData = BarChartData(
         categories = sales.groupBy { it.saleId ?: "Unknown" }.map { (saleId, salesList) ->
             BarChartCategory(

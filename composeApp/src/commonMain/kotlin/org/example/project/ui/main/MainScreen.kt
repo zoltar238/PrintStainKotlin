@@ -28,6 +28,17 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val saleUiState by saleViewModel.saleUiState.collectAsState()
+    val itemUiState by itemViewModel.itemUiState.collectAsState()
+
+    // Load initial data
+    if (saleUiState.sales.isEmpty()){
+        saleViewModel.getAllSales()
+    }
+    if (itemUiState.items.isEmpty()){
+        itemViewModel.getAllItems()
+    }
+
     MaterialTheme {
         var username by remember { mutableStateOf<String?>(null) }
         scope.launch { username = PreferencesDaoImpl.getUsername() }

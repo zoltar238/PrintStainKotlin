@@ -11,13 +11,11 @@ converterJackson = "2.9.0"
 core = "1.15.0"
 datastore = "1.1.3"
 http4kBom = "5.38.0.0"
-kamelImageVersion = "1.0.0"
 kotlin = "2.0.21"
 kotlinLoggingJvm = "5.0.0"
 kotlinReflect = "2.0.20"
 kotlinx-coroutines = "1.10.1"
 kotlinxCoroutinesCore = "1.10.1"
-ktorClientCio = "2.1.0"
 lifecycleExtensions = "2.8.7"
 lifecycleLivedata = "2.9.0-alpha12"
 lifecycleRuntime = "2.9.0-alpha12"
@@ -25,11 +23,12 @@ lifecycleViewmodel = "2.9.0-alpha12"
 logbackClassic = "1.2.6"
 material3 = "1.3.1"
 multiplatformChartsDesktop = "1.0.0"
-kotlinxSerialization = "1.7.3"
+kotlinxSerialization = "1.8.0"
 nativeDriver = "2.0.2"
 navigationComposeVersion = "2.8.0-alpha02"
 okhttp = "4.12.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
+sonner = "0.3.8"
 sqliteDriver = "2.0.2"
 uiToolingPreviewAndroid = "1.7.8"
 material3Android = "1.3.1"
@@ -54,8 +53,6 @@ converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", versi
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "nativeDriver" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
-ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
-media-kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImageVersion" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 
 
@@ -82,6 +79,7 @@ androidx-foundation-android = { group = "androidx.compose.foundation", name = "f
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converterJackson" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
+sonner = { module = "io.github.dokar3:sonner", version.ref = "sonner" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqliteDriver" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startupRuntime" }
 

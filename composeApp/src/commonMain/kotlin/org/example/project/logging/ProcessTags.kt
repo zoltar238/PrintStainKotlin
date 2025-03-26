@@ -1,11 +1,14 @@
 package org.example.project.logging
 
 enum class ProcessTags {
-    HTTP_REQUEST_STARTED,
+    CreateNewItem,
+    DeleteItems,
+    GetAllItems,
     UserRegistration,
-    Userlogin, ItemsGetAll, SaleFindAll, SaleCreateNew, InsertUser, GetAllPersons
-}
-
-enum class ServiceTags {
-    GET_ALL_ITEMS
+    Userlogin,
+    ItemsGetAll,
+    SaleFindAll,
+    SaleCreateNew,
+    InsertUser,
+    GetAllPersons
 }

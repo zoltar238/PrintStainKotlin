@@ -4,17 +4,14 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,11 +21,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemWithRelations
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
-import org.example.project.ui.component.SnackBarComponent
+import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 
@@ -41,39 +39,17 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
     var searchValue by remember { mutableStateOf("") }
     // Database flow
     val itemUiState by itemViewModel.itemUiState.collectAsState()
-    // Scaffold
-    val snackbarHostState = remember { SnackbarHostState() }
-    val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
-
-    // Change color based on state
-    LaunchedEffect(itemUiState.success) {
-        snackBarColor.value = if (itemUiState.success) AppColors.primaryColor else AppColors.errorColor
-    }
-
-    // Show snackbar when response changes
-    LaunchedEffect(itemUiState.response) {
-        if (!itemUiState.isLoading && itemUiState.response != null && itemUiState.response != "Item selected successfully") {
-            snackbarHostState.showSnackbar(
-                message = itemUiState.response!!,
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
-
-    // Load items if the list of items is empty
-    if (itemUiState.items.isEmpty()) {
-        itemViewModel.getAllItems()
-    }
 
     MaterialTheme {
+        // Toaster
+        MessageToaster(
+            messageEvent = itemUiState.messageEvent,
+            success = itemUiState.success,
+            onMessageConsumed = { itemViewModel.consumeMessage() }
+        )
         // Loading indicator
         if (itemUiState.isLoading) LoadingIndicator()
 
-        // Snackbar
-        SnackBarComponent(
-            snackbarHostState = snackbarHostState,
-            snackBarColor = snackBarColor
-        )
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 bottomBar = {
@@ -120,15 +96,14 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                             .fillMaxSize(),
                         overflow = FlowRowOverflow.Visible
                     ) {
-                        if (itemUiState.success) {
+                        if (itemUiState.items.isNotEmpty()) {
                             itemUiState.items.forEach { item ->
                                 if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
                                     ModelCard(item, navController, itemViewModel)
                                 }
                             }
                         } else {
-                            Text(itemUiState.response ?: "Unknown error")
-                            // Snackbar
+                            Text(itemUiState.messageEvent?.message ?: "No items found")
                         }
                     }
                 }
@@ -163,6 +138,8 @@ fun SearchBar(
 @Composable
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
     val uiState by itemViewModel.itemUiState.collectAsState()
+    val showContextMenu = remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -175,41 +152,96 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppColors.accentColor)
+                .background(AppColors.secondaryBackgroundColor)
         ) {
-            // Image
-            Image(
-                painter = BitmapPainter(decodeBase64ToBitmap(item.images[0].base64Image!!)),
-                contentDescription = item.item.description,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = {
-                        itemViewModel.getItemById(item.item.itemId)
-                        // change screen
-                        if (uiState.success and uiState.response.equals("Item selected successfully") && uiState.selectedItem != null) {
-                            navController.navigate("model_details_screen")
-                        }
+            // Options menu
+            if (showContextMenu.value) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .zIndex(3f),
+                    onClick = {
+                        showContextMenu.value = false
                     }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Delete image",
+                        tint = AppColors.accentColor
                     )
-            )
-            // Caja de texto en la parte inferior
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.7f)) // Fondo oscuro con transparencia
-                    .align(Alignment.BottomCenter) // Alinea al fondo
-                    .padding(8.dp), // Espaciado interno
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = item.item.name!!,
-                    style = MaterialTheme.typography.subtitle1,
-                    color = Color.White, // Texto claro para contraste
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                }
+                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        onClick = { showDialog = true },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = AppColors.textOnPrimaryColor
+                        )
+                    ) {
+                        org.example.project.ui.component.AlertDialog(
+                            show = showDialog,
+                            onDismiss = { showDialog = false },
+                            title = "Are you sure you want to delete this item?",
+                            message = "Warning, this item will be deleted and you wont be able to recover it",
+                            confirmButton = "Accept",
+                            onConfirm = { itemViewModel.deleteItem(listOf(item)) },
+                            dismissButton = "Cancel"
+                        )
+                        Text("Delete item")
+                    }
+                    Text("Modify item", modifier = Modifier.padding(8.dp))
+                }
+
+            } else {
+                Image(
+                    painter = BitmapPainter(decodeBase64ToBitmap(item.images.first().base64Image!!)),
+                    contentDescription = item.item.description,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = {
+                            itemViewModel.getItemById(item.item.itemId)
+                            // change screen
+                            navController.navigate("model_details_screen")
+                        })
                 )
+
+                // Menu icon
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .zIndex(3f),
+                    onClick = {
+                        showContextMenu.value = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Delete image",
+                        tint = AppColors.accentColor
+                    )
+                }
+
+                // Inferior text box
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.7f)) // Fondo oscuro con transparencia
+                        .align(Alignment.BottomCenter) // Alinea al fondo
+                        .padding(8.dp), // Espaciado interno
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = item.item.name!!,
+                        style = MaterialTheme.typography.subtitle1,
+                        color = Color.White, // Texto claro para contraste
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }
 }
+
 

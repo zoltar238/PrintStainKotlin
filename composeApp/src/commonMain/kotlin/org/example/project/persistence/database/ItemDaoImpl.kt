@@ -2,10 +2,7 @@ package org.example.project.persistence.database
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import comexampleproject.Image
-import comexampleproject.Item
-import comexampleproject.Person
-import comexampleproject.SelectAllItemWithRelations
+import comexampleproject.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -51,7 +48,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     description = firstRow.description,
                     postDate = firstRow.postDate,
                     timesUploaded = firstRow.timesUploaded,
-                    personId = firstRow.personId
+                    personId = firstRow.personId,
+                    archived = firstRow.archived
                 )
 
                 // Map person
@@ -73,7 +71,20 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     }
                 }
 
-                ItemWithRelations(item, person, images)
+                // Map sales
+                val sales = rows.mapNotNull { row ->
+                    row.sale_saleId?.let { saleId ->
+                        Sale(
+                            saleId = saleId,
+                            date = row.sale_date,
+                            cost = row.sale_cost,
+                            price = row.sale_price,
+                            itemId = row.image_id,
+                        )
+                    }
+                }
+
+                ItemWithRelations(item, person, images, sales)
             }
     }
 
@@ -88,5 +99,9 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
 
     override fun getAllItems(): Flow<List<Item>> {
         return query.selectAllItems().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    override suspend fun deleteItem(itemId: Long) {
+        query.deleteItem(itemId)
     }
 }

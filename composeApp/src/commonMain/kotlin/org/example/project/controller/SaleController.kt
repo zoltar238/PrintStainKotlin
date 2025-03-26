@@ -10,7 +10,7 @@ interface SaleController {
     suspend fun createNewSale(
         @Body saleDto: SaleDto,
         @Header("Authorization") token: String,
-    ): Response<ResponseApi<String>>
+    ): Response<ResponseApi<Long>>
 
     @GET("sale/getAllSales")
     suspend fun findAllSales(

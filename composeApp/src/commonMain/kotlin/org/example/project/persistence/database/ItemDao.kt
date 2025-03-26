@@ -7,7 +7,6 @@ import org.example.project.model.dto.ItemWithRelations
 interface ItemDao {
 
     fun getItemById(id: Long): Item?
-
     suspend fun insertItem(
         itemId: Long,
         name: String?,
@@ -18,6 +17,6 @@ interface ItemDao {
     )
 
     fun getAllItemsWithRelation(): Flow<List<ItemWithRelations>>
-
     fun getAllItems(): Flow<List<Item>>
+    suspend fun deleteItem(itemId: Long)
 }

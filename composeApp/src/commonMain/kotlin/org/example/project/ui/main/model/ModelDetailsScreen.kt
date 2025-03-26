@@ -23,46 +23,39 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.example.project.model.dto.SaleDto
 import org.example.project.ui.AppColors
-import org.example.project.ui.component.BenefitSummary
-import org.example.project.ui.component.CurrencyTextField
-import org.example.project.ui.component.ReturnButton
+import org.example.project.ui.component.*
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemUiState
 import org.example.project.viewModel.ItemViewModel
-import org.example.project.viewModel.createNewSale
+import org.example.project.viewModel.SaleViewModel
 import java.math.BigDecimal
 import java.text.NumberFormat
-import java.time.OffsetDateTime
 import java.util.*
 
 @Composable
-fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemViewModel, previousRoute: String) {
-    val uiState by itemViewModel.itemUiState.collectAsState()
+fun ModelDetailsScreen(
+    navController: NavHostController,
+    itemViewModel: ItemViewModel,
+    saleViewModel: SaleViewModel,
+    previousRoute: String,
+) {
+    val itemUiState by itemViewModel.itemUiState.collectAsState()
+    val saleUiState by saleViewModel.saleUiState.collectAsState()
     // Scope
     val coroutineScope = rememberCoroutineScope()
-    // Snack bar
-    val snackbarHostState = remember { SnackbarHostState() }
-    val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
     // Scroll state
     val scrollState = rememberScrollState()
 
+    LaunchedEffect(saleUiState.messageEvent?.message) {
+        if (saleUiState.messageEvent?.message == "Sale created successfully") {
+            itemViewModel.updateItems()
+        }
+    }
+
     MaterialTheme {
-        // Scaffold
         Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState) { data ->
-                    Snackbar(
-                        snackbarData = data,
-                        backgroundColor = snackBarColor.value,
-                        contentColor = MaterialTheme.colors.onPrimary,
-                        elevation = 8.dp
-                    )
-                }
-            },
             floatingActionButtonPosition = FabPosition.Start,
             floatingActionButton = {
                 ReturnButton(
@@ -72,6 +65,17 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
             },
             backgroundColor = AppColors.backgroundColor
         ) {
+            // Loading indicator
+            if (itemUiState.isLoading) {
+                LoadingIndicator()
+            }
+            // Toaster
+            MessageToaster(
+                messageEvent = saleUiState.messageEvent,
+                success = saleUiState.success,
+                onMessageConsumed = { saleViewModel.consumeMessage() }
+            )
+
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -80,7 +84,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                if (uiState.selectedItem?.images?.isNotEmpty() == true) {
+                if (itemUiState.selectedItem?.images?.isNotEmpty() == true) {
                     // Image Gallery Card
                     Card(
                         modifier = Modifier
@@ -96,7 +100,7 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                         ) {
                             // Title
                             Text(
-                                text = uiState.selectedItem?.item?.name ?: "Product Details",
+                                text = itemUiState.selectedItem?.item?.name ?: "Product Details",
                                 style = MaterialTheme.typography.h6,
                                 fontWeight = FontWeight.Bold,
                                 color = AppColors.textOnPrimaryColor,
@@ -104,11 +108,11 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                             )
 
                             // Pager status with indicator
-                            val pagerState = rememberPagerState(pageCount = { uiState.selectedItem!!.images.size })
+                            val pagerState = rememberPagerState(pageCount = { itemUiState.selectedItem!!.images.size })
 
                             // Image counter
                             Text(
-                                text = "${pagerState.currentPage + 1}/${uiState.selectedItem!!.images.size}",
+                                text = "${pagerState.currentPage + 1}/${itemUiState.selectedItem!!.images.size}",
                                 style = MaterialTheme.typography.caption,
                                 color = AppColors.textOnBackgroundSecondaryColor,
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -135,8 +139,8 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                                             .padding(8.dp)
                                     ) {
                                         Image(
-                                            painter = BitmapPainter(decodeBase64ToBitmap(uiState.selectedItem!!.images[page].base64Image!!)),
-                                            contentDescription = uiState.selectedItem!!.item.description,
+                                            painter = BitmapPainter(decodeBase64ToBitmap(itemUiState.selectedItem!!.images[page].base64Image!!)),
+                                            contentDescription = itemUiState.selectedItem!!.item.description,
                                             contentScale = ContentScale.Fit,
                                             modifier = Modifier
                                                 .align(Alignment.Center)
@@ -254,10 +258,13 @@ fun ModelDetailsScreen(navController: NavHostController, itemViewModel: ItemView
                     }
 
                     // Product info block
-                    infoBlock(uiState)
+                    infoBlock(itemUiState)
 
                     // Sale view with updated styling
-                    ModelSale(uiState.selectedItem!!.item.itemId, coroutineScope, snackBarColor, snackbarHostState)
+                    ModelSale(
+                        itemUiState.selectedItem!!.item.itemId,
+                        saleViewModel
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -318,9 +325,7 @@ private fun infoBlock(uiState: ItemUiState) {
 @Composable
 fun ModelSale(
     itemId: Long,
-    scope: CoroutineScope,
-    color: MutableState<Color>,
-    snackbarHostState: SnackbarHostState,
+    saleViewModel: SaleViewModel,
 ) {
     // Variables
     var cost by remember { mutableStateOf("") }
@@ -375,38 +380,14 @@ fun ModelSale(
             .height(48.dp),
         shape = RoundedCornerShape(12.dp),
         onClick = {
-            scope.launch {
-                try {
-                    val costDecimal = cost.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                    val priceDecimal = price.toBigDecimalOrNull() ?: BigDecimal.ZERO
+            val costDecimal = cost.toBigDecimalOrNull() ?: BigDecimal.ZERO
+            val priceDecimal = price.toBigDecimalOrNull() ?: BigDecimal.ZERO
 
-                    val saleDto = SaleDto(
-                        cost = costDecimal,
-                        price = priceDecimal,
-                        itemId = itemId,
-                        date = OffsetDateTime.now()
-                    )
-
-                    val serverResponse = createNewSale(saleDto)
-                    color.value = if (serverResponse.success) AppColors.successColor else AppColors.errorColor
-                    snackbarHostState.showSnackbar(
-                        message = serverResponse.data,
-                        duration = SnackbarDuration.Short
-                    )
-
-                    // Limpiar campos después de éxito
-                    if (serverResponse.success) {
-                        cost = ""
-                        price = ""
-                    }
-                } catch (e: Exception) {
-                    color.value = AppColors.errorColor
-                    snackbarHostState.showSnackbar(
-                        message = "Error: ${e.message ?: "Unknown error"}",
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
+            saleViewModel.createSale(
+                cost = costDecimal,
+                price = priceDecimal,
+                itemId = itemId
+            )
         },
     ) {
         Row(

@@ -3,6 +3,7 @@ package org.example.project.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import comexampleproject.Person
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,11 +21,13 @@ import org.example.project.persistence.preferences.PreferencesDaoImpl
 data class PersonUiState(
     val persons: List<Person> = emptyList(),
     val isLoading: Boolean = false,
-    val response: String? = null,
+    val messageEvent: MessageEvent? = null,
     val success: Boolean = true,
 )
 
-class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
+class PersonViewModel(
+    database: PrintStainDatabase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : ViewModel() {
 
     private val personDao: PersonDao = PersonDaoImpl(database)
 
@@ -35,11 +38,19 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
         autologin()
     }
 
+    fun consumeMessage() {
+        _personUiState.update { currentState ->
+            currentState.copy(
+                messageEvent = currentState.messageEvent?.consume()
+            )
+        }
+    }
+
     fun registerUser(personDto: PersonDto) {
         // Receive response from server and return it
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             try {
-                _personUiState.update { it.copy(isLoading = true, response = null) }
+                _personUiState.update { it.copy(isLoading = true) }
                 val serverResponse = responseHandler(
                     "Register user",
                     ProcessTags.UserRegistration.name,
@@ -50,7 +61,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         it.copy(
                             isLoading = false,
                             success = false,
-                            response = serverResponse.response
+                            messageEvent = MessageEvent(serverResponse.response)
                         )
                     }
 
@@ -59,7 +70,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                             it.copy(
                                 isLoading = false,
                                 success = true,
-                                response = serverResponse.response
+                                messageEvent = MessageEvent(serverResponse.response)
                             )
                         }
                     }
@@ -77,7 +88,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = false,
-                        response = "Error: ${e.localizedMessage}"
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
                     )
                 }
             }
@@ -85,8 +96,8 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
     }
 
     fun loginUser(loginDto: LoginDto, rememberMe: Boolean) {
-        viewModelScope.launch(Dispatchers.Default) {
-            _personUiState.update { it.copy(isLoading = true, response = null) }
+        viewModelScope.launch(dispatcher) {
+            _personUiState.update { it.copy(isLoading = true) }
             try {
                 // Receive response from server and return it
                 val serverResponse = responseHandler(
@@ -99,7 +110,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         it.copy(
                             isLoading = false,
                             success = false,
-                            response = if (serverResponse.response != "Unauthorized") serverResponse.response else "Wrong username or password"
+                            messageEvent = MessageEvent(if (serverResponse.response != "Unauthorized") serverResponse.response else "Wrong username or password")
                         )
                     }
 
@@ -108,7 +119,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                             it.copy(
                                 isLoading = false,
                                 success = true,
-                                response = serverResponse.response
+                                messageEvent = MessageEvent(serverResponse.response)
                             )
                         }
                         // Save user
@@ -136,7 +147,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = false,
-                        response = "Error: ${e.localizedMessage}"
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
                     )
                 }
                 throw e
@@ -145,8 +156,8 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
     }
 
     private fun autologin() {
-        viewModelScope.launch(Dispatchers.Default) {
-            _personUiState.update { it.copy(isLoading = true, response = null) }
+        viewModelScope.launch(dispatcher) {
+            _personUiState.update { it.copy(isLoading = true) }
             // Get saved preferences
             val username = PreferencesDaoImpl.getUsername()
             val password = PreferencesDaoImpl.getPassword()
@@ -157,7 +168,6 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = false,
-                        response = null
                     )
                 }
             } else {
@@ -170,7 +180,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
         personId: Long,
         name: String,
     ) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             try {
                 _personUiState.update { it.copy(isLoading = true) }
                 // Insert new person
@@ -195,7 +205,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         it.copy(
                             isLoading = false,
                             success = true,
-                            response = "Successfully inserted user."
+                            messageEvent = MessageEvent("Successfully inserted user.")
                         )
                     }
                     AppLogger.i(
@@ -209,7 +219,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                         it.copy(
                             isLoading = false,
                             success = false,
-                            response = "Person already contained in database."
+                            messageEvent = MessageEvent("Person already contained in database.")
                         )
                     }
                     AppLogger.i(
@@ -232,7 +242,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = false,
-                        response = "Error: ${e.localizedMessage}"
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
                     )
                 }
             }
@@ -240,9 +250,9 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
     }
 
     fun getAllPersons() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             try {
-                _personUiState.update { it.copy(isLoading = true, response = null) }
+                _personUiState.update { it.copy(isLoading = true) }
                 // Insert new person
                 AppLogger.i(
                     ProcessTags.GetAllPersons.name,
@@ -257,7 +267,6 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = true,
-                        response = null,
                         persons = persons
                     )
                 }
@@ -275,7 +284,7 @@ class PersonViewModel(database: PrintStainDatabase) : ViewModel() {
                     it.copy(
                         isLoading = false,
                         success = false,
-                        response = "Error: ${e.localizedMessage}"
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
                     )
                 }
             }

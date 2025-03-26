@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
@@ -18,22 +20,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
+import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.component.ReturnButton
-import org.example.project.ui.component.SnackBarComponent
 import org.example.project.util.imageSelector
+import org.example.project.util.urlImageToBitmap
 import org.example.project.viewModel.ItemViewModel
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.decodeToImageBitmap
 import org.jetbrains.compose.resources.painterResource
 import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.image_placeholder_3x
 import java.io.File
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
 @Composable
 fun ModelNewScreen(
     previousRoute: String,
@@ -43,24 +44,9 @@ fun ModelNewScreen(
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val snackBarColor = remember { mutableStateOf(AppColors.primaryColor) }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var imageList by remember { mutableStateOf(MutableList(8) { "" }) }
-
-    LaunchedEffect(itemUiState.success) {
-        snackBarColor.value = if (itemUiState.success) AppColors.successColor else AppColors.errorColor
-    }
-
-    LaunchedEffect(itemUiState.response) {
-        if (!itemUiState.isLoading && itemUiState.response != null && itemUiState.response != "Item selected successfully") {
-            snackbarHostState.showSnackbar(
-                message = itemUiState.response!!,
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
+    var imageList by remember { mutableStateOf(List(8) { "" }) }
 
     MaterialTheme(
         colors = Colors(
@@ -79,12 +65,15 @@ fun ModelNewScreen(
             isLight = true
         )
     ) {
-        if (itemUiState.isLoading) LoadingIndicator()
-
-        SnackBarComponent(
-            snackbarHostState = snackbarHostState,
-            snackBarColor = snackBarColor
+        // Toaster
+        MessageToaster(
+            messageEvent = itemUiState.messageEvent,
+            success = itemUiState.success,
+            onMessageConsumed = { itemViewModel.consumeMessage() }
         )
+
+        // Loading indicator
+        if (itemUiState.isLoading) LoadingIndicator()
 
         Scaffold(
             backgroundColor = AppColors.backgroundColor,
@@ -129,28 +118,54 @@ fun ModelNewScreen(
                             shape = RoundedCornerShape(30.dp),
                             elevation = CardDefaults.cardElevation(8.dp),
                         ) {
-                            Image(
-                                painter = if (imageList[i].isNotEmpty()) {
-                                    BitmapPainter(
-                                        File(imageList[i]).inputStream().readAllBytes().decodeToImageBitmap()
-                                    )
-                                } else {
-                                    painterResource(Res.drawable.image_placeholder_3x)
-                                },
-                                contentDescription = "User selected image",
-                                contentScale = ContentScale.FillBounds,
+                            // Delete X on top
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .border(
-                                        shape = RoundedCornerShape(30.dp),
-                                        border = BorderStroke(2.dp, AppColors.accentColor)
-                                    )
-                                    .clickable {
+                                    .fillMaxWidth()
+                            ) {
+                                IconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .zIndex(3f),
+                                    onClick = {
+                                        // Remove image from the list
                                         imageList = imageList.toMutableList().apply {
-                                            this[i] = imageSelector().toString()
+                                            this[i] = ""
                                         }
                                     }
-                            )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Delete image",
+                                        tint = AppColors.accentColor
+                                    )
+                                }
+                                Image(
+                                    painter = if (imageList[i].isNotBlank() && File(imageList[i]).exists()) {
+                                        BitmapPainter(
+                                            urlImageToBitmap(imageList[i])
+                                        )
+                                    } else {
+                                        painterResource(Res.drawable.image_placeholder_3x)
+                                    },
+                                    contentDescription = "User selected image",
+                                    contentScale = ContentScale.FillBounds,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .border(
+                                            shape = RoundedCornerShape(30.dp),
+                                            border = BorderStroke(2.dp, AppColors.accentColor)
+                                        )
+                                        .clickable {
+                                            val imageUrl = imageSelector().toString()
+                                            if (imageUrl.isNotEmpty() && File(imageUrl).exists()) {
+                                                imageList = imageList.toMutableList().apply {
+                                                    this[i] = imageUrl
+                                                }
+                                            }
+                                        }
+                                )
+                            }
                         }
                     }
                 }
@@ -189,15 +204,20 @@ fun ModelNewScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Save model button
                 Button(
                     onClick = {
-                        // Implement save logic here
+                        itemViewModel.createItem(
+                            name = name,
+                            description = description,
+                            images = imageList
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     shape = RoundedCornerShape(8.dp),
-                    enabled = name.isNotEmpty() && description.isNotEmpty(),
+                    enabled = name.isNotEmpty() && description.isNotEmpty() && imageList.any { it.isNotEmpty() },
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = AppColors.primaryColor,
                         contentColor = AppColors.textOnPrimaryColor,

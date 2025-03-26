@@ -1,3 +1,6 @@
+import kotlin.Boolean;
+
+
 CREATE TABLE Item (
     itemId INTEGER PRIMARY KEY,
     name TEXT,
@@ -5,6 +8,7 @@ CREATE TABLE Item (
     postDate TEXT,
     timesUploaded INTEGER DEFAULT 0,
     personId INTEGER,
+    archived INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY (personId) REFERENCES Person(personId)
 );
 
@@ -15,10 +19,15 @@ SELECT
     p.personId AS person_personId,
     p.name AS person_name,
     img.imageId AS image_id,
-    img.base64Image AS image_data
+    img.base64Image AS image_data,
+    s.saleId AS sale_saleId,
+    s.price AS sale_price,
+    s.date AS sale_date,
+    s.cost AS sale_cost
 FROM Item i
 LEFT JOIN Person p ON i.personId = p.personId
-LEFT JOIN Image img ON img.item_id = i.itemId;
+LEFT JOIN Image img ON img.item_id = i.itemId
+LEFT JOIN Sale s ON s.itemId = i.itemId;
 
 -- Get item by ID
 selectItemById:
@@ -55,3 +64,7 @@ SET name = ?,
     timesUploaded = ?,
     personId = ?
 WHERE itemId = ?;
+
+-- Delete an item
+deleteItem:
+DELETE FROM Item WHERE itemId = ?;

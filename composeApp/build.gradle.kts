@@ -93,6 +93,9 @@ kotlin {
             implementation(libs.coroutines.extensions)
 
             implementation(libs.okhttp)
+
+            // Toaster
+            implementation(libs.sonner)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
