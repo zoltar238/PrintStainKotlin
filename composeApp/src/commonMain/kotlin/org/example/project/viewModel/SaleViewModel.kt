@@ -199,4 +199,72 @@ class SaleViewModel(
             }
         }
     }
+
+    fun deleteSale(saleId: Long) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                _saleUiState.update { it.copy(isLoading = true) }
+
+                // Get access token
+                val token = PreferencesDaoImpl.getToken()
+
+                // Delete sale from server
+                val serverResponse = responseHandler(
+                    "Delete sale",
+                    ProcessTags.SaleDelete.name,
+                    "String",
+                ) {
+                    ClientController.saleController.deleteSale(
+                        saleId = saleId,
+                        token = "Bearer $token"
+                    )
+                }
+
+                when (serverResponse.success) {
+                    false -> _saleUiState.update {
+                        it.copy(
+                            messageEvent = MessageEvent(serverResponse.response),
+                            success = false,
+                            isLoading = false
+                        )
+                    }
+
+                    true -> {
+                        // Delete sale from local database
+                        saleDao.deleteSale(saleId)
+
+                        // Get all saved sales
+                        val localSales = saleDao.getALlSales().first()
+
+                        // Update the state with the newly received items
+                        _saleUiState.update {
+                            it.copy(
+                                sales = localSales,
+                                messageEvent = MessageEvent(serverResponse.response),
+                                isLoading = false,
+                                success = true
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle possible SQL exceptions
+                AppLogger.e(
+                    ProcessTags.SaleDelete.name,
+                    """
+                    Process: Delete sale.
+                    Status: Internal error deleting sale.
+                """.trimIndent(),
+                    e
+                )
+                _saleUiState.update {
+                    it.copy(
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}"),
+                        isLoading = false,
+                        success = true
+                    )
+                }
+            }
+        }
+    }
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
 import org.example.project.ui.main.model.ModelsScreen
+import org.example.project.ui.main.sale.SalesScreen
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -32,10 +33,10 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
     // Load initial data
-    if (saleUiState.sales.isEmpty()){
+    if (saleUiState.sales.isEmpty()) {
         saleViewModel.getAllSales()
     }
-    if (itemUiState.items.isEmpty()){
+    if (itemUiState.items.isEmpty()) {
         itemViewModel.getAllItems()
     }
 
@@ -99,7 +100,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                 content = {
                     // Pantalla principal según la vista seleccionada
                     when (selectedView) {
-                        "Sales" -> SalesScreen(saleViewModel)
+                        "Sales" -> SalesScreen(saleViewModel, itemViewModel)
                         // Send model status and collected models
                         "Models" -> ModelsScreen(
                             navController = navController,

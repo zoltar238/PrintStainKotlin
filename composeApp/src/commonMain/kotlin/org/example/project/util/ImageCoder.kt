@@ -25,11 +25,6 @@ fun encodeBitmapToBase64(bitmap: ImageBitmap): String {
     return Base64.getEncoder().encodeToString(outputStream.toByteArray())
 }
 
-fun encodeUrlToBase64(imageUrl: String): String {
-    val img = File(imageUrl)
-    return Base64.getEncoder().encodeToString(img.readBytes())
-}
-
 @OptIn(ExperimentalResourceApi::class)
 fun urlImageToBitmap(url: String): ImageBitmap {
     return File(url).inputStream().readAllBytes().decodeToImageBitmap()

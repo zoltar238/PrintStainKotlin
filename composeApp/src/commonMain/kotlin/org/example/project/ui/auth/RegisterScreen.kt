@@ -199,7 +199,8 @@ fun RegisterScreen(
 
                     // Only proceed if all validations pass
                     if (isNameValid && isSurnameValid && isUsernameValid &&
-                        isEmailValid && isPasswordValid && isRepeatedPasswordValid) {
+                        isEmailValid && isPasswordValid && isRepeatedPasswordValid
+                    ) {
                         personViewModel.registerUser(
                             PersonDto(
                                 name = name,

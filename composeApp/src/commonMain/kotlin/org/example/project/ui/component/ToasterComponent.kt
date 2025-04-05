@@ -13,7 +13,7 @@ import org.example.project.viewModel.MessageEvent
 fun MessageToaster(
     messageEvent: MessageEvent?,
     success: Boolean,
-    onMessageConsumed: () -> Unit
+    onMessageConsumed: () -> Unit,
 ) {
     val toaster = rememberToasterState()
 

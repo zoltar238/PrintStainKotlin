@@ -58,7 +58,8 @@ fun AppNavigation() {
             )
         }
         // Screen to add new model to the database
-        composable(route = "model_add_new?option={option}", arguments = listOf(
+        composable(
+            route = "model_add_new?option={option}", arguments = listOf(
             navArgument("option") {
                 type = NavType.StringType
                 defaultValue = "new"

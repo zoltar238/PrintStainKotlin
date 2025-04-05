@@ -27,7 +27,8 @@ data class PersonUiState(
 
 class PersonViewModel(
     database: PrintStainDatabase,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO) : ViewModel() {
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : ViewModel() {
 
     private val personDao: PersonDao = PersonDaoImpl(database)
 

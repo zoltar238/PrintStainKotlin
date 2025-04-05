@@ -19,7 +19,7 @@ interface SaleController {
 
     @DELETE("sale/deleteSale")
     suspend fun deleteSale(
-        @Body saleDto: SaleDto,
+        @Query("saleId") saleId: Long,
         @Header("Authorization") token: String,
-    ): String
+    ): Response<ResponseApi<String>>
 }

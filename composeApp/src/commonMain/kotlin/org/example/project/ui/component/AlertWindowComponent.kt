@@ -14,7 +14,7 @@ fun AlertDialog(
     message: String,
     confirmButton: String = "Accept",
     onConfirm: () -> Unit,
-    dismissButton: String = "Cancel"
+    dismissButton: String = "Cancel",
 ) {
     if (show) {
         AlertDialog(

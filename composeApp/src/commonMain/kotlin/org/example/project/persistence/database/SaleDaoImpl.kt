@@ -30,4 +30,8 @@ class SaleDaoImpl(db: PrintStainDatabase) : SaleDao {
     override fun getALlSales(): Flow<List<Sale>> {
         return query.selectAllSales().asFlow().mapToList(Dispatchers.IO)
     }
+
+    override suspend fun deleteSale(saleId: Long) {
+        query.deleteSaleById(saleId)
+    }
 }

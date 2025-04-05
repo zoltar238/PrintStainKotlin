@@ -17,7 +17,7 @@ import org.example.project.ui.AppColors
 @Composable
 fun ReturnButton(navController: NavHostController, navigationRoute: String) {
     // Back button with improved styling
-    Box(modifier =  Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
 
         Button(
             onClick = { navController.navigate(navigationRoute) },

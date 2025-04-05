@@ -99,7 +99,9 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                     ) {
                         if (itemUiState.items.isNotEmpty()) {
                             itemUiState.items.forEach { item ->
-                                if (item.item.name?.contains(searchValue) == true || searchValue.length <= 2) {
+                                if (item.item.name?.lowercase()
+                                        ?.contains(searchValue.lowercase()) == true || searchValue.length <= 2
+                                ) {
                                     ModelCard(item, navController, itemViewModel)
                                 }
                             }

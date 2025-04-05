@@ -17,6 +17,11 @@ INSERT OR REPLACE INTO Sale (
     itemId)
 VALUES(?, ?, ?, ?, ?);
 
+-- Delete sale by ID
+deleteSaleById:
+DELETE FROM Sale
+WHERE saleId = ?;
+
 -- Get all sales
 selectAllSales:
 SELECT

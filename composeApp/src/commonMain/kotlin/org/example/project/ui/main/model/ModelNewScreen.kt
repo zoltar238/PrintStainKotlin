@@ -47,8 +47,8 @@ fun ModelNewScreen(
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var name by remember { mutableStateOf( if (option != "new") itemUiState.selectedItem?.item?.name else "") }
-    var description by remember { mutableStateOf( if (option != "new") itemUiState.selectedItem?.item?.description else "")}
+    var name by remember { mutableStateOf(if (option != "new") itemUiState.selectedItem?.item?.name else "") }
+    var description by remember { mutableStateOf(if (option != "new") itemUiState.selectedItem?.item?.description else "") }
 
     var imageBitmapList: List<ImageBitmap> by remember {
         mutableStateOf(

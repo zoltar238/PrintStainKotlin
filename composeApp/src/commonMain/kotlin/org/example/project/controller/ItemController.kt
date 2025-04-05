@@ -15,8 +15,14 @@ interface ItemController {
     suspend fun postItem(@Header("Authorization") token: String, @Body itemDto: ItemDto): Response<ResponseApi<ItemDto>>
 
     @HTTP(method = "DELETE", path = "item/deleteItems", hasBody = true)
-    suspend fun deleteItems(@Header("Authorization") token: String, @Body itemDtos: List<ItemDto>): Response<ResponseApi<String>>
+    suspend fun deleteItems(
+        @Header("Authorization") token: String,
+        @Body itemDtos: List<ItemDto>,
+    ): Response<ResponseApi<String>>
 
     @PUT("item/updateItem")
-    suspend fun updateItem(@Header("Authorization") token: String, @Body itemDto: ItemDto): Response<ResponseApi<ItemDto>>
+    suspend fun updateItem(
+        @Header("Authorization") token: String,
+        @Body itemDto: ItemDto,
+    ): Response<ResponseApi<ItemDto>>
 }
