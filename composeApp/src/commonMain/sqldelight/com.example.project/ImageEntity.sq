@@ -13,4 +13,7 @@ INSERT OR REPLACE INTO Image(
     item_id)
 VALUES (?, ?, ?);
 
--- Select images by item id
+-- Delete images by item ID
+deleteImagesByItemId:
+DELETE FROM Image
+WHERE item_id = ?;

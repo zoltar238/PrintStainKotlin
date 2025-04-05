@@ -6,4 +6,6 @@ interface ImageDao {
         base64Image: String,
         item_id: Long,
     )
+
+    suspend fun deleteImagesById(imageId: Long)
 }

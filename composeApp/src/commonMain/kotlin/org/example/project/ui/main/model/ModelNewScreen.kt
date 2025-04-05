@@ -17,6 +17,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.component.ReturnButton
+import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.util.imageSelector
 import org.example.project.util.urlImageToBitmap
 import org.example.project.viewModel.ItemViewModel
@@ -40,13 +42,26 @@ fun ModelNewScreen(
     previousRoute: String,
     itemViewModel: ItemViewModel,
     navController: NavHostController,
+    option: String,
 ) {
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var imageList by remember { mutableStateOf(List(8) { "" }) }
+    var name by remember { mutableStateOf( if (option != "new") itemUiState.selectedItem?.item?.name else "") }
+    var description by remember { mutableStateOf( if (option != "new") itemUiState.selectedItem?.item?.description else "")}
+
+    var imageBitmapList: List<ImageBitmap> by remember {
+        mutableStateOf(
+            if (option == "new") {
+                List(8) { ImageBitmap(1, 1) }
+            } else {
+                // Load images from the selected item and fill the list with placeholders
+                itemUiState.selectedItem?.images?.map { decodeBase64ToBitmap(it.base64Image!!) }?.take(8)?.let {
+                    it + List(8 - it.size) { ImageBitmap(1, 1) }
+                }!!
+            }
+        )
+    }
 
     MaterialTheme(
         colors = Colors(
@@ -94,7 +109,7 @@ fun ModelNewScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Add new model",
+                    text = if (option == "new") "Add new model" else "Modify model",
                     style = MaterialTheme.typography.h4.copy(color = AppColors.textOnBackgroundColor),
                     modifier = Modifier.padding(all = 16.dp)
                 )
@@ -112,7 +127,7 @@ fun ModelNewScreen(
                         ),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(count = imageList.size, key = { index -> imageList[index] + index }) { i ->
+                    items(count = imageBitmapList.size) { i ->
                         Card(
                             modifier = Modifier.size(200.dp),
                             shape = RoundedCornerShape(30.dp),
@@ -129,8 +144,8 @@ fun ModelNewScreen(
                                         .zIndex(3f),
                                     onClick = {
                                         // Remove image from the list
-                                        imageList = imageList.toMutableList().apply {
-                                            this[i] = ""
+                                        imageBitmapList = imageBitmapList.toMutableList().apply {
+                                            this[i] = ImageBitmap(1, 1)
                                         }
                                     }
                                 ) {
@@ -141,10 +156,8 @@ fun ModelNewScreen(
                                     )
                                 }
                                 Image(
-                                    painter = if (imageList[i].isNotBlank() && File(imageList[i]).exists()) {
-                                        BitmapPainter(
-                                            urlImageToBitmap(imageList[i])
-                                        )
+                                    if (imageBitmapList[i].width > 1) {
+                                        BitmapPainter(imageBitmapList[i])
                                     } else {
                                         painterResource(Res.drawable.image_placeholder_3x)
                                     },
@@ -159,8 +172,8 @@ fun ModelNewScreen(
                                         .clickable {
                                             val imageUrl = imageSelector().toString()
                                             if (imageUrl.isNotEmpty() && File(imageUrl).exists()) {
-                                                imageList = imageList.toMutableList().apply {
-                                                    this[i] = imageUrl
+                                                imageBitmapList = imageBitmapList.toMutableList().apply {
+                                                    this[i] = urlImageToBitmap(imageUrl)
                                                 }
                                             }
                                         }
@@ -173,7 +186,7 @@ fun ModelNewScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = name,
+                    value = name!!,
                     label = { Text("Name", color = AppColors.textOnBackgroundColor) },
                     shape = RoundedCornerShape(8.dp),
                     onValueChange = { name = it },
@@ -189,7 +202,7 @@ fun ModelNewScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = description,
+                    value = description!!,
                     label = { Text("Description", color = AppColors.textOnBackgroundColor) },
                     shape = RoundedCornerShape(8.dp),
                     onValueChange = { description = it },
@@ -207,17 +220,26 @@ fun ModelNewScreen(
                 // Save model button
                 Button(
                     onClick = {
-                        itemViewModel.createItem(
-                            name = name,
-                            description = description,
-                            images = imageList
-                        )
+                        // Create or modify item
+                        if (option == "new") {
+                            itemViewModel.createItem(
+                                name = name!!,
+                                description = description!!,
+                                images = imageBitmapList
+                            )
+                        } else {
+                            itemViewModel.modifyItem(
+                                name = name!!,
+                                description = description!!,
+                                images = imageBitmapList
+                            )
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     shape = RoundedCornerShape(8.dp),
-                    enabled = name.isNotEmpty() && description.isNotEmpty() && imageList.any { it.isNotEmpty() },
+                    enabled = name!!.isNotEmpty() && description!!.isNotEmpty() && imageBitmapList.any { it.height > 1 },
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = AppColors.primaryColor,
                         contentColor = AppColors.textOnPrimaryColor,
@@ -225,7 +247,11 @@ fun ModelNewScreen(
                         disabledContentColor = AppColors.surfaceColor
                     )
                 ) {
-                    Text("Save model")
+                    if (option == "new") {
+                        Text("Create model")
+                    } else {
+                        Text("Modify model")
+                    }
                 }
             }
         }

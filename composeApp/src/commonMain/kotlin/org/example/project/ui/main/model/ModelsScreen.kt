@@ -25,6 +25,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemWithRelations
 import org.example.project.ui.AppColors
+import org.example.project.ui.component.AlertDialog
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
@@ -66,7 +67,7 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
                             contentAlignment = Alignment.Center
                         ) {
                             IconButton(onClick = {
-                                navController.navigate("model_add_new")
+                                navController.navigate("model_add_new?option=new")
                             }) {
                                 Text(
                                     text = "+",
@@ -137,7 +138,6 @@ fun SearchBar(
 // Model individual cards
 @Composable
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
-    val uiState by itemViewModel.itemUiState.collectAsState()
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     Card(
@@ -179,7 +179,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             contentColor = AppColors.textOnPrimaryColor
                         )
                     ) {
-                        org.example.project.ui.component.AlertDialog(
+                        AlertDialog(
                             show = showDialog,
                             onDismiss = { showDialog = false },
                             title = "Are you sure you want to delete this item?",
@@ -190,7 +190,19 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                         )
                         Text("Delete item")
                     }
-                    Text("Modify item", modifier = Modifier.padding(8.dp))
+                    Button(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        onClick = {
+                            itemViewModel.getItemById(item.item.itemId)
+                            navController.navigate("model_add_new?option=edit")
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = AppColors.textOnPrimaryColor
+                        )
+                    ) {
+                        Text("Modify item")
+                    }
                 }
 
             } else {

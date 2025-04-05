@@ -1,5 +1,6 @@
 package org.example.project.viewModel
 
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,9 +15,10 @@ import org.example.project.logging.ProcessTags
 import org.example.project.model.dto.ImageDto
 import org.example.project.model.dto.ItemDto
 import org.example.project.model.dto.ItemWithRelations
+import org.example.project.model.dto.PersonDto
 import org.example.project.persistence.database.*
 import org.example.project.persistence.preferences.PreferencesDaoImpl
-import org.example.project.util.encodeUrlToBase64
+import org.example.project.util.encodeBitmapToBase64
 
 
 data class ItemUiState(
@@ -166,7 +168,7 @@ class ItemViewModel(
         }
     }
 
-    fun createItem(name: String, description: String, images: List<String>) {
+    fun createItem(name: String, description: String, images: List<ImageBitmap>) {
         viewModelScope.launch(dispatcher) {
             try {
                 // Update state to loading
@@ -176,8 +178,8 @@ class ItemViewModel(
                 val itemDto = ItemDto(
                     name = name,
                     description = description,
-                    images = images.filter { it.isNotEmpty() }.map {
-                        ImageDto(base64Image = encodeUrlToBase64(it))
+                    images = images.filter { it.width > 1 }.map {
+                        ImageDto(base64Image = encodeBitmapToBase64(it))
                     }
                 )
 
@@ -341,6 +343,92 @@ class ItemViewModel(
                         success = true
                     )
                 }
+            } catch (e: Exception) {
+                // Handle possible exceptions
+                AppLogger.e(
+                    "Update items locally",
+                    """
+                    Process: Local update.
+                    Status: Error retrieving items from local database.
+                """.trimIndent(),
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error updating items: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun modifyItem(name: String, description: String, images: List<ImageBitmap>) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                AppLogger.i(
+                    "Update items locally",
+                    """
+                    Process: Local item update.
+                    Status: Updating local items.
+                """.trimIndent(),
+                )
+                // Indicate the operation has started
+                _itemUiState.update { it.copy(isLoading = true) }
+
+                // Get token
+                val token = PreferencesDaoImpl.getToken()
+
+                // Create ItemDto
+                val itemDto = ItemDto(
+                    itemId = itemUiState.value.selectedItem?.item?.itemId,
+                    name = name,
+                    description = description,
+                    images = images.filter { (it.width > 1 && it.height > 1) }.map { image ->
+                            ImageDto(base64Image = encodeBitmapToBase64(image))
+                    },
+                    person = PersonDto(
+                        personId = itemUiState.value.selectedItem?.person?.personId,
+                        name = itemUiState.value.selectedItem?.person?.name
+                    )
+                )
+
+                // Update items on server
+                val serverResponse = responseHandler(
+                    "Update model",
+                    ProcessTags.ItemsGetAll.name,
+                    "List"
+                ) { ClientController.itemController.updateItem("Bearer $token", itemDto) }
+
+                if (!serverResponse.success) {
+                    // Update state with the newly received items
+                    _itemUiState.update {
+                        it.copy(
+                            isLoading = false,
+                            messageEvent = MessageEvent(serverResponse.response),
+                            success = false
+                        )
+                    }
+                } else {
+                    // Remove previous images
+                    _itemUiState.value.selectedItem?.item?.let { imageDao.deleteImagesById(it.itemId) }
+                    // Save item in the local database
+                    insertItems(listOf(serverResponse.data), serverResponse.response)
+                    // Get updated items directly from the local database
+                    val localItems = itemDao.getAllItemsWithRelation().first()
+
+                    // Update state with retrieved items
+                    _itemUiState.update {
+                        it.copy(
+                            items = localItems,
+                            isLoading = false,
+                            messageEvent = MessageEvent("Model has been updated"),
+                            success = true
+                        )
+                    }
+                }
+
             } catch (e: Exception) {
                 // Handle possible exceptions
                 AppLogger.e(

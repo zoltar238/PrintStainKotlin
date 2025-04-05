@@ -1,9 +1,11 @@
 package org.example.project.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import kotlinx.coroutines.runBlocking
 import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.createDatabase
@@ -56,11 +58,19 @@ fun AppNavigation() {
             )
         }
         // Screen to add new model to the database
-        composable("model_add_new") {
+        composable(route = "model_add_new?option={option}", arguments = listOf(
+            navArgument("option") {
+                type = NavType.StringType
+                defaultValue = "new"
+                nullable = false
+            }
+        )) { backStackEntry ->
+            val option = backStackEntry.arguments!!.getString("option")
             ModelNewScreen(
                 navController = navController,
                 itemViewModel = AppModule.itemViewModel,
-                previousRoute = "main_app_view"
+                previousRoute = "main_app_view",
+                option = option!!
             )
         }
     }

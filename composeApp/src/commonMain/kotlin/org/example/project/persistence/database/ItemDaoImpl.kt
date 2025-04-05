@@ -69,7 +69,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                             item_id = row.image_id
                         )
                     }
-                }
+                }.toCollection(LinkedHashSet()).toList()
 
                 // Map sales
                 val sales = rows.mapNotNull { row ->

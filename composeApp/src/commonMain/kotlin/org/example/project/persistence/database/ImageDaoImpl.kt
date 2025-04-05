@@ -17,4 +17,8 @@ class ImageDaoImpl(db: PrintStainDatabase) : ImageDao {
             item_id = item_id
         )
     }
+
+    override suspend fun deleteImagesById(imageId: Long) {
+        query.deleteImagesByItemId(imageId)
+    }
 }
