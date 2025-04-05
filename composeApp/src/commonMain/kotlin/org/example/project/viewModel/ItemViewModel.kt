@@ -386,7 +386,7 @@ class ItemViewModel(
                     name = name,
                     description = description,
                     images = images.filter { (it.width > 1 && it.height > 1) }.map { image ->
-                            ImageDto(base64Image = encodeBitmapToBase64(image))
+                        ImageDto(base64Image = encodeBitmapToBase64(image))
                     },
                     person = PersonDto(
                         personId = itemUiState.value.selectedItem?.person?.personId,
