@@ -272,33 +272,33 @@ class SaleViewModel(
 
     private fun updateSale(saleId: Long) {
         viewModelScope.launch(dispatcher) {
-                _saleUiState.update { it.copy(isLoading = true) }
+            _saleUiState.update { it.copy(isLoading = true) }
 
-                // Update sale inside database
-                saleDao.getSaleById(saleId).collect { sale ->
-                    _saleUiState.update { it ->
-                        it.copy(
-                            sales = _saleUiState.value.sales.map {
-                                // Update the sale with the new values
-                                if (it.saleId == saleId) {
-                                    it.copy(
-                                        cost = sale.cost,
-                                        price = sale.price,
-                                        itemId = sale.itemId,
-                                        status = sale.status
-                                    )
-                                } else {
-                                    it
-                                }
-                            },
-                            messageEvent = MessageEvent("Sale updated"),
-                            isLoading = false,
-                            success = true
-                        )
-                    }
+            // Update sale inside database
+            saleDao.getSaleById(saleId).collect { sale ->
+                _saleUiState.update { it ->
+                    it.copy(
+                        sales = _saleUiState.value.sales.map {
+                            // Update the sale with the new values
+                            if (it.saleId == saleId) {
+                                it.copy(
+                                    cost = sale.cost,
+                                    price = sale.price,
+                                    itemId = sale.itemId,
+                                    status = sale.status
+                                )
+                            } else {
+                                it
+                            }
+                        },
+                        messageEvent = MessageEvent("Sale updated"),
+                        isLoading = false,
+                        success = true
+                    )
                 }
             }
         }
+    }
 
     fun modifySale(saleId: Long, cost: BigDecimal, price: BigDecimal, status: String) {
         viewModelScope.launch(dispatcher) {

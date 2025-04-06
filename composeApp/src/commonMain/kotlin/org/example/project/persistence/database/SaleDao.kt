@@ -15,7 +15,7 @@ interface SaleDao {
         saleId: Long,
         cost: Double?,
         price: Double?,
-        status: String?
+        status: String?,
     )
 
     suspend fun insertSale(saleId: Long, date: String?, cost: Double?, price: Double?, itemId: Long?, status: String?)

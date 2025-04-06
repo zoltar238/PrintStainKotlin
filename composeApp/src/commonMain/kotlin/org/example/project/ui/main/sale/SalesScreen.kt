@@ -91,7 +91,8 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(saleUiState.sales) { sale ->
-                                val bitmap = itemUiState.items.find { it.item.itemId == sale.itemId }?.images?.firstOrNull()?.base64Image
+                                val bitmap =
+                                    itemUiState.items.find { it.item.itemId == sale.itemId }?.images?.firstOrNull()?.base64Image
                                 val imageBitmap = bitmap?.let { decodeBase64ToBitmap(it) }
 
                                 if (imageBitmap != null) {
@@ -236,14 +237,14 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val statusColor = when(sale.status) {
+    val statusColor = when (sale.status) {
         "CANCELED" -> AppColors.errorColor.copy(alpha = 0.2f)
         "COMPLETED" -> AppColors.successColor.copy(alpha = 0.2f)
         "IN_PROGRESS" -> AppColors.warningColor.copy(alpha = 0.2f)
         else -> AppColors.secondaryBackgroundColor
     }
 
-    val statusTextColor = when(sale.status) {
+    val statusTextColor = when (sale.status) {
         "CANCELED" -> AppColors.errorColor
         "COMPLETED" -> AppColors.successColor
         "IN_PROGRESS" -> AppColors.warningColor
@@ -516,7 +517,7 @@ fun EditSaleDialog(sale: Sale, saleViewModel: SaleViewModel, onDismiss: () -> Un
                                         statusMenuExpanded = false
                                     },
                                     leadingIcon = {
-                                        val color = when(status) {
+                                        val color = when (status) {
                                             "CANCELED" -> AppColors.errorColor
                                             "COMPLETED" -> AppColors.successColor
                                             "IN_PROGRESS" -> AppColors.warningColor

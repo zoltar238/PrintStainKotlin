@@ -60,12 +60,12 @@ fun AppNavigation() {
         // Screen to add new model to the database
         composable(
             route = "model_add_new?option={option}", arguments = listOf(
-            navArgument("option") {
-                type = NavType.StringType
-                defaultValue = "new"
-                nullable = false
-            }
-        )) { backStackEntry ->
+                navArgument("option") {
+                    type = NavType.StringType
+                    defaultValue = "new"
+                    nullable = false
+                }
+            )) { backStackEntry ->
             val option = backStackEntry.arguments!!.getString("option")
             ModelNewScreen(
                 navController = navController,

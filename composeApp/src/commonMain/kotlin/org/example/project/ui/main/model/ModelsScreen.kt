@@ -203,7 +203,7 @@ fun SearchBar(
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-    
+
     Card(
         modifier = Modifier
             .width(170.dp)
@@ -288,7 +288,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                     }
                 }
             }
-            
+
             // Menu de opciones - visible solo cuando showContextMenu es true
             androidx.compose.animation.AnimatedVisibility(
                 visible = showContextMenu.value,
@@ -314,7 +314,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             tint = AppColors.accentColor
                         )
                     }
-                    
+
                     // Menu content
                     Column(
                         modifier = Modifier
@@ -330,7 +330,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             color = AppColors.textOnPrimaryColor,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        
+
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
@@ -350,9 +350,9 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             )
                             Text("Edit")
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         OutlinedButton(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { showDialog = true },
@@ -372,7 +372,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                     }
                 }
             }
-            
+
             // Dialog de confirmación para eliminar
             AlertDialog(
                 show = showDialog,
