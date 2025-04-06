@@ -16,4 +16,12 @@ interface SaleDao {
     fun getALlSales(): Flow<List<Sale>>
 
     suspend fun deleteSale(saleId: Long)
+
+    fun getSaleById(saleId: Long): Flow<Sale>
+
+    suspend fun updateSale(
+        saleId: Long,
+        cost: Double?,
+        price: Double?,
+    )
 }

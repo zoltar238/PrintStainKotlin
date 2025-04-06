@@ -267,4 +267,108 @@ class SaleViewModel(
             }
         }
     }
+
+    private fun updateSale(saleId: Long) {
+        viewModelScope.launch(dispatcher) {
+                _saleUiState.update { it.copy(isLoading = true) }
+
+                // Update sale inside database
+                saleDao.getSaleById(saleId).collect { sale ->
+                    _saleUiState.update { it ->
+                        it.copy(
+                            sales = _saleUiState.value.sales.map {
+                                // Update the sale with the new values
+                                if (it.saleId == saleId) {
+                                    it.copy(
+                                        cost = sale.cost,
+                                        price = sale.price,
+                                        itemId = sale.itemId
+                                    )
+                                } else {
+                                    it
+                                }
+                            },
+                            messageEvent = MessageEvent("Sale updated"),
+                            isLoading = false,
+                            success = true
+                        )
+                    }
+                }
+            }
+        }
+
+    fun modifySale(saleId: Long, cost: BigDecimal, price: BigDecimal) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                _saleUiState.update { it.copy(isLoading = true) }
+
+                val token = PreferencesDaoImpl.getToken()
+
+                val saleDto = SaleDto(
+                    saleId = saleId,
+                    cost = cost,
+                    price = price,
+                    date = OffsetDateTime.now()
+                )
+
+                val serverResponse = responseHandler(
+                    "Update sale",
+                    ProcessTags.SaleUpdate.name,
+                    "String",
+                ) {
+                    ClientController.saleController.updateSale(
+                        saleDto = saleDto,
+                        token = "Bearer $token"
+                    )
+                }
+
+                when (serverResponse.success) {
+                    false -> _saleUiState.update {
+                        it.copy(
+                            messageEvent = MessageEvent(serverResponse.response),
+                            success = false,
+                            isLoading = false
+                        )
+                    }
+
+                    true -> {
+                        // Update sale in local database
+                        saleDao.updateSale(
+                            saleId = saleId,
+                            cost = cost.toDouble(),
+                            price = price.toDouble(),
+                        )
+
+                        updateSale(saleId)
+
+                        // Update state
+                        _saleUiState.update {
+                            it.copy(
+                                messageEvent = MessageEvent(serverResponse.response),
+                                isLoading = false,
+                                success = true
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Manejar posibles excepciones SQL
+                AppLogger.e(
+                    ProcessTags.SaleUpdate.name,
+                    """
+                        Process: Update sale.
+                        Status: Internal error updating sale.
+                    """.trimIndent(),
+                    e
+                )
+                _saleUiState.update {
+                    it.copy(
+                        messageEvent = MessageEvent("Error: ${e.localizedMessage}"),
+                        isLoading = false,
+                        success = true
+                    )
+                }
+            }
+        }
+    }
 }

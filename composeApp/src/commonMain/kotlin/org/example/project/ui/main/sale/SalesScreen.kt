@@ -29,8 +29,8 @@ import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
+import java.math.BigDecimal
 import kotlin.random.Random
-
 
 @Composable
 fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
@@ -62,14 +62,20 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Text(
+                text = "Sales Overview",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
             Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                Text(text = "", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                Text(text = "Id", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                Text(text = "Cost", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                Text(text = "Price", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                Text(text = "Date", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
+                Text(text = "", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text(text = "Sale Id", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text(text = "Model", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text(text = "Cost", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text(text = "Price", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                Text(text = "Date", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
             }
-            if (saleUiState.sales.isNotEmpty() and (itemUiState.items.isNotEmpty())) {
+            if (saleUiState.sales.isNotEmpty() && itemUiState.items.isNotEmpty()) {
                 LazyColumn {
                     items(saleUiState.sales) { sale ->
                         SaleItem(
@@ -90,10 +96,13 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
 fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel) {
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp)
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -114,7 +123,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Delete image",
+                        contentDescription = "Close menu",
                         tint = AppColors.accentColor
                     )
                 }
@@ -131,7 +140,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                             show = showDialog,
                             onDismiss = { showDialog = false },
                             title = "Are you sure you want to delete this sale?",
-                            message = "Warning, this sale will be deleted and you wont be able to recover it",
+                            message = "Warning, this sale will be deleted and you won't be able to recover it",
                             confirmButton = "Accept",
                             onConfirm = { saleViewModel.deleteSale(sale.saleId) },
                             dismissButton = "Cancel"
@@ -140,8 +149,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                     }
                     Button(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = {
-                        },
+                        onClick = { showEditDialog = true },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
                             contentColor = AppColors.textOnPrimaryColor
@@ -152,7 +160,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 }
             } else {
                 Image(
-                    bitmap = imageBitmap, // Asegúrate de que el objeto Sale tenga una propiedad imageBitmap
+                    bitmap = imageBitmap,
                     contentDescription = "Item Image",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -168,20 +176,75 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Delete image",
+                        contentDescription = "Open menu",
                         tint = AppColors.accentColor
                     )
                 }
             }
-
         }
         Spacer(modifier = Modifier.width(8.dp))
         // Sale info
         Text(text = "${sale.saleId}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Text(text = "${sale.itemId}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Text(text = "${sale.cost}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Text(text = "${sale.price}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Text(text = "${sale.date}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
     }
+
+    if (showEditDialog) {
+        EditSaleDialog(
+            sale = sale,
+            onDismiss = { showEditDialog = false },
+            onSave = { showEditDialog = false },
+            saleViewModel = saleViewModel
+        )
+    }
+}
+
+@Composable
+fun EditSaleDialog(sale: Sale, saleViewModel: SaleViewModel, onDismiss: () -> Unit, onSave: (Sale) -> Unit) {
+    var cost by remember { mutableStateOf(sale.cost) }
+    var price by remember { mutableStateOf(sale.price) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Sale") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = cost.toString(),
+                    onValueChange = { cost = it.toDoubleOrNull() ?: sale.cost },
+                    label = { Text("Cost") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = price.toString(),
+                    onValueChange = { price = it.toDoubleOrNull() ?: sale.price },
+                    label = { Text("Price") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                // Update the sale with new values
+                saleViewModel.modifySale(
+                    saleId = sale.saleId,
+                    cost = BigDecimal(cost!!),
+                    price = BigDecimal(price!!),
+
+                )
+                onSave
+            }, enabled = cost != sale.cost || price != sale.price) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable

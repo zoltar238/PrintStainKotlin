@@ -22,4 +22,10 @@ interface SaleController {
         @Query("saleId") saleId: Long,
         @Header("Authorization") token: String,
     ): Response<ResponseApi<String>>
+
+    @PUT("sale/updateSale")
+    suspend fun updateSale(
+        @Body saleDto: SaleDto,
+        @Header("Authorization") token: String,
+    ): Response<ResponseApi<String>>
 }

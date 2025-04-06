@@ -17,6 +17,14 @@ INSERT OR REPLACE INTO Sale (
     itemId)
 VALUES(?, ?, ?, ?, ?);
 
+-- Update sale
+updateSale:
+UPDATE Sale
+SET
+    cost = ?,
+    price = ?
+WHERE saleId = ?;
+
 -- Delete sale by ID
 deleteSaleById:
 DELETE FROM Sale
@@ -28,3 +36,10 @@ SELECT
     s.*
 FROM Sale s
 LEFT JOIN Item i ON s.itemId = i.itemId;
+
+-- Get sale by ID
+selectSaleById:
+SELECT
+    s.*
+FROM Sale s
+WHERE s.saleId = ?;
