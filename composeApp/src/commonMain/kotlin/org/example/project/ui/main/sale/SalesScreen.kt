@@ -1,27 +1,35 @@
 package org.example.project.ui.main.sale
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
-import androidx.compose.ui.zIndex
-import com.netguru.multiplatform.charts.ChartAnimation
-import com.netguru.multiplatform.charts.bar.*
 import comexampleproject.Sale
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
@@ -30,13 +38,13 @@ import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import java.math.BigDecimal
-import kotlin.random.Random
 
 @Composable
 fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
     // Load sale data
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
+    val lazyListState = rememberLazyListState()
 
     LaunchedEffect(saleUiState.messageEvent?.message) {
         if (saleUiState.messageEvent?.message == "Sale deleted successfully") {
@@ -46,151 +54,321 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
     }
 
     MaterialTheme {
-        // Loading indicator
-        if (saleUiState.isLoading) LoadingIndicator()
-
-        // Toast
-        MessageToaster(
-            messageEvent = saleUiState.messageEvent,
-            success = saleUiState.success,
-            onMessageConsumed = { saleViewModel.consumeMessage() }
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Sales Overview",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Background color
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppColors.secondaryBackgroundColor.copy(alpha = 0.3f))
             )
-            Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                Text(text = "", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                Text(text = "Sale Id", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                Text(text = "Model", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                Text(text = "Cost", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                Text(text = "Price", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                Text(text = "Date", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-            }
-            if (saleUiState.sales.isNotEmpty() && itemUiState.items.isNotEmpty()) {
-                LazyColumn {
-                    items(saleUiState.sales) { sale ->
-                        SaleItem(
-                            sale,
-                            decodeBase64ToBitmap(itemUiState.items.find { it.item.itemId == sale.itemId }?.images?.first()?.base64Image!!),
-                            saleViewModel = saleViewModel
-                        )
+
+            // Content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Header
+                Header()
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Sales table header
+                TableHeader()
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Sales list
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    if (saleUiState.sales.isNotEmpty() && itemUiState.items.isNotEmpty()) {
+                        LazyColumn(
+                            state = lazyListState,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(saleUiState.sales) { sale ->
+                                val bitmap = itemUiState.items.find { it.item.itemId == sale.itemId }?.images?.firstOrNull()?.base64Image
+                                val imageBitmap = bitmap?.let { decodeBase64ToBitmap(it) }
+
+                                if (imageBitmap != null) {
+                                    SaleItem(
+                                        sale = sale,
+                                        imageBitmap = imageBitmap,
+                                        saleViewModel = saleViewModel
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        EmptyState()
                     }
                 }
-            } else {
-                Text(text = "No sales found", style = MaterialTheme.typography.bodyLarge)
             }
+
+            // Toast and Loading indicator
+            AnimatedVisibility(
+                visible = saleUiState.isLoading,
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300)),
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                LoadingIndicator()
+            }
+
+            MessageToaster(
+                messageEvent = saleUiState.messageEvent,
+                success = saleUiState.success,
+                onMessageConsumed = { saleViewModel.consumeMessage() }
+            )
+        }
+    }
+}
+
+@Composable
+fun Header() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Sales Overview",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                text = "Manage and track your sales records",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+
+        Button(
+            onClick = { /* Add new sale functionality */ },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AppColors.accentColor
+            ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Sale",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add Sale")
+        }
+    }
+}
+
+@Composable
+fun TableHeader() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = AppColors.accentColor.copy(alpha = 0.1f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.7f)
+            )
+            Text(
+                text = "Sale ID",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.8f)
+            )
+            Text(
+                text = "Model",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.8f)
+            )
+            Text(
+                text = "Cost",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(0.7f)
+            )
+            Text(
+                text = "Price",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(0.7f)
+            )
+            Text(
+                text = "Date",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = "Status",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(0.8f)
+            )
+            Text(
+                text = "Actions",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(0.6f)
+            )
         }
     }
 }
 
 @Composable
 fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel) {
-    val showContextMenu = remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    Row(
+    val statusColor = when(sale.status) {
+        "CANCELED" -> AppColors.errorColor.copy(alpha = 0.2f)
+        "COMPLETED" -> AppColors.successColor.copy(alpha = 0.2f)
+        "IN_PROGRESS" -> AppColors.warningColor.copy(alpha = 0.2f)
+        else -> AppColors.secondaryBackgroundColor
+    }
+
+    val statusTextColor = when(sale.status) {
+        "CANCELED" -> AppColors.errorColor
+        "COMPLETED" -> AppColors.successColor
+        "IN_PROGRESS" -> AppColors.warningColor
+        else -> Color.Gray
+    }
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(120.dp)
-                .weight(1f)
-                .background(AppColors.secondaryBackgroundColor)
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (showContextMenu.value) {
-                IconButton(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .zIndex(3f),
-                    onClick = {
-                        showContextMenu.value = false
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close menu",
-                        tint = AppColors.accentColor
-                    )
-                }
-                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = { showDialog = true },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = AppColors.textOnPrimaryColor
-                        )
-                    ) {
-                        org.example.project.ui.component.AlertDialog(
-                            show = showDialog,
-                            onDismiss = { showDialog = false },
-                            title = "Are you sure you want to delete this sale?",
-                            message = "Warning, this sale will be deleted and you won't be able to recover it",
-                            confirmButton = "Accept",
-                            onConfirm = { saleViewModel.deleteSale(sale.saleId) },
-                            dismissButton = "Cancel"
-                        )
-                        Text("Delete sale")
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = { showEditDialog = true },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = AppColors.textOnPrimaryColor
-                        )
-                    ) {
-                        Text("Modify sale")
-                    }
-                }
-            } else {
+            // Image
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .weight(0.7f),
+                contentAlignment = Alignment.Center
+            ) {
                 Image(
                     bitmap = imageBitmap,
                     contentDescription = "Item Image",
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .size(50.dp)
+                        .clip(RoundedCornerShape(8.dp))
                 )
-                // Menu icon
-                IconButton(
+            }
+
+            // Sale info
+            Text(
+                text = "#${sale.saleId}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(0.8f)
+            )
+            Text(
+                text = "${sale.itemId}",
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(0.8f)
+            )
+            Text(
+                text = "$${sale.cost}",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(0.7f)
+            )
+            Text(
+                text = "$${sale.price}",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(0.7f)
+            )
+            Text(
+                text = "${sale.date?.toString()?.substringBefore("T") ?: ""}",
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Status chip
+            Box(
+                modifier = Modifier
+                    .weight(0.8f)
+                    .padding(end = 8.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .zIndex(3f),
-                    onClick = {
-                        showContextMenu.value = true
-                    }
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(statusColor)
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = sale.status?.replace("_", " ") ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusTextColor,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            // Actions
+            Row(
+                modifier = Modifier.weight(0.6f),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(
+                    onClick = { showEditDialog = true },
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Open menu",
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = "Edit Sale",
                         tint = AppColors.accentColor
+                    )
+                }
+
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Delete,
+                        contentDescription = "Delete Sale",
+                        tint = AppColors.errorColor
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        // Sale info
-        Text(text = "${sale.saleId}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        Text(text = "${sale.itemId}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        Text(text = "${sale.cost}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        Text(text = "${sale.price}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        Text(text = "${sale.date}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
     }
 
+    // Edit dialog
     if (showEditDialog) {
         EditSaleDialog(
             sale = sale,
@@ -199,144 +377,189 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
             saleViewModel = saleViewModel
         )
     }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Sale") },
+            text = {
+                Text("Are you sure you want to delete this sale? This action cannot be undone.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        saleViewModel.deleteSale(sale.saleId)
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.errorColor
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun EmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.ShoppingCart,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = Color.Gray.copy(alpha = 0.5f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No sales found",
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Your sales records will appear here",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
 fun EditSaleDialog(sale: Sale, saleViewModel: SaleViewModel, onDismiss: () -> Unit, onSave: (Sale) -> Unit) {
     var cost by remember { mutableStateOf(sale.cost) }
     var price by remember { mutableStateOf(sale.price) }
+    var selectedStatus by remember { mutableStateOf(sale.status ?: "IN_PROGRESS") }
+    var statusMenuExpanded by remember { mutableStateOf(false) }
+
+    val statusOptions = listOf("IN_PROGRESS", "COMPLETED", "CANCELED")
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Sale") },
+        title = { Text("Edit Sale #${sale.saleId}") },
         text = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 OutlinedTextField(
-                    value = cost.toString(),
+                    value = cost?.toString() ?: "",
                     onValueChange = { cost = it.toDoubleOrNull() ?: sale.cost },
-                    label = { Text("Cost") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Cost ($)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                    }
                 )
+
                 OutlinedTextField(
-                    value = price.toString(),
+                    value = price?.toString() ?: "",
                     onValueChange = { price = it.toDoubleOrNull() ?: sale.price },
-                    label = { Text("Price") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Price ($)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+                    }
                 )
+
+                // Status dropdown
+                Column {
+                    Text(
+                        text = "Status",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                    )
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = selectedStatus.replace("_", " "),
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = { statusMenuExpanded = true }) {
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Status")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        DropdownMenu(
+                            expanded = statusMenuExpanded,
+                            onDismissRequest = { statusMenuExpanded = false },
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            statusOptions.forEach { status ->
+                                DropdownMenuItem(
+                                    text = { Text(status.replace("_", " ")) },
+                                    onClick = {
+                                        selectedStatus = status
+                                        statusMenuExpanded = false
+                                    },
+                                    leadingIcon = {
+                                        val color = when(status) {
+                                            "CANCELED" -> AppColors.errorColor
+                                            "COMPLETED" -> AppColors.successColor
+                                            "IN_PROGRESS" -> AppColors.warningColor
+                                            else -> Color.Gray
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .background(color, CircleShape)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = {
-                // Update the sale with new values
-                saleViewModel.modifySale(
-                    saleId = sale.saleId,
-                    cost = BigDecimal(cost!!),
-                    price = BigDecimal(price!!),
-
-                )
-                onSave
-            }, enabled = cost != sale.cost || price != sale.price) {
-                Text("Save")
+            Button(
+                onClick = {
+                    // Update the sale with new values
+                    saleViewModel.modifySale(
+                        saleId = sale.saleId,
+                        cost = BigDecimal(cost ?: 0.0),
+                        price = BigDecimal(price ?: 0.0),
+                        status = selectedStatus
+                    )
+                    onSave(sale)
+                },
+                enabled = cost != sale.cost || price != sale.price || selectedStatus != sale.status,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Save Changes")
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text("Cancel")
             }
         }
-    )
-}
-
-@Composable
-fun DropdownMenu() {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Selecciona una opción") }
-
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        // Cuadro de selección
-        OutlinedTextField(
-            value = selectedOption,
-            onValueChange = {},
-            label = { Text("Opción") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
-            }
-        )
-
-        // Menú desplegable
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }, // Cierra el menú si se hace clic fuera
-            properties = PopupProperties(focusable = true), // Habilita la interacción
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp) // Asegúrate de que no se solape
-        ) {
-            // Opción 1
-            DropdownMenuItem(
-                onClick = {
-                    selectedOption = "Opción 1"
-                    expanded = false
-                },
-                text = { Text("Opción 1") }  // Agregamos el texto correctamente aquí
-            )
-
-            // Opción 2
-            DropdownMenuItem(
-                onClick = {
-                    selectedOption = "Opción 2"
-                    expanded = false
-                },
-                text = { Text("Opción 2") }  // Agregamos el texto correctamente aquí
-            )
-
-            // Opción 3
-            DropdownMenuItem(
-                onClick = {
-                    selectedOption = "Opción 3"
-                    expanded = false
-                },
-                text = { Text("Opción 3") }  // Agregamos el texto correctamente aquí
-            )
-        }
-    }
-}
-
-@Composable
-fun LineChart(sales: List<Sale>) {
-    val barChartData = BarChartData(
-        categories = sales.groupBy { it.saleId }.map { (saleId, salesList) ->
-            BarChartCategory(
-                name = saleId.toString(),
-                entries = salesList.map { sale ->
-                    BarChartEntry(
-                        //x = sale.date.toString().substring(0, sale.date.toString().lastIndexOf(" ")) + "\n",
-                        // Todo: implement item names
-                        x = "randomItemName",
-                        y = sale.price?.toFloat() ?: 0f, // Valor del precio
-                        color = Color(
-                            Random.nextInt(256),
-                            Random.nextInt(256),
-                            Random.nextInt(256)
-                        ), // Color dinámico
-                        //data = sale // Incluimos el objeto completo como referencia
-                    )
-                }
-            )
-        }
-    )
-    BarChart(
-        data = barChartData,
-        config = BarChartConfig(
-            thickness = 14.dp,
-            cornerRadius = 7.dp,
-        ),
-        modifier = Modifier.height(500.dp),
-        animation = ChartAnimation.Sequenced(),
     )
 }

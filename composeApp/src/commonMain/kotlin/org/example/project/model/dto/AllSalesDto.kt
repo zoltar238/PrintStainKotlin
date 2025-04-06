@@ -12,6 +12,7 @@ data class AllSalesDto(
     @Serializable(with = BigDecimalSerializer::class) val cost: BigDecimal? = null,
     @Serializable(with = OffsetDateTimeSerializer::class) val date: OffsetDateTime? = null,
     val itemName: String? = null,
+    val status: String? = null,
     @Serializable(with = BigDecimalSerializer::class) val price: BigDecimal? = null,
     val itemId: Long? = null,
 )

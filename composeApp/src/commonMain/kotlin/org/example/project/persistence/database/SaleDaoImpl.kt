@@ -18,13 +18,15 @@ class SaleDaoImpl(db: PrintStainDatabase) : SaleDao {
         cost: Double?,
         price: Double?,
         itemId: Long?,
+        status: String?,
     ) {
         query.insertOrReplaceSale(
             saleId = saleId,
             date = date,
             cost = cost,
             price = price,
-            itemId = itemId
+            itemId = itemId,
+            status = status
         )
     }
 
@@ -40,11 +42,12 @@ class SaleDaoImpl(db: PrintStainDatabase) : SaleDao {
         return query.selectSaleById(saleId).asFlow().mapToOne(Dispatchers.IO)
     }
 
-    override suspend fun updateSale(saleId: Long, cost: Double?, price: Double?) {
+    override suspend fun updateSale(saleId: Long, cost: Double?, price: Double?, status: String?) {
         query.updateSale(
             cost = cost,
             price = price,
-            saleId = saleId
+            saleId = saleId,
+            status = status,
         )
     }
 }

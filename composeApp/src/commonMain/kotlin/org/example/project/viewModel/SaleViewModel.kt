@@ -80,7 +80,8 @@ class SaleViewModel(
                                 date = sale.date.toString(),
                                 cost = sale.cost?.toDouble(),
                                 price = sale.price?.toDouble(),
-                                itemId = sale.itemId
+                                itemId = sale.itemId,
+                                status = sale.status
                             )
                         }
 
@@ -162,7 +163,8 @@ class SaleViewModel(
                             date = saleDto.date.toString(),
                             cost = saleDto.cost?.toDouble(),
                             price = saleDto.price?.toDouble(),
-                            itemId = saleDto.itemId
+                            itemId = saleDto.itemId,
+                            status = "IN_PROGRESS"
                         )
 
                         // Get all saved sales
@@ -282,7 +284,8 @@ class SaleViewModel(
                                     it.copy(
                                         cost = sale.cost,
                                         price = sale.price,
-                                        itemId = sale.itemId
+                                        itemId = sale.itemId,
+                                        status = sale.status
                                     )
                                 } else {
                                     it
@@ -297,7 +300,7 @@ class SaleViewModel(
             }
         }
 
-    fun modifySale(saleId: Long, cost: BigDecimal, price: BigDecimal) {
+    fun modifySale(saleId: Long, cost: BigDecimal, price: BigDecimal, status: String) {
         viewModelScope.launch(dispatcher) {
             try {
                 _saleUiState.update { it.copy(isLoading = true) }
@@ -308,6 +311,7 @@ class SaleViewModel(
                     saleId = saleId,
                     cost = cost,
                     price = price,
+                    status = status,
                     date = OffsetDateTime.now()
                 )
 
@@ -337,6 +341,7 @@ class SaleViewModel(
                             saleId = saleId,
                             cost = cost.toDouble(),
                             price = price.toDouble(),
+                            status = status,
                         )
 
                         updateSale(saleId)

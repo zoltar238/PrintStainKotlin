@@ -146,6 +146,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.startup.runtime)
+    implementation(libs.androidx.animation.android)
     debugImplementation(compose.uiTooling)
 }
 

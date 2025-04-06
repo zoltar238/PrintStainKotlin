@@ -3,6 +3,7 @@ CREATE TABLE Sale (
     date TEXT,
     cost REAL,
     price REAl,
+    status TEXT,
     itemId INTEGER,
     FOREIGN KEY (itemId) REFERENCES Item(itemId)
 );
@@ -14,15 +15,17 @@ INSERT OR REPLACE INTO Sale (
     date,
     cost,
     price,
+    status,
     itemId)
-VALUES(?, ?, ?, ?, ?);
+VALUES(?, ?, ?, ?, ?, ?);
 
 -- Update sale
 updateSale:
 UPDATE Sale
 SET
     cost = ?,
-    price = ?
+    price = ?,
+    status = ?
 WHERE saleId = ?;
 
 -- Delete sale by ID

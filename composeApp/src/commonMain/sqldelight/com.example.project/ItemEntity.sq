@@ -23,7 +23,8 @@ SELECT
     s.saleId AS sale_saleId,
     s.price AS sale_price,
     s.date AS sale_date,
-    s.cost AS sale_cost
+    s.cost AS sale_cost,
+    s.status AS sale_status
 FROM Item i
 LEFT JOIN Person p ON i.personId = p.personId
 LEFT JOIN Image img ON img.item_id = i.itemId

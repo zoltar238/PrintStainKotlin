@@ -5,14 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface SaleDao {
 
-    suspend fun insertSale(
-        saleId: Long,
-        date: String?,
-        cost: Double?,
-        price: Double?,
-        itemId: Long?,
-    )
-
     fun getALlSales(): Flow<List<Sale>>
 
     suspend fun deleteSale(saleId: Long)
@@ -23,5 +15,8 @@ interface SaleDao {
         saleId: Long,
         cost: Double?,
         price: Double?,
+        status: String?
     )
+
+    suspend fun insertSale(saleId: Long, date: String?, cost: Double?, price: Double?, itemId: Long?, status: String?)
 }

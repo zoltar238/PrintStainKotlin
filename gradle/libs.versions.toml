@@ -36,6 +36,7 @@ activityKtx = "1.10.1"
 androidx-activityCompose = "1.10.1"
 foundationAndroid = "1.7.8"
 startupRuntime = "1.2.0"
+animationAndroid = "1.7.8"
 
 
 [libraries]
@@ -82,6 +83,7 @@ retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit
 sonner = { module = "io.github.dokar3:sonner", version.ref = "sonner" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqliteDriver" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startupRuntime" }
+androidx-animation-android = { group = "androidx.compose.animation", name = "animation-android", version.ref = "animationAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -1,26 +1,26 @@
 package org.example.project.ui.main.model
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.model.dto.ItemWithRelations
@@ -31,7 +31,7 @@ import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel) {
     // Scrollbar status
@@ -51,63 +51,77 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
         // Loading indicator
         if (itemUiState.isLoading) LoadingIndicator()
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().background(AppColors.backgroundColor)) {
             Scaffold(
-                bottomBar = {
-                    Box(
+                containerColor = AppColors.backgroundColor,
+                contentColor = AppColors.textOnBackgroundColor
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp, end = 16.dp),
-                        contentAlignment = Alignment.BottomEnd
+                            .padding(paddingValues)
+                            .fillMaxSize()
                     ) {
-                        Box(
+                        // Search bar
+                        SearchBar(
+                            query = searchValue,
+                            onQueryChange = { newValue -> searchValue = newValue }
+                        )
+
+                        // Status row
+                        if (itemUiState.items.isNotEmpty()) {
+                            Text(
+                                text = "Showing ${
+                                    itemUiState.items.count {
+                                        it.item.name?.lowercase()
+                                            ?.contains(searchValue.lowercase()) == true || searchValue.length <= 2
+                                    }
+                                } models",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = AppColors.textOnBackgroundColor.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+
+                        // Model rows
+                        FlowRow(
                             modifier = Modifier
-                                .size(50.dp)
-                                .background(color = AppColors.primaryColor, shape = CircleShape),
-                            contentAlignment = Alignment.Center
+                                .padding(16.dp)
+                                .verticalScroll(scrollState)
+                                .fillMaxSize(),
+                            overflow = FlowRowOverflow.Visible,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            IconButton(onClick = {
-                                navController.navigate("model_add_new?option=new")
-                            }) {
-                                Text(
-                                    text = "+",
-                                    fontSize = 30.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            if (itemUiState.items.isNotEmpty()) {
+                                itemUiState.items.forEach { item ->
+                                    if (item.item.name?.lowercase()
+                                            ?.contains(searchValue.lowercase()) == true || searchValue.length <= 2
+                                    ) {
+                                        ModelCard(item, navController, itemViewModel)
+                                    }
+                                }
+                            } else {
+                                EmptyStateMessage(itemUiState.messageEvent?.message)
                             }
                         }
                     }
-                }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    // Search bar
-                    SearchBar(
-                        query = searchValue,
-                        onQueryChange = { newValue -> searchValue = newValue }
-                    )
-                    // Model rows
-                    FlowRow(
+
+                    // Floating action button
+                    FloatingActionButton(
+                        onClick = { navController.navigate("model_add_new?option=new") },
+                        containerColor = AppColors.primaryColor,
+                        contentColor = Color.White,
+                        elevation = FloatingActionButtonDefaults.elevation(8.dp),
                         modifier = Modifier
-                            .padding(16.dp)
-                            .verticalScroll(scrollState)
-                            .fillMaxSize(),
-                        overflow = FlowRowOverflow.Visible
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 24.dp, end = 24.dp)
+                            .zIndex(10f)
                     ) {
-                        if (itemUiState.items.isNotEmpty()) {
-                            itemUiState.items.forEach { item ->
-                                if (item.item.name?.lowercase()
-                                        ?.contains(searchValue.lowercase()) == true || searchValue.length <= 2
-                                ) {
-                                    ModelCard(item, navController, itemViewModel)
-                                }
-                            }
-                        } else {
-                            Text(itemUiState.messageEvent?.message ?: "No items found")
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add model"
+                        )
                     }
                 }
             }
@@ -116,10 +130,34 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
 }
 
 @Composable
+fun EmptyStateMessage(message: String?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp).padding(bottom = 16.dp),
+            tint = AppColors.primaryColor.copy(alpha = 0.5f)
+        )
+        Text(
+            text = message ?: "No models found",
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            color = AppColors.textOnBackgroundColor
+        )
+    }
+}
+
+@Composable
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    placeholder: String = "Buscar...",
+    placeholder: String = "Search models...",
 ) {
     OutlinedTextField(
         value = query,
@@ -127,13 +165,36 @@ fun SearchBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        placeholder = { Text(placeholder) },
+        placeholder = { Text(placeholder, color = AppColors.textOnBackgroundColor.copy(alpha = 0.6f)) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Buscar"
+                contentDescription = "Search",
+                tint = AppColors.primaryColor
             )
-        }
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear",
+                        tint = AppColors.primaryColor
+                    )
+                }
+            }
+        },
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = AppColors.primaryColor,
+            unfocusedBorderColor = AppColors.primaryColor.copy(alpha = 0.5f),
+            cursorColor = AppColors.primaryColor,
+            focusedContainerColor = AppColors.backgroundColor,
+            unfocusedContainerColor = AppColors.backgroundColor,
+            focusedTextColor = AppColors.textOnBackgroundColor,
+            unfocusedTextColor = AppColors.textOnBackgroundColor
+        ),
+        singleLine = true
     )
 }
 
@@ -142,120 +203,186 @@ fun SearchBar(
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    
     Card(
         modifier = Modifier
-            .width(200.dp)
-            .height(200.dp)
-            .padding(10.dp),
-        shape = RoundedCornerShape(30.dp),
-        // Shadow for better visibility
-        elevation = CardDefaults.cardElevation(8.dp)
+            .width(170.dp)
+            .height(220.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (showContextMenu.value) 0.dp else 4.dp
+        )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppColors.secondaryBackgroundColor)
+                .background(if (showContextMenu.value) AppColors.secondaryBackgroundColor else Color.Transparent)
         ) {
-            // Options menu
-            if (showContextMenu.value) {
-                IconButton(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .zIndex(3f),
-                    onClick = {
-                        showContextMenu.value = false
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Delete image",
-                        tint = AppColors.accentColor
-                    )
-                }
-                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = { showDialog = true },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = AppColors.textOnPrimaryColor
-                        )
-                    ) {
-                        AlertDialog(
-                            show = showDialog,
-                            onDismiss = { showDialog = false },
-                            title = "Are you sure you want to delete this item?",
-                            message = "Warning, this item will be deleted and you wont be able to recover it",
-                            confirmButton = "Accept",
-                            onConfirm = { itemViewModel.deleteItem(listOf(item)) },
-                            dismissButton = "Cancel"
-                        )
-                        Text("Delete item")
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = {
-                            itemViewModel.getItemById(item.item.itemId)
-                            navController.navigate("model_add_new?option=edit")
-                        },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = AppColors.textOnPrimaryColor
-                        )
-                    ) {
-                        Text("Modify item")
-                    }
-                }
-
-            } else {
+            // Contenido normal (imagen de fondo, gradiente, etc.) - solo visible cuando el menú está oculto
+            if (!showContextMenu.value) {
+                // Background image
                 Image(
                     painter = BitmapPainter(decodeBase64ToBitmap(item.images.first().base64Image!!)),
                     contentDescription = item.item.description,
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable(onClick = {
                             itemViewModel.getItemById(item.item.itemId)
-                            // change screen
                             navController.navigate("model_details_screen")
                         })
                 )
 
-                // Menu icon
-                IconButton(
+                // Gradient overlay
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .zIndex(3f),
-                    onClick = {
-                        showContextMenu.value = true
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Delete image",
-                        tint = AppColors.accentColor
-                    )
-                }
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f)
+                                ),
+                                startY = 300f,
+                                endY = 900f
+                            )
+                        )
+                )
 
-                // Inferior text box
+                // Bottom text
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.7f)) // Fondo oscuro con transparencia
-                        .align(Alignment.BottomCenter) // Alinea al fondo
-                        .padding(8.dp), // Espaciado interno
-                    contentAlignment = Alignment.Center
+                        .align(Alignment.BottomCenter)
+                        .background(color = Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        text = item.item.name!!,
-                        style = MaterialTheme.typography.subtitle1,
-                        color = Color.White, // Texto claro para contraste
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        text = item.item.name ?: "",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
+
+                // Menu icon (more visible with a background)
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(32.dp)
+                        .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                        .align(Alignment.TopEnd)
+                ) {
+                    IconButton(
+                        modifier = Modifier.size(32.dp),
+                        onClick = { showContextMenu.value = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Options",
+                            tint = Color.White
+                        )
+                    }
+                }
             }
+            
+            // Menu de opciones - visible solo cuando showContextMenu es true
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showContextMenu.value,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(AppColors.secondaryBackgroundColor)
+                ) {
+                    // Close button
+                    IconButton(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .zIndex(3f),
+                        onClick = { showContextMenu.value = false }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close menu",
+                            tint = AppColors.accentColor
+                        )
+                    }
+                    
+                    // Menu content
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = item.item.name ?: "Model",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = AppColors.textOnPrimaryColor,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                itemViewModel.getItemById(item.item.itemId)
+                                navController.navigate("model_add_new?option=edit")
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AppColors.primaryColor,
+                                contentColor = AppColors.textOnPrimaryColor
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                            )
+                            Text("Edit")
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { showDialog = true },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.Red
+                            ),
+                            border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                            )
+                            Text("Delete")
+                        }
+                    }
+                }
+            }
+            
+            // Dialog de confirmación para eliminar
+            AlertDialog(
+                show = showDialog,
+                onDismiss = { showDialog = false },
+                title = "Delete this model?",
+                message = "This action cannot be undone and the model will be permanently deleted.",
+                confirmButton = "Delete",
+                onConfirm = { itemViewModel.deleteItem(listOf(item)) },
+                dismissButton = "Cancel"
+            )
         }
     }
 }
-
-

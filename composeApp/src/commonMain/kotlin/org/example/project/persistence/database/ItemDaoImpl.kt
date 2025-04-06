@@ -80,6 +80,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                             cost = row.sale_cost,
                             price = row.sale_price,
                             itemId = row.image_id,
+                            status = row.sale_status,
                         )
                     }
                 }
