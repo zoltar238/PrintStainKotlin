@@ -6,7 +6,7 @@ import androidx.compose.ui.Alignment
 import com.dokar.sonner.ToastType
 import com.dokar.sonner.Toaster
 import com.dokar.sonner.rememberToasterState
-import org.example.project.viewModel.MessageEvent
+import org.example.project.model.MessageEvent
 
 // Todo: further customize toast
 @Composable

@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import org.example.project.model.dto.FileDto
+import org.example.project.model.tree.TreeNode
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.*
 import org.example.project.util.decodeBase64ToBitmap
@@ -324,18 +326,78 @@ private fun infoBlock(uiState: ItemUiState) {
             thickness = 2.dp,
             modifier = Modifier.padding(top = 8.dp)
         )
-        FileStructureDetail()
+        FileStructureDetail(modelName = uiState.selectedItem!!.item!!.name!!)
     }
 }
 
-// File structure deatail view
+// File structure detail view
 @Composable
-fun FileStructureDetail() {
+fun FileStructureDetail(modelName: String) {
     var isHidden by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
         targetValue = if (isHidden) 180f else 0f,
         animationSpec = tween(200, easing = LinearEasing),
     )
+
+    // File structure tree
+    var fileStructureTree by remember { mutableStateOf(TreeNode(FileDto(
+        fileName = modelName,
+        fileType = "directory"
+    ))) }
+
+    // Crear una estructura de directorios más extensa
+    val srcFolder = TreeNode(FileDto(fileName = "src", fileType = "directory"))
+    val mainFolder = TreeNode(FileDto(fileName = "main", fileType = "directory"))
+    val testFolder = TreeNode(FileDto(fileName = "test", fileType = "directory"))
+
+    // Estructura dentro de main
+    val javaFolder = TreeNode(FileDto(fileName = "java", fileType = "directory"))
+    val resourcesFolder = TreeNode(FileDto(fileName = "resources", fileType = "directory"))
+
+    // Archivos en resources
+    resourcesFolder.addChild(TreeNode(FileDto(fileName = "application.properties", fileType = "file")))
+    resourcesFolder.addChild(TreeNode(FileDto(fileName = "log4j.xml", fileType = "file")))
+
+    // Estructura dentro de java
+    val comFolder = TreeNode(FileDto(fileName = "com", fileType = "directory"))
+    val exampleFolder = TreeNode(FileDto(fileName = "example", fileType = "directory"))
+    val projectFolder = TreeNode(FileDto(fileName = "project", fileType = "directory"))
+
+    // Agregar archivos Java
+    projectFolder.addChild(TreeNode(FileDto(fileName = "Main.java", fileType = "file")))
+    projectFolder.addChild(TreeNode(FileDto(fileName = "Controller.java", fileType = "file")))
+    projectFolder.addChild(TreeNode(FileDto(fileName = "Service.java", fileType = "file")))
+    projectFolder.addChild(TreeNode(FileDto(fileName = "Repository.java", fileType = "file")))
+
+    // Agregar modelos
+    val modelFolder = TreeNode(FileDto(fileName = "model", fileType = "directory"))
+    modelFolder.addChild(TreeNode(FileDto(fileName = "User.java", fileType = "file")))
+    modelFolder.addChild(TreeNode(FileDto(fileName = "Product.java", fileType = "file")))
+    projectFolder.addChild(modelFolder)
+
+    // Configurar la estructura completa
+    exampleFolder.addChild(projectFolder)
+    comFolder.addChild(exampleFolder)
+    javaFolder.addChild(comFolder)
+    mainFolder.addChild(javaFolder)
+    mainFolder.addChild(resourcesFolder)
+
+    // Estructura dentro de test
+    val testJavaFolder = TreeNode(FileDto(fileName = "java", fileType = "directory"))
+    testJavaFolder.addChild(TreeNode(FileDto(fileName = "MainTest.java", fileType = "file")))
+    testJavaFolder.addChild(TreeNode(FileDto(fileName = "RepositoryTest.java", fileType = "file")))
+    testFolder.addChild(testJavaFolder)
+
+    // Agregar a la estructura principal
+    srcFolder.addChild(mainFolder)
+    srcFolder.addChild(testFolder)
+    fileStructureTree.addChild(srcFolder)
+
+    // Agregar archivos de configuración del proyecto
+    fileStructureTree.addChild(TreeNode(FileDto(fileName = "pom.xml", fileType = "file")))
+    fileStructureTree.addChild(TreeNode(FileDto(fileName = "README.md", fileType = "file")))
+    fileStructureTree.addChild(TreeNode(FileDto(fileName = ".gitignore", fileType = "file")))
+
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
@@ -382,6 +444,7 @@ fun FileStructureDetail() {
                         ) {
                             Text("Upload Files")
                         }
+                        fileStructureTree.forEachDepthFirstText("-")
                         // Add file structure details content here
                     }
                 }
@@ -389,6 +452,7 @@ fun FileStructureDetail() {
         }
     }
 }
+
 
 @Composable
 fun ModelSale(

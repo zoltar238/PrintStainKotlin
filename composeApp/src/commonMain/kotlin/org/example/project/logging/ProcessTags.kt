@@ -2,6 +2,7 @@ package org.example.project.logging
 
 enum class ProcessTags {
     SaleDelete,
+    UpdateItem,
     SaleUpdate,
     CreateNewItem,
     DeleteItems,

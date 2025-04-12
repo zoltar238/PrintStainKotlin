@@ -1,4 +1,4 @@
-package org.example.project.viewModel
+package org.example.project.model
 
 data class MessageEvent(
     val message: String,
