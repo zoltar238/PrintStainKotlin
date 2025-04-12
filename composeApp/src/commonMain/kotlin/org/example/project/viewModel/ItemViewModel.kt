@@ -91,7 +91,6 @@ class ItemViewModel(
                 val serverResponse = responseHandler(
                     "Get all items from server",
                     ProcessTags.ItemsGetAll.name,
-                    "List"
                 ) { ClientController.itemController.getAllItems("Bearer $token") }
 
                 if (!serverResponse.success) {
@@ -104,7 +103,7 @@ class ItemViewModel(
                         )
                     }
                 } else {
-                    insertItems(serverResponse.data, serverResponse.response)
+                    insertItems(serverResponse.data!!, serverResponse.response)
                 }
             } catch (e: Exception) {
                 // Handle posible SQL exceptions
@@ -190,7 +189,6 @@ class ItemViewModel(
                 val serverResponse = responseHandler(
                     "Get all items from server",
                     ProcessTags.ItemsGetAll.name,
-                    "List"
                 ) {
                     ClientController.itemController.postItem(
                         "Bearer $token",
@@ -210,7 +208,7 @@ class ItemViewModel(
                 } else {
                     // Save item in the local database
                     insertItems(
-                        data = listOf(serverResponse.data),
+                        data = listOf(serverResponse.data!!),
                         response = serverResponse.response
                     )
                 }
@@ -258,7 +256,6 @@ class ItemViewModel(
                     val serverResponse = responseHandler(
                         "Delete items from server",
                         ProcessTags.DeleteItems.name,
-                        "List"
                     ) {
                         ClientController.itemController.deleteItems(
                             "Bearer $token",
@@ -266,36 +263,23 @@ class ItemViewModel(
                         )
                     }
 
-                    if (!serverResponse.success) {
-                        // Update state with the newly received items
-                        _itemUiState.update {
-                            it.copy(
-                                isLoading = false,
-                                messageEvent = MessageEvent(serverResponse.response),
-                                success = false
-                            )
-                        }
-                    } else {
-                        // Delete items from the local database
+                    // Delete items from the local database if the deletion was successful
+                    if (serverResponse.success) {
                         items.forEach { item ->
                             itemDao.deleteItem(item.item.itemId)
                         }
+                    }
 
-                        // Get updated items from the database
-                        val localItems = itemDao.getAllItemsWithRelation().first()
-
-                        // Update state with the newly received items
-                        _itemUiState.update {
-                            it.copy(
-                                items = localItems,
-                                isLoading = false,
-                                messageEvent = MessageEvent(serverResponse.response),
-                                success = true
-                            )
-                        }
+                    // Update state
+                    _itemUiState.update {
+                        it.copy(
+                            items = if (serverResponse.success) itemDao.getAllItemsWithRelation().first() else items,
+                            isLoading = false,
+                            messageEvent = MessageEvent(serverResponse.response),
+                            success = serverResponse.success
+                        )
                     }
                 }
-                // Get token
             } catch (e: Exception) {
                 // Handle posible exceptions
                 AppLogger.e(
@@ -398,7 +382,6 @@ class ItemViewModel(
                 val serverResponse = responseHandler(
                     "Update model",
                     ProcessTags.ItemsGetAll.name,
-                    "List"
                 ) { ClientController.itemController.updateItem("Bearer $token", itemDto) }
 
                 if (!serverResponse.success) {
@@ -414,7 +397,7 @@ class ItemViewModel(
                     // Remove previous images
                     _itemUiState.value.selectedItem?.item?.let { imageDao.deleteImagesById(it.itemId) }
                     // Save item in the local database
-                    insertItems(listOf(serverResponse.data), serverResponse.response)
+                    insertItems(listOf(serverResponse.data!!), serverResponse.response)
                     // Get updated items directly from the local database
                     val localItems = itemDao.getAllItemsWithRelation().first()
 

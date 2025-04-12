@@ -1,5 +1,8 @@
 package org.example.project.ui.main.model
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -10,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -17,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
@@ -225,12 +230,7 @@ fun ModelDetailsScreen(
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
-                                            if (pagerState.currentPage < pagerState.pageCount - 1) {
-                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                            } else {
-                                                // Loop to the first page
-                                                pagerState.animateScrollToPage(0)
-                                            }
+                                            pagerState.animateScrollToPage((pagerState.currentPage + 1) % pagerState.pageCount)
                                         }
                                     },
                                     modifier = Modifier.weight(1f),
@@ -319,6 +319,74 @@ private fun infoBlock(uiState: ItemUiState) {
             color = AppColors.textOnBackgroundColor,
             modifier = Modifier.padding(top = 8.dp),
         )
+        Divider(
+            color = Color.Gray,
+            thickness = 2.dp,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        FileStructureDetail()
+    }
+}
+
+// File structure deatail view
+@Composable
+fun FileStructureDetail() {
+    var isHidden by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (isHidden) 180f else 0f,
+        animationSpec = tween(200, easing = LinearEasing),
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column {
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
+                Text(
+                    text = "File structure details will be displayed here",
+                    color = AppColors.textOnBackgroundColor
+                )
+                IconButton(
+                    onClick = {
+                        println("Show stuff")
+                        isHidden = !isHidden
+                    },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDownward,
+                            tint = AppColors.textOnBackgroundColor,
+                            contentDescription = "Info icon",
+                            modifier = Modifier.rotate(rotation)
+                        )
+                    }
+                )
+            }
+            if (!isHidden) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = "Opps, looks like this model has no files, upload some with the button below.")
+                        Button(
+                            onClick = {
+                                // Add file upload functionality here
+                                println("Upload files button clicked")
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Upload Files")
+                        }
+                        // Add file structure details content here
+                    }
+                }
+            }
+        }
     }
 }
 

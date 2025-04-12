@@ -10,12 +10,12 @@ import retrofit2.Response
 inline fun <reified T> responseHandler(
     process: String,
     processTag: String,
-    returnType: String,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
     crossinline apiFunction: suspend () -> Response<ResponseApi<T>>,
 ): ResponseApi<T> {
     val deferredResult = CompletableDeferred<ResponseApi<T>>()
 
-    GlobalScope.launch(Dispatchers.IO) {
+    GlobalScope.launch(dispatcher) {
         try {
             AppLogger.i(
                 processTag,
@@ -32,8 +32,8 @@ inline fun <reified T> responseHandler(
                     Response: ${response.body()?.response ?: "No response body"}.""".trimIndent()
                 )
                 val responseBody =
-                    response.body() ?: createErrorResponse("Error receiving response from server", returnType)
-                deferredResult.complete(responseBody)
+                    response.body() ?: ResponseApi(false, "Error receiving response from server", null)
+                deferredResult.complete(responseBody as ResponseApi<T>)
             } else {
                 when (response.code()) {
                     401 -> {
@@ -43,7 +43,7 @@ inline fun <reified T> responseHandler(
                             Status: 401 Unauthorized.
                             Response: Unauthorized access.""".trimIndent()
                         )
-                        deferredResult.complete(createErrorResponse("Unauthorized", returnType))
+                        deferredResult.complete(ResponseApi(false, "Unauthorized", null))
                     }
 
                     else -> {
@@ -56,7 +56,7 @@ inline fun <reified T> responseHandler(
 
                         val errorResponse: ResponseApi<T> = try {
                             errorBody?.let { json.decodeFromString(it) }
-                                ?: createErrorResponse("Error parsing error response", returnType)
+                                ?: ResponseApi(false, "Error parsing error response", null)
                         } catch (e: Exception) {
                             AppLogger.e(
                                 processTag,
@@ -65,7 +65,7 @@ inline fun <reified T> responseHandler(
                                 Response: Error parsing error response.""".trimIndent(),
                                 e
                             )
-                            createErrorResponse("Internal error parsing response", returnType)
+                            ResponseApi(false, "Internal error parsing response", null)
                         }
 
                         AppLogger.w(
@@ -86,7 +86,7 @@ inline fun <reified T> responseHandler(
                 Response: Error connecting to server.""".trimIndent(),
                 e
             )
-            deferredResult.complete(createErrorResponse("Error connecting to server", returnType))
+            deferredResult.complete(ResponseApi(false, "Error connecting to server", null))
         } catch (e: Exception) {
             AppLogger.e(
                 processTag,
@@ -95,32 +95,9 @@ inline fun <reified T> responseHandler(
                 Response: Internal app error.""".trimIndent(),
                 e
             )
-            deferredResult.complete(createErrorResponse("Internal app error", returnType))
+            deferredResult.complete(ResponseApi(false, "The app experienced an unexpected internal error", null))
         }
     }
 
     return runBlocking { deferredResult.await() }
-}
-
-@Suppress("UNCHECKED_CAST")
-fun <T> createErrorResponse(response: String, returnType: String): ResponseApi<T> {
-    return when (returnType) {
-        "String" -> ResponseApi(
-            false,
-            response,
-            response
-        ) as ResponseApi<T>
-
-        "List" -> ResponseApi(
-            false,
-            response,
-            emptyList<T>()
-        ) as ResponseApi<T>
-
-        else -> ResponseApi(
-            false,
-            response,
-            null
-        ) as ResponseApi<T>
-    }
 }

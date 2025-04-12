@@ -56,7 +56,6 @@ class SaleViewModel(
                 val serverResponse = responseHandler(
                     "Get all sales from server",
                     ProcessTags.SaleFindAll.name,
-                    "String",
                 ) {
                     ClientController.saleController.findAllSales(
                         token = "Bearer $token"
@@ -74,7 +73,7 @@ class SaleViewModel(
 
                     true -> {
                         // Save each received sale
-                        serverResponse.data.forEach { sale ->
+                        serverResponse.data!!.forEach { sale ->
                             saleDao.insertSale(
                                 saleId = sale.saleId!!,
                                 date = sale.date.toString(),
@@ -132,14 +131,14 @@ class SaleViewModel(
                     cost = cost,
                     price = price,
                     itemId = itemId,
-                    date = OffsetDateTime.now()
+                    date = OffsetDateTime.now(),
+                    status = "IN_PROGRESS"
                 )
 
                 // Return the information from server
                 val serverResponse = responseHandler(
                     "Create new sale",
                     ProcessTags.SaleCreateNew.name,
-                    "String",
                 ) {
                     ClientController.saleController.createNewSale(
                         saleDto = saleDto,
@@ -159,7 +158,7 @@ class SaleViewModel(
                     true -> {
                         // Save the new sale
                         saleDao.insertSale(
-                            saleId = serverResponse.data,
+                            saleId = serverResponse.data!!,
                             date = saleDto.date.toString(),
                             cost = saleDto.cost?.toDouble(),
                             price = saleDto.price?.toDouble(),
@@ -214,7 +213,6 @@ class SaleViewModel(
                 val serverResponse = responseHandler(
                     "Delete sale",
                     ProcessTags.SaleDelete.name,
-                    "String",
                 ) {
                     ClientController.saleController.deleteSale(
                         saleId = saleId,
@@ -276,8 +274,8 @@ class SaleViewModel(
 
             // Update sale inside database
             saleDao.getSaleById(saleId).collect { sale ->
-                _saleUiState.update { it ->
-                    it.copy(
+                _saleUiState.update { state ->
+                    state.copy(
                         sales = _saleUiState.value.sales.map {
                             // Update the sale with the new values
                             if (it.saleId == saleId) {
@@ -318,7 +316,6 @@ class SaleViewModel(
                 val serverResponse = responseHandler(
                     "Update sale",
                     ProcessTags.SaleUpdate.name,
-                    "String",
                 ) {
                     ClientController.saleController.updateSale(
                         saleDto = saleDto,

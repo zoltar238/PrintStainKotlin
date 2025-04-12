@@ -55,7 +55,6 @@ class PersonViewModel(
                 val serverResponse = responseHandler(
                     "Register user",
                     ProcessTags.UserRegistration.name,
-                    "String"
                 ) { ClientController.userController.registerUser(personDto) }
                 when (serverResponse.success) {
                     false -> _personUiState.update {
@@ -104,7 +103,6 @@ class PersonViewModel(
                 val serverResponse = responseHandler(
                     "Login user",
                     ProcessTags.Userlogin.name,
-                    "String"
                 ) { ClientController.userController.loginUser(loginDto) }
                 when (serverResponse.success) {
                     false -> _personUiState.update {
@@ -128,10 +126,10 @@ class PersonViewModel(
                             PreferencesDaoImpl.saveUser(
                                 username = loginDto.username!!,
                                 password = loginDto.password!!,
-                                token = serverResponse.data
+                                token = serverResponse.data!!
                             )
                         } else {
-                            PreferencesDaoImpl.saveToken(serverResponse.data)
+                            PreferencesDaoImpl.saveToken(serverResponse.data!!)
                         }
                     }
                 }
