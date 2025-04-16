@@ -23,19 +23,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.exists
 import kotlinx.coroutines.launch
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.component.ReturnButton
 import org.example.project.util.decodeBase64ToBitmap
-import org.example.project.util.imageSelector
 import org.example.project.util.urlImageToBitmap
 import org.example.project.viewModel.ItemViewModel
 import org.jetbrains.compose.resources.painterResource
 import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.image_placeholder_3x
-import java.io.File
 
 @Composable
 fun ModelNewScreen(
@@ -170,10 +173,17 @@ fun ModelNewScreen(
                                             border = BorderStroke(2.dp, AppColors.accentColor)
                                         )
                                         .clickable {
-                                            val imageUrl = imageSelector().toString()
-                                            if (imageUrl.isNotEmpty() && File(imageUrl).exists()) {
-                                                imageBitmapList = imageBitmapList.toMutableList().apply {
-                                                    this[i] = urlImageToBitmap(imageUrl)
+                                            coroutineScope.launch {
+                                                val imageList = FileKit.openFilePicker(
+                                                    type = FileKitType.Image,
+                                                    mode = FileKitMode.Multiple()
+                                                )
+                                                imageList?.forEachIndexed { index, image ->
+                                                    if (image.exists() && index + i < imageBitmapList.size) {
+                                                        imageBitmapList = imageBitmapList.toMutableList().apply {
+                                                            this[i + index] = urlImageToBitmap(image.file.absolutePath)
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
