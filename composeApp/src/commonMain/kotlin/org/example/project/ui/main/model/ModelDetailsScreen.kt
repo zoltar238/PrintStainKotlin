@@ -13,7 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,6 +28,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
 import kotlinx.coroutines.launch
 import org.example.project.model.dto.FileDto
 import org.example.project.model.tree.TreeNode
@@ -334,16 +336,23 @@ private fun infoBlock(uiState: ItemUiState) {
 @Composable
 fun FileStructureDetail(modelName: String) {
     var isHidden by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val rotation by animateFloatAsState(
         targetValue = if (isHidden) 180f else 0f,
         animationSpec = tween(200, easing = LinearEasing),
     )
 
     // File structure tree
-    var fileStructureTree by remember { mutableStateOf(TreeNode(FileDto(
-        fileName = modelName,
-        fileType = "directory"
-    ))) }
+    var fileStructureTree by remember {
+        mutableStateOf(
+            TreeNode(
+                FileDto(
+                    fileName = modelName,
+                    fileType = "directory"
+                )
+            )
+        )
+    }
 
     // Crear una estructura de directorios más extensa
     val srcFolder = TreeNode(FileDto(fileName = "src", fileType = "directory"))
@@ -399,6 +408,8 @@ fun FileStructureDetail(modelName: String) {
     fileStructureTree.addChild(TreeNode(FileDto(fileName = ".gitignore", fileType = "file")))
 
 
+
+
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
             Row(
@@ -415,7 +426,7 @@ fun FileStructureDetail(modelName: String) {
                     },
                     content = {
                         Icon(
-                            imageVector = Icons.Filled.ArrowDownward,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             tint = AppColors.textOnBackgroundColor,
                             contentDescription = "Info icon",
                             modifier = Modifier.rotate(rotation)
@@ -437,15 +448,17 @@ fun FileStructureDetail(modelName: String) {
                         Text(text = "Opps, looks like this model has no files, upload some with the button below.")
                         Button(
                             onClick = {
-                                // Add file upload functionality here
-                                println("Upload files button clicked")
+                                scope.launch {
+//                                    val file = FileKit.openFilePicker(mode = FileKitMode.Multiple(), title = "Select model files",  )
+                                    val file = FileKit.openDirectoryPicker(title = "Select model directory")
+                                    println("${file}")
+                                }
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Upload Files")
                         }
                         fileStructureTree.forEachDepthFirstText("-")
-                        // Add file structure details content here
                     }
                 }
             }

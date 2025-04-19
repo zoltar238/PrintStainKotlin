@@ -66,9 +66,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.retrofit2.kotlinx.serialization.converter)
 
-            // charts
-            implementation(libs.multiplatform.charts.desktop)
-
             // For email validation
             implementation(libs.commons.validator)
 
@@ -96,6 +93,12 @@ kotlin {
 
             // Toaster
             implementation(libs.sonner)
+
+            // File picker
+            implementation(libs.filekit.dialogs)
+
+            // Full list of icons
+            implementation(libs.androidx.material.icons.extended)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

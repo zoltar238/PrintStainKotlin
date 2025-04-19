@@ -27,6 +27,15 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        
+        // Repositorio de JitPack para bibliotecas de GitHub
+        maven("https://jitpack.io")
+        
+        // Repositorio de Sonatype para snapshots
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        
+        // Repositorio local de Maven (opcional)
+        mavenLocal()
     }
 }
 

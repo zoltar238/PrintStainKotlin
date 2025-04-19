@@ -6,6 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import io.github.vinceglb.filekit.FileKit
 import kotlinx.coroutines.runBlocking
 import org.example.project.persistence.preferences.DATA_STORE_FILE_NAME
 import org.example.project.persistence.preferences.PreferencesDaoImpl
@@ -14,6 +15,8 @@ import org.example.project.ui.navigation.AppNavigation
 
 
 fun main() = application {
+    // Initialize FileKit
+    FileKit.init(appId = "MyApplication")
 
     // Initialize preferences datastore
     PreferencesDaoImpl.initPreferences(
