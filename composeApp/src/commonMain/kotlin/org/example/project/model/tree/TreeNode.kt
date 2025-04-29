@@ -1,29 +1,38 @@
 package org.example.project.model.tree
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFolderUpload
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditOff
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.minimumInteractiveComponentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.launch
 import org.example.project.model.dto.FileDto
+import java.awt.TextArea
 import java.util.*
 
 typealias Visitor<T> = (TreeNode<T>) -> Unit
@@ -52,6 +61,7 @@ class TreeNode<T>(val value: T) {
         val nextSpacer = "$spacer  "
         val collapsedList = remember { mutableStateOf(mutableMapOf<TreeNode<T>, Boolean>()) }
         val collapsedOptions = remember { mutableStateOf(mutableMapOf<TreeNode<T>, Boolean>()) }
+        val editMode = remember { mutableStateOf(false) }
 
         children.forEach { child ->
             if (child.value is FileDto) {
@@ -60,6 +70,7 @@ class TreeNode<T>(val value: T) {
                 val isCollapsed = collapsedList.value[child] ?: false
                 val isCollapsedOptions = collapsedOptions.value[child] ?: false
                 val scope = rememberCoroutineScope()
+                val fileName = remember { mutableStateOf(fileDto.fileName ?: "") }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -96,11 +107,31 @@ class TreeNode<T>(val value: T) {
 
                     Spacer(modifier = Modifier.width(4.dp))
 
-                    Text(
-                        text = fileDto.fileName ?: "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
+                    // File name
+                    if (editMode.value) {
+                        TextField(
+                            value = fileName.value,
+                            onValueChange = { fileName.value = it
+                                              fileDto.fileName = it},
+                            placeholder = { androidx.compose.material3.Text("File name can't be empty") },
+                            singleLine = true,
+                            isError = fileDto.fileName.isNullOrEmpty(),
+                            colors = TextFieldDefaults.colors(
+                                cursorColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            textStyle = MaterialTheme.typography.bodySmall.copy(
+                                color = if (isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.wrapContentSize()
+                        )
+                    } else {
+                        Text(
+                            text = fileName.value,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (isDirectory) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
                     // Show extra options
                     IconButton(
                         onClick = {
@@ -118,17 +149,38 @@ class TreeNode<T>(val value: T) {
                         )
                     }
                     if (collapsedOptions.value[child] == true) {
+                        // Directory options
                         if (isDirectory) {
+                            // Add new directory to file system
+                            IconButton(
+                                onClick = {
+                                    child.addChild(TreeNode(FileDto(fileName = "folder", fileType = "directory") as T))
+                                },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.DriveFolderUpload,
+                                    contentDescription = if (isCollapsed) "Expandir" else "Colapsar",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            // Add new file
                             IconButton(
                                 onClick = {
                                     scope.launch {
-                                        val newChild = FileKit.openFilePicker()
-                                        if (newChild != null && newChild.exists()) {
-                                            val newFileDto = FileDto(
-                                                fileName = newChild.name,
-                                                fileType = "file"
-                                            )
-                                            child.addChild(TreeNode(newFileDto as T))
+                                        val newFiles = FileKit.openFilePicker(
+                                            title = "Select model files",
+                                            mode = FileKitMode.Multiple()
+                                        )
+                                        newFiles?.forEach { file ->
+                                            if (file.exists()) {
+                                                val newFileDto = FileDto(
+                                                    fileName = file.name,
+                                                    fileType = "file"
+                                                )
+                                                child.addChild(TreeNode(newFileDto as T))
+                                            }
                                         }
                                     }
                                 },
@@ -142,11 +194,24 @@ class TreeNode<T>(val value: T) {
                                 )
                             }
                         }
+                        // Rename file button
                         IconButton(
                             onClick = {
-                                collapsedList.value = collapsedList.value.toMutableMap().apply {
-                                    this[child] = !isCollapsedOptions
-                                }
+                                editMode.value = !editMode.value
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (!editMode.value) Icons.Filled.Edit else Icons.Filled.EditOff,
+                                contentDescription = if (isCollapsed) "Expandir" else "Colapsar",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        // Delete button
+                        IconButton(
+                            onClick = {
+                                children.remove(child)
                             },
                             modifier = Modifier.size(24.dp)
                         ) {

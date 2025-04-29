@@ -32,12 +32,14 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
-    // Load initial data
-    if (saleUiState.sales.isEmpty()) {
-        saleViewModel.getAllSales()
-    }
-    if (itemUiState.items.isEmpty()) {
-        itemViewModel.getAllItems()
+    // Load initial data only once when the composable enters the composition
+    LaunchedEffect(Unit) {
+        if (saleUiState.sales.isEmpty()) {
+            saleViewModel.getAllSales()
+        }
+        if (itemUiState.items.isEmpty()) {
+            itemViewModel.getAllItems()
+        }
     }
 
     MaterialTheme {

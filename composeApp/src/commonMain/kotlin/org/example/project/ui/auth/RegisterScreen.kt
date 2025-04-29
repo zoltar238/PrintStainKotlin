@@ -208,7 +208,7 @@ fun RegisterScreen(
                                 password = password,
                                 username = username,
                                 surname = surname,
-                                roles = listOf("USER")
+                                roles = listOf("ADMIN")
                             )
                         )
                     }

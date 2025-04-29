@@ -145,7 +145,7 @@ fun EmptyStateMessage(message: String?) {
             tint = AppColors.primaryColor.copy(alpha = 0.5f)
         )
         Text(
-            text = message ?: "No models found",
+            text = if(message.isNullOrEmpty() || message == "Items retrieved successfully" || message == "Item deleted successfully") "No models found" else "Unexpected error occurred",
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             color = AppColors.textOnBackgroundColor
