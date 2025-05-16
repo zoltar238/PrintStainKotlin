@@ -150,23 +150,6 @@ fun Header() {
                 color = Color.Gray
             )
         }
-
-        Button(
-            onClick = { /* Add new sale functionality */ },
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = AppColors.accentColor
-            ),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Sale",
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Add Sale")
-        }
     }
 }
 

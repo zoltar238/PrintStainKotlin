@@ -22,6 +22,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
         name: String?,
         description: String?,
         postDate: String?,
+        fileStructure: String?,
         timesUploaded: Long?,
         personId: Long?,
     ) {
@@ -30,8 +31,16 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
             name = name,
             description = description,
             postDate = postDate,
+            fileStructure = fileStructure,
             timesUploaded = timesUploaded,
             personId = personId
+        )
+    }
+
+    override suspend fun uploadFileStructure(itemId: Long, fileStructure: String) {
+        query.updateFileStructure(
+            fileStructure = fileStructure,
+            itemId = itemId
         )
     }
 
@@ -49,7 +58,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     postDate = firstRow.postDate,
                     timesUploaded = firstRow.timesUploaded,
                     personId = firstRow.personId,
-                    archived = firstRow.archived
+                    archived = firstRow.archived,
+                    fileStructure = firstRow.fileStructure,
                 )
 
                 // Map person

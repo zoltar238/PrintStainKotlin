@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 
 @Composable
 fun LoadingIndicator() {
@@ -20,7 +21,7 @@ fun LoadingIndicator() {
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(64.dp).zIndex(9999f),
             color = MaterialTheme.colors.primary,
             strokeWidth = 4.dp
         )

@@ -1,7 +1,12 @@
 package org.example.project.logging
 
 enum class ProcessTags {
+    DownloadItemFiles,
+    GetLocalItemById,
     SaleDelete,
+    DeleteItemFile,
+    UploadItemFiles,
+    UpdateItemFiles,
     UpdateItem,
     SaleUpdate,
     CreateNewItem,

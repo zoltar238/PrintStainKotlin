@@ -1,8 +1,5 @@
 package org.example.project.ui.main.model
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -13,28 +10,21 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import io.github.vinceglb.filekit.FileKit
-import io.github.vinceglb.filekit.dialogs.FileKitMode
-import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
-import io.github.vinceglb.filekit.dialogs.openFilePicker
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.example.project.model.dto.FileDto
-import org.example.project.model.tree.TreeNode
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.*
 import org.example.project.util.decodeBase64ToBitmap
@@ -59,6 +49,7 @@ fun ModelDetailsScreen(
     // Scroll state
     val scrollState = rememberScrollState()
 
+
     LaunchedEffect(saleUiState.messageEvent?.message) {
         if (saleUiState.messageEvent?.message == "Sale created successfully") {
             itemViewModel.updateItems()
@@ -75,7 +66,7 @@ fun ModelDetailsScreen(
                 )
             },
             backgroundColor = AppColors.backgroundColor
-        ) {
+        ) { innerPadding ->
             // Loading indicator
             if (itemUiState.isLoading) {
                 LoadingIndicator()
@@ -86,9 +77,15 @@ fun ModelDetailsScreen(
                 success = saleUiState.success,
                 onMessageConsumed = { saleViewModel.consumeMessage() }
             )
+            MessageToaster(
+                messageEvent = itemUiState.messageEvent,
+                success = itemUiState.success,
+                onMessageConsumed = { itemViewModel.consumeMessage() }
+            )
 
             Column(
                 Modifier
+                    .padding(innerPadding)
                     .fillMaxWidth()
                     .padding(16.dp)
                     .verticalScroll(scrollState),
@@ -264,7 +261,11 @@ fun ModelDetailsScreen(
                     }
 
                     // Product info block
-                    infoBlock(itemUiState)
+                    infoBlock(
+                        itemUiState,
+                        itemViewModel = itemViewModel,
+                        itemUiState = itemUiState
+                    )
 
                     // Sale view with updated styling
                     ModelSale(
@@ -280,7 +281,7 @@ fun ModelDetailsScreen(
 }
 
 @Composable
-private fun infoBlock(uiState: ItemUiState) {
+private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUiState: ItemUiState) {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text(
             text = "${uiState.selectedItem!!.item.name}",
@@ -330,69 +331,186 @@ private fun infoBlock(uiState: ItemUiState) {
             thickness = 2.dp,
             modifier = Modifier.padding(top = 8.dp)
         )
-        FileStructureDetail(modelName = uiState.selectedItem!!.item!!.name!!)
+        FileStructureDetail(
+            uiState = uiState,
+            itemViewModel = itemViewModel,
+            itemUiState = itemUiState
+        )
     }
 }
 
-// File structure detail view
 @Composable
-fun FileStructureDetail(modelName: String) {
-    var isHidden by remember { mutableStateOf(false) }
+fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUiState: ItemUiState) {
     val scope = rememberCoroutineScope()
-    val rotation by animateFloatAsState(
-        targetValue = if (isHidden) 180f else 0f,
-        animationSpec = tween(200, easing = LinearEasing),
-    )
-
-    // File structure tree
-    var fileStructureTree by remember {
-        val root = TreeNode(
-            FileDto(
-                fileName = modelName,
-                fileType = "directory"
-            )
-        )
-        val srcFolder = TreeNode(FileDto(fileName = "${modelName}_files", fileType = "directory"))
-        root.addChild(srcFolder)
-        mutableStateOf(root) // Initialize the state with the complete initial tree
+    var isFileListVisible: Boolean by remember { mutableStateOf(true) }
+    val hasFiles = remember(uiState.selectedItem) { 
+        mutableStateOf(!uiState.selectedItem?.item?.fileStructure.isNullOrEmpty()) 
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column {
             Row(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Model files:",
-                    color = AppColors.textOnBackgroundColor
+                    color = AppColors.textOnBackgroundColor,
+                    fontWeight = FontWeight.Bold
                 )
-                IconButton(
-                    onClick = {
-                        isHidden = !isHidden
-                    },
-                    content = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            tint = AppColors.textOnBackgroundColor,
-                            contentDescription = "Info icon",
-                            modifier = Modifier.rotate(rotation)
-                        )
-                    }
-                )
+                IconButton(onClick = { isFileListVisible = !isFileListVisible }) {
+                    Icon(
+                        imageVector = if (isFileListVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = if (isFileListVisible) "Hide files" else "Show files",
+                        tint = AppColors.textOnBackgroundColor
+                    )
+                }
             }
-            if (!isHidden) {
+
+            if (isFileListVisible) {
+                // Display existing files
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    fileStructureTree.forEachDepthFirstText("-")
+                    if (itemUiState.selectedItemFiles.isNullOrEmpty()) {
+                        Text(
+                            text = "No files added yet.",
+                            color = AppColors.textOnBackgroundSecondaryColor,
+                            style = MaterialTheme.typography.caption
+                        )
+                    } else {
+                        itemUiState.selectedItemFiles.forEachIndexed { index, fileDto ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Description, // Generic file icon
+                                        contentDescription = "File icon",
+                                        tint = AppColors.textOnBackgroundColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = fileDto.fileName!!,
+                                        color = AppColors.textOnBackgroundColor,
+                                        modifier = Modifier.weight(1f) // Allow text to take space
+                                    )
+                                }
+                                if (!hasFiles.value) {
+                                    IconButton(
+                                        onClick = {
+                                            itemViewModel.deleteItemFile(fileDto.fileName!!)
+                                        },
+                                        modifier = Modifier.size(24.dp) // Adjust size as needed
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close, // Delete icon
+                                            contentDescription = "Delete file",
+                                            tint = AppColors.secondaryColor // Use a distinct color for delete
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Button to add files using FileKit
+                if (!hasFiles.value) {
+                    Button(
+                        onClick = {
+                            itemViewModel.updateItemFiles()
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = AppColors.primaryColor,
+                            contentColor = AppColors.textOnPrimaryColor
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Add Files from Device")
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                itemViewModel.uploadItemFiles()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 8.dp), // Consistent with the "Add Files" button
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = AppColors.primaryColor, // Using primary color, same as "Add Files" and "Add Sale"
+                            contentColor = AppColors.textOnPrimaryColor
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Upload Files")
+                    }
+                } else {
+                    Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp),) {
+                        Button(
+                            onClick = {
+                                hasFiles.value = !hasFiles.value
+                                itemViewModel.deleteAllItemFiles()
+                            },
+                            modifier = Modifier.weight(1f).padding(end = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = AppColors.primaryColor,
+                                contentColor = AppColors.textOnPrimaryColor
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Modify Files")
+                        }
+                        Button(
+                            onClick = {
+                                hasFiles.value = !hasFiles.value
+                                itemViewModel.deleteItemFiles()
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = AppColors.primaryColor,
+                                contentColor = AppColors.textOnPrimaryColor
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Delete Files")
+                        }
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                itemViewModel.downloadItemFiles()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 8.dp), // Consistent with the "Add Files" button
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = AppColors.primaryColor, // Using primary color, same as "Add Files" and "Add Sale"
+                            contentColor = AppColors.textOnPrimaryColor
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Download Files")
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ModelSale(
@@ -476,4 +594,3 @@ fun ModelSale(
         }
     }
 }
-

@@ -10,20 +10,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.example.project.PrintStainDatabase
 import org.example.project.logging.AppLogger
 import org.example.project.logging.ProcessTags
 import org.example.project.model.MessageEvent
-import org.example.project.model.dto.ImageDto
-import org.example.project.model.dto.ItemDto
-import org.example.project.model.dto.ItemWithRelations
-import org.example.project.model.dto.PersonDto
+import org.example.project.model.dto.*
 import org.example.project.service.ItemService
 import org.example.project.util.encodeBitmapToBase64
 
 data class ItemUiState(
     val items: List<ItemWithRelations> = emptyList(),
     val selectedItem: ItemWithRelations? = null,
+    val selectedItemFiles: List<FileDto>? = if (selectedItem?.item?.fileStructure == null) emptyList() else Json.decodeFromString<List<FileDto>>(
+        selectedItem.item.fileStructure
+    ),
     val isLoading: Boolean = false,
     val messageEvent: MessageEvent? = null,
     val success: Boolean = true,
@@ -55,10 +56,18 @@ class ItemViewModel(
                         isLoading = false,
                         success = item != null,
                         selectedItem = item,
+                        selectedItemFiles = if (item?.item?.fileStructure.isNullOrEmpty()) emptyList() else Json.decodeFromString<List<FileDto>>(
+                            item.item.fileStructure.replace("\\", "").replaceFirst("\"", "").dropLast(1)
+                        ),
                         messageEvent = if (item == null) MessageEvent("Item not found") else null
                     )
                 }
             } catch (e: Exception) {
+                AppLogger.e(
+                    "Get local item by id",
+                    "Process: ${ProcessTags.GetLocalItemById.name}. Status: Internal error loading item.",
+                    e
+                )
                 _itemUiState.update {
                     it.copy(
                         isLoading = false,
@@ -309,10 +318,10 @@ class ItemViewModel(
                     // Pasos críticos que faltaban para actualizar correctamente:
                     // 1. Eliminar imágenes antiguas
                     selectedItem.item.itemId.let { itemService.deleteImagesForItem(it) }
-                    
+
                     // 2. Procesar el nuevo item con sus relaciones en la DB local
                     serverResponse.data?.let { itemService.processItemsToLocalDB(listOf(it)) }
-                    
+
                     // 3. Obtener los items actualizados
                     val localItems = itemService.getAllLocalItems()
 
@@ -335,6 +344,229 @@ class ItemViewModel(
                     it.copy(
                         isLoading = false,
                         messageEvent = MessageEvent("Error updating item: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteAllItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            try {
+                AppLogger.i(
+                    "Delete item file",
+                    "Process: ${ProcessTags.UpdateItemFiles.name}.",
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        success = true,
+                        selectedItemFiles = emptyList()
+                    )
+                }
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Delete item file",
+                    "Process: ${ProcessTags.DeleteItemFile.name}. Status: Internal error deteting item file.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error updating item files: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteItemFile(name: String) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                AppLogger.i(
+                    "Delete item file",
+                    "Process: ${ProcessTags.UpdateItemFiles.name}.",
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        success = true,
+                        selectedItemFiles = itemUiState.value.selectedItemFiles?.filter { file -> file.fileName != name }
+                    )
+                }
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Delete item file",
+                    "Process: ${ProcessTags.DeleteItemFile.name}. Status: Internal error deteting item file.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error updating item files: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            try {
+                val updatedFiles = itemService.updateItemFiles(
+                    files = if (itemUiState.value.selectedItemFiles.isNullOrEmpty()) mutableListOf() else itemUiState.value.selectedItemFiles as MutableList<FileDto>
+                )
+                AppLogger.i(
+                    "Modify item files",
+                    "Process: ${ProcessTags.UpdateItemFiles.name}.",
+                )
+                _itemUiState.update {
+                    it.copy(
+                        selectedItemFiles = updatedFiles,
+                        isLoading = false,
+                        success = true
+                    )
+                }
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Modify item files",
+                    "Process: ${ProcessTags.UpdateItemFiles.name}. Status: Internal error updating item files.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error updating item files: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun downloadItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            try {
+                _itemUiState.update { it.copy(isLoading = true) }
+                val response = itemService.downloadFiles(
+                    itemId = itemUiState.value.selectedItem!!.item.itemId,
+                    itemName = itemUiState.value.selectedItem!!.item.name!!
+                )
+
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent(response),
+                    )
+                }
+
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Modify item files",
+                    "Process: ${ProcessTags.DownloadItemFiles.name}. Status: Internal error downloading item files.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error downloading item files: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            try {
+                _itemUiState.update { it.copy(isLoading = true) }
+                val serverResponse = itemService.deleteFiles(
+                    itemId = itemUiState.value.selectedItem!!.item.itemId,
+                )
+
+                if (!serverResponse.success) {
+                    _itemUiState.update {
+                        it.copy(
+                            isLoading = false,
+                            messageEvent = MessageEvent(serverResponse.response!!),
+                            success = false,
+                        )
+                    }
+                } else {
+                    updateItems()
+                    _itemUiState.update {
+                        it.copy(
+                            isLoading = false,
+                            messageEvent = MessageEvent(serverResponse.response!!),
+                            success = true
+                        )
+                    }
+                }
+
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Modify item files",
+                    "Process: ${ProcessTags.DownloadItemFiles.name}. Status: Internal error downloading item files.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error downloading item files: ${e.localizedMessage}"),
+                        success = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun uploadItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            try {
+                _itemUiState.update { it.copy(isLoading = true) }
+                val serverResponse = itemService.uploadFiles(
+                    files = itemUiState.value.selectedItemFiles!!,
+                    itemId = itemUiState.value.selectedItem!!.item.itemId,
+                    zipName = itemUiState.value.selectedItem?.item?.name!!
+                )
+
+                if (!serverResponse.success) {
+                    _itemUiState.update {
+                        it.copy(
+                            isLoading = false,
+                            messageEvent = MessageEvent(serverResponse.response!!),
+                            success = false
+                        )
+                    }
+                } else {
+                    _itemUiState.update {
+                        itemService.updateFileStructure(
+                            itemId = itemUiState.value.selectedItem!!.item.itemId,
+                            files = itemUiState.value.selectedItemFiles!!
+                        )
+                        updateItems()
+                        it.copy(
+                            isLoading = false,
+                            messageEvent = MessageEvent("Files uploaded successfully"),
+                            success = true
+                        )
+                    }
+                }
+
+            } catch (e: Exception) {
+                AppLogger.e(
+                    "Modify item files",
+                    "Process: ${ProcessTags.UploadItemFiles.name}. Status: Internal error uploading item files.",
+                    e
+                )
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Error uploading item files: ${e.localizedMessage}"),
                         success = false
                     )
                 }

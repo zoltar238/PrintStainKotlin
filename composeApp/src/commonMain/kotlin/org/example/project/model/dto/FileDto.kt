@@ -8,6 +8,7 @@ data class FileDto (
     var fileName: String? = null,
     val fileSize: Long? = null,
     val fileExtension: String? = null,
+    val fileUrl: String? = null,
     val fileContent: ByteArray? = null,
     val fileType: String? = null,
 )

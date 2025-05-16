@@ -1,16 +1,23 @@
 import kotlin.Boolean;
 
-
 CREATE TABLE Item (
     itemId INTEGER PRIMARY KEY,
     name TEXT,
     description TEXT,
     postDate TEXT,
+    fileStructure TEXT,
     timesUploaded INTEGER DEFAULT 0,
     personId INTEGER,
     archived INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY (personId) REFERENCES Person(personId)
 );
+
+-- Update fileStructure
+updateFileStructure:
+UPDATE Item
+SET fileStructure = ?
+WHERE itemId = ?;
+
 
 -- Get item with all its relations
 selectAllItemWithRelations:
@@ -52,9 +59,10 @@ INSERT OR REPLACE INTO Item(
     name,
     description,
     postDate,
+    fileStructure,
     timesUploaded,
     personId
-) VALUES (?, ?, ?, ?, ?, ?);
+) VALUES (?, ?, ?, ?, ?, ?, ?);
 
 -- Update an item
 updateItem:

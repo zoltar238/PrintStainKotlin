@@ -12,10 +12,11 @@ interface ItemDao {
         name: String?,
         description: String?,
         postDate: String?,
+        fileStructure: String?,
         timesUploaded: Long?,
         personId: Long?,
     )
-
+    suspend fun uploadFileStructure(itemId: Long, fileStructure: String)
     fun getAllItemsWithRelation(): Flow<List<ItemWithRelations>>
     fun getAllItems(): Flow<List<Item>>
     suspend fun deleteItem(itemId: Long)

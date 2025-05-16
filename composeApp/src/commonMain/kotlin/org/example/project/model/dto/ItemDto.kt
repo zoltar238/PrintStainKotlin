@@ -10,6 +10,7 @@ data class ItemDto(
     val itemId: Long? = null,
     val name: String? = null,
     val description: String? = null,
+    val fileStructure: String? = null,
     @Serializable(with = OffsetDateTimeSerializer::class) val postDate: OffsetDateTime? = null,
     val timesUploaded: Long? = null,
     @Contextual val images: List<ImageDto>? = emptyList(),

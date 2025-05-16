@@ -99,6 +99,9 @@ kotlin {
 
             // Full list of icons
             implementation(libs.androidx.material.icons.extended)
+
+            // File zipper
+            implementation("net.lingala.zip4j:zip4j:2.11.5")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -169,7 +172,7 @@ sqldelight {
     databases {
         create("PrintStainDatabase") {
             packageName.set("org.example.project")
-            version = 4
+            version = 5
             generateAsync.set(true)
         }
     }
