@@ -58,7 +58,7 @@ object PreferencesDaoImpl : PreferencesDao {
 
     // Dark mode
     suspend fun getDarkMode(): Boolean? = getPreference(PreferenceKeys.THEME_KEY)
-    
+
 
     // #######################################################
     // Delete functionality

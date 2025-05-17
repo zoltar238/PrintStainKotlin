@@ -1,10 +1,8 @@
 package org.example.project.controller
 
-import kotlinx.io.files.FileMetadata
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import org.example.project.model.dto.ItemDto
-import org.jetbrains.compose.resources.Resource
 import retrofit2.Response
 import retrofit2.http.*
 

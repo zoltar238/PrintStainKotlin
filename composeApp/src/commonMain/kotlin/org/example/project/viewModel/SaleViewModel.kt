@@ -43,7 +43,7 @@ class SaleViewModel(
     fun getAllSales() {
         viewModelScope.launch(dispatcher) {
             _saleUiState.update { it.copy(isLoading = true) }
-            
+
             val result = saleService.getAllSales()
             _saleUiState.update {
                 it.copy(
@@ -59,7 +59,7 @@ class SaleViewModel(
     fun createSale(cost: BigDecimal, price: BigDecimal, itemId: Long) {
         viewModelScope.launch(dispatcher) {
             _saleUiState.update { it.copy(isLoading = true) }
-            
+
             val result = saleService.createSale(cost, price, itemId)
             _saleUiState.update {
                 it.copy(
@@ -75,7 +75,7 @@ class SaleViewModel(
     fun deleteSale(saleId: Long) {
         viewModelScope.launch(dispatcher) {
             _saleUiState.update { it.copy(isLoading = true) }
-            
+
             val result = saleService.deleteSale(saleId)
             _saleUiState.update {
                 it.copy(
@@ -91,9 +91,9 @@ class SaleViewModel(
     fun modifySale(saleId: Long, cost: BigDecimal, price: BigDecimal, status: String) {
         viewModelScope.launch(dispatcher) {
             _saleUiState.update { it.copy(isLoading = true) }
-            
+
             val result = saleService.modifySale(saleId, cost, price, status)
-            
+
             if (result.success && result.data != null) {
                 // Update the specific sale in the list
                 _saleUiState.update { state ->

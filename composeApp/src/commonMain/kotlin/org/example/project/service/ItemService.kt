@@ -202,7 +202,7 @@ class ItemService(database: PrintStainDatabase) {
         if (serverResponse.success) {
             itemDao.uploadFileStructure(itemId, "")
         }
-         return serverResponse
+        return serverResponse
     }
 
     suspend fun downloadFiles(itemId: Long, itemName: String): String {
@@ -211,9 +211,9 @@ class ItemService(database: PrintStainDatabase) {
         val downloadFile = File("$downloadDir/$itemName.zip")
 
         AppLogger.i(
-                tag = ProcessTags.DownloadItemFiles.name,
-                "Attempting to download files for itemId: $itemId, itemName: $itemName, download path: ${downloadFile.absolutePath}"
-            )
+            tag = ProcessTags.DownloadItemFiles.name,
+            "Attempting to download files for itemId: $itemId, itemName: $itemName, download path: ${downloadFile.absolutePath}"
+        )
 
         val serverResponse =
             ClientController.itemController.download(
