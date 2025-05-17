@@ -48,29 +48,23 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
 
     LaunchedEffect(saleUiState.messageEvent?.message) {
         if (saleUiState.messageEvent?.message == "Sale deleted successfully") {
-            // Todo make method so only the referenced item is update
             itemViewModel.updateItems()
         }
     }
 
     MaterialTheme {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Background color
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(AppColors.secondaryBackgroundColor.copy(alpha = 0.3f))
+                    .background(AppColors.backgroundColor)
             )
 
-            // Content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Header
-                Header()
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Sales table header
@@ -130,36 +124,12 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
 }
 
 @Composable
-fun Header() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "Sales Overview",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Text(
-                text = "Manage and track your sales records",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-        }
-    }
-}
-
-@Composable
 fun TableHeader() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = AppColors.accentColor.copy(alpha = 0.1f)
+            containerColor = AppColors.primaryColor.copy(alpha = 0.1f)
         )
     ) {
         Row(
@@ -171,45 +141,51 @@ fun TableHeader() {
             Text(
                 text = "",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Sale ID",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.8f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Model",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.8f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Cost",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Price",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Date",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Status",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.8f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "Actions",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(0.6f)
+                modifier = Modifier.weight(0.6f),
+                color = AppColors.textOnBackgroundColor
             )
         }
     }
@@ -243,7 +219,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
             ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AppColors.surfaceColor
         )
     ) {
         Row(
@@ -268,40 +244,41 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 )
             }
 
-            // Sale info
             Text(
                 text = "#${sale.saleId}",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.8f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "${sale.itemId}",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(0.8f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "$${sale.cost}",
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
                 text = "$${sale.price}",
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                color = AppColors.textOnBackgroundColor
             )
             Text(
-                text = "${sale.date?.toString()?.substringBefore("T") ?: ""}",
+                text = sale.date?.substringBefore("T") ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                color = AppColors.textOnBackgroundColor
             )
 
-            // Status chip
             Box(
                 modifier = Modifier
                     .weight(0.8f)
@@ -334,7 +311,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                     Icon(
                         imageVector = Icons.Rounded.Edit,
                         contentDescription = "Edit Sale",
-                        tint = AppColors.accentColor
+                        tint = AppColors.primaryColor
                     )
                 }
 
@@ -362,13 +339,15 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
         )
     }
 
-    // Delete confirmation dialog
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Sale") },
+            title = { Text("Delete Sale", color = AppColors.textOnBackgroundColor) },
             text = {
-                Text("Are you sure you want to delete this sale? This action cannot be undone.")
+                Text(
+                    "Are you sure you want to delete this sale? This action cannot be undone.",
+                    color = AppColors.textOnBackgroundColor
+                )
             },
             confirmButton = {
                 Button(
@@ -387,7 +366,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 OutlinedButton(
                     onClick = { showDeleteDialog = false }
                 ) {
-                    Text("Cancel")
+                    Text("Cancel", color = AppColors.textOnBackgroundColor)
                 }
             }
         )
@@ -407,19 +386,19 @@ fun EmptyState() {
             imageVector = Icons.Default.ShoppingCart,
             contentDescription = null,
             modifier = Modifier.size(80.dp),
-            tint = Color.Gray.copy(alpha = 0.5f)
+            tint = AppColors.textOnBackgroundColor.copy(alpha = 0.5f)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "No sales found",
             style = MaterialTheme.typography.headlineSmall,
-            color = Color.Gray
+            color = AppColors.textOnBackgroundColor
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Your sales records will appear here",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray.copy(alpha = 0.7f),
+            color = AppColors.textOnBackgroundSecondaryColor,
             textAlign = TextAlign.Center
         )
     }
@@ -522,7 +501,6 @@ fun EditSaleDialog(sale: Sale, saleViewModel: SaleViewModel, onDismiss: () -> Un
         confirmButton = {
             Button(
                 onClick = {
-                    // Update the sale with new values
                     saleViewModel.modifySale(
                         saleId = sale.saleId,
                         cost = BigDecimal(cost ?: 0.0),

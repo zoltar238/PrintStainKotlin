@@ -29,6 +29,7 @@ nativeDriver = "2.0.2"
 navigationComposeVersion = "2.8.0-alpha02"
 okhttp = "4.12.0"
 retrofit2KotlinxSerializationConverter = "1.0.0"
+sceneview = "2.3.0"
 sonner = "0.3.8"
 sqliteDriver = "2.0.2"
 uiToolingPreviewAndroid = "1.7.8"
@@ -82,6 +83,7 @@ androidx-foundation-android = { group = "androidx.compose.foundation", name = "f
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converterJackson" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
+sceneview = { module = "io.github.sceneview:sceneview", version.ref = "sceneview" }
 sonner = { module = "io.github.dokar3:sonner", version.ref = "sonner" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqliteDriver" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startupRuntime" }

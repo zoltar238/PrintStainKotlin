@@ -102,6 +102,9 @@ kotlin {
 
             // File zipper
             implementation("net.lingala.zip4j:zip4j:2.11.5")
+
+            //
+            //implementation(libs.sceneview)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

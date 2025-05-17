@@ -34,6 +34,8 @@ object PreferencesDaoImpl : PreferencesDao {
     // Save token
     suspend fun saveToken(token: String) = saveData(PreferenceKeys.TOKEN_KEY, token)
 
+    // Save dark mode
+    suspend fun saveDarkMode(darkMode: Boolean) = saveData(PreferenceKeys.THEME_KEY, darkMode)
 
     // #######################################################
     // Read functionality
@@ -54,6 +56,9 @@ object PreferencesDaoImpl : PreferencesDao {
     // Read token
     suspend fun getToken(): String? = getPreference(PreferenceKeys.TOKEN_KEY)
 
+    // Dark mode
+    suspend fun getDarkMode(): Boolean? = getPreference(PreferenceKeys.THEME_KEY)
+    
 
     // #######################################################
     // Delete functionality

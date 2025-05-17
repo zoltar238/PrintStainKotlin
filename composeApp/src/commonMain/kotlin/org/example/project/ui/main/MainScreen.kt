@@ -64,11 +64,6 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                         onClick = { selectedView = "Models" }
                     )
                     NavigationDrawerItem(
-                        label = { Text(text = "Ner training") },
-                        selected = selectedView == "Ner",
-                        onClick = { selectedView = "Ner" }
-                    )
-                    NavigationDrawerItem(
                         label = { Text(text = "Settings") },
                         selected = selectedView == "Settings",
                         onClick = { selectedView = "Settings" }
@@ -110,7 +105,6 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                         )
 
                         "Settings" -> SettingsView()
-                        "Ner" -> NerTrainingView()
                     }
                 }
             )

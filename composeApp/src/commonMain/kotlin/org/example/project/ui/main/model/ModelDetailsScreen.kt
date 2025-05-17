@@ -343,8 +343,8 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
 fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUiState: ItemUiState) {
     val scope = rememberCoroutineScope()
     var isFileListVisible: Boolean by remember { mutableStateOf(true) }
-    val hasFiles = remember(uiState.selectedItem) { 
-        mutableStateOf(!uiState.selectedItem?.item?.fileStructure.isNullOrEmpty()) 
+    val hasFiles = remember(uiState.selectedItem) {
+        mutableStateOf(!uiState.selectedItem?.item?.fileStructure.isNullOrEmpty())
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -460,7 +460,7 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                         Text("Upload Files")
                     }
                 } else {
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp),) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                         Button(
                             onClick = {
                                 hasFiles.value = !hasFiles.value
