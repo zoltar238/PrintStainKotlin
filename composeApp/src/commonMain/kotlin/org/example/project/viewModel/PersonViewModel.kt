@@ -76,15 +76,17 @@ class PersonViewModel(
             try {
                 val serverResponse = personService.loginUser(loginDto)
 
+                print(serverResponse.response)
+
                 _personUiState.update {
                     it.copy(
                         isLoading = false,
                         success = serverResponse.success,
                         messageEvent = MessageEvent(
-                            if (serverResponse.response!! != "Unauthorized" || !serverResponse.success)
-                                serverResponse.response
-                            else
+                            if (serverResponse.response!!.contains("Unauthorized") && !serverResponse.success)
                                 "Wrong username or password"
+                            else
+                                serverResponse.response!!
                         )
                     )
                 }

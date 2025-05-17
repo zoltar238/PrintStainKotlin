@@ -44,11 +44,8 @@ fun ModelDetailsScreen(
 ) {
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val saleUiState by saleViewModel.saleUiState.collectAsState()
-    // Scope
     val coroutineScope = rememberCoroutineScope()
-    // Scroll state
     val scrollState = rememberScrollState()
-
 
     LaunchedEffect(saleUiState.messageEvent?.message) {
         if (saleUiState.messageEvent?.message == "Sale created successfully") {
@@ -65,13 +62,12 @@ fun ModelDetailsScreen(
                     navigationRoute = previousRoute
                 )
             },
-            backgroundColor = AppColors.backgroundColor
+            backgroundColor = AppColors.backgroundColor,
+            contentColor = AppColors.textOnBackgroundColor
         ) { innerPadding ->
-            // Loading indicator
             if (itemUiState.isLoading) {
                 LoadingIndicator()
             }
-            // Toaster
             MessageToaster(
                 messageEvent = saleUiState.messageEvent,
                 success = saleUiState.success,
@@ -93,7 +89,6 @@ fun ModelDetailsScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 if (itemUiState.selectedItem?.images?.isNotEmpty() == true) {
-                    // Image Gallery Card
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -106,7 +101,6 @@ fun ModelDetailsScreen(
                             modifier = Modifier.padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Title
                             Text(
                                 text = itemUiState.selectedItem?.item?.name ?: "Product Details",
                                 style = MaterialTheme.typography.h6,
@@ -114,19 +108,13 @@ fun ModelDetailsScreen(
                                 color = AppColors.textOnPrimaryColor,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
-
-                            // Pager status with indicator
                             val pagerState = rememberPagerState(pageCount = { itemUiState.selectedItem!!.images.size })
-
-                            // Image counter
                             Text(
                                 text = "${pagerState.currentPage + 1}/${itemUiState.selectedItem!!.images.size}",
                                 style = MaterialTheme.typography.caption,
                                 color = AppColors.textOnBackgroundSecondaryColor,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
-
-                            // Horizontal pager for images
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -137,10 +125,7 @@ fun ModelDetailsScreen(
                                     )
                                     .padding(8.dp)
                             ) {
-                                HorizontalPager(
-                                    state = pagerState,
-                                    modifier = Modifier.fillMaxSize(),
-                                ) { page ->
+                                HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
@@ -158,10 +143,7 @@ fun ModelDetailsScreen(
                                     }
                                 }
                             }
-
                             Spacer(modifier = Modifier.height(16.dp))
-
-                            // Horizontal dots indicator
                             Row(
                                 Modifier
                                     .fillMaxWidth()
@@ -170,7 +152,7 @@ fun ModelDetailsScreen(
                             ) {
                                 repeat(pagerState.pageCount) { iteration ->
                                     val color = if (pagerState.currentPage == iteration)
-                                        AppColors.accentColor else AppColors.secondaryColor.copy(alpha = 0.5f)
+                                        AppColors.primaryColor else AppColors.secondaryColor.copy(alpha = 0.5f)
                                     Box(
                                         modifier = Modifier
                                             .padding(4.dp)
@@ -185,22 +167,18 @@ fun ModelDetailsScreen(
                                     )
                                 }
                             }
-
-                            // Navigation buttons with improved styling
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                // "Previous" button
                                 OutlinedButton(
                                     onClick = {
                                         coroutineScope.launch {
                                             if (pagerState.currentPage > 0) {
                                                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
                                             } else {
-                                                // Loop to the last page
                                                 pagerState.animateScrollToPage(pagerState.pageCount - 1)
                                             }
                                         }
@@ -226,10 +204,7 @@ fun ModelDetailsScreen(
                                         Text("Previous")
                                     }
                                 }
-
                                 Spacer(modifier = Modifier.width(16.dp))
-
-                                // "Next" button
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
@@ -240,7 +215,7 @@ fun ModelDetailsScreen(
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         backgroundColor = AppColors.primaryColor,
-                                        contentColor = Color.White
+                                        contentColor = AppColors.textOnPrimaryColor
                                     )
                                 ) {
                                     Row(
@@ -259,21 +234,12 @@ fun ModelDetailsScreen(
                             }
                         }
                     }
-
-                    // Product info block
-                    infoBlock(
-                        itemUiState,
-                        itemViewModel = itemViewModel,
-                        itemUiState = itemUiState
-                    )
-
-                    // Sale view with updated styling
+                    infoBlock(uiState = itemUiState, itemViewModel = itemViewModel, itemUiState = itemUiState)
                     ModelSale(
-                        itemUiState.selectedItem!!.item.itemId,
-                        saleViewModel
+                        itemId = itemUiState.selectedItem!!.item.itemId,
+                        saleViewModel = saleViewModel
                     )
                 }
-
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -295,7 +261,7 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
             modifier = Modifier.padding(top = 8.dp)
         )
         Divider(
-            color = Color.Gray,
+            color = AppColors.secondaryColor.copy(alpha = 0.5f),
             thickness = 2.dp,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -311,7 +277,7 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
             modifier = Modifier.padding(top = 4.dp),
         )
         Divider(
-            color = Color.Gray,
+            color = AppColors.secondaryColor.copy(alpha = 0.5f),
             thickness = 2.dp,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -327,7 +293,7 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
             modifier = Modifier.padding(top = 8.dp),
         )
         Divider(
-            color = Color.Gray,
+            color = AppColors.secondaryColor.copy(alpha = 0.5f),
             thickness = 2.dp,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -365,13 +331,11 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                     Icon(
                         imageVector = if (isFileListVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (isFileListVisible) "Hide files" else "Show files",
-                        tint = AppColors.textOnBackgroundColor
+                        tint = AppColors.primaryColor
                     )
                 }
             }
-
             if (isFileListVisible) {
-                // Display existing files
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -395,7 +359,7 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                     Icon(
-                                        imageVector = Icons.Filled.Description, // Generic file icon
+                                        imageVector = Icons.Filled.Description,
                                         contentDescription = "File icon",
                                         tint = AppColors.textOnBackgroundColor,
                                         modifier = Modifier.size(20.dp)
@@ -404,7 +368,7 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                     Text(
                                         text = fileDto.fileName!!,
                                         color = AppColors.textOnBackgroundColor,
-                                        modifier = Modifier.weight(1f) // Allow text to take space
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
                                 if (!hasFiles.value) {
@@ -412,12 +376,12 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                         onClick = {
                                             itemViewModel.deleteItemFile(fileDto.fileName!!)
                                         },
-                                        modifier = Modifier.size(24.dp) // Adjust size as needed
+                                        modifier = Modifier.size(24.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Filled.Close, // Delete icon
+                                            imageVector = Icons.Filled.Close,
                                             contentDescription = "Delete file",
-                                            tint = AppColors.secondaryColor // Use a distinct color for delete
+                                            tint = AppColors.errorColor
                                         )
                                     }
                                 }
@@ -425,10 +389,7 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Button to add files using FileKit
                 if (!hasFiles.value) {
                     Button(
                         onClick = {
@@ -441,7 +402,18 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Add Files from Device")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddCircle,
+                                contentDescription = "Add files",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Add Files from Device")
+                        }
                     }
                     Button(
                         onClick = {
@@ -449,15 +421,25 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                 itemViewModel.uploadItemFiles()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(top = 8.dp), // Consistent with the "Add Files" button
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = AppColors.primaryColor, // Using primary color, same as "Add Files" and "Add Sale"
+                            backgroundColor = AppColors.primaryColor,
                             contentColor = AppColors.textOnPrimaryColor
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Upload Files")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Upload,
+                                contentDescription = "Upload files",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Upload Files")
+                        }
                     }
                 } else {
                     Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -473,7 +455,18 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Modify Files")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Modify files",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Modify Files")
+                            }
                         }
                         Button(
                             onClick = {
@@ -482,12 +475,23 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                backgroundColor = AppColors.primaryColor,
+                                backgroundColor = AppColors.errorColor,
                                 contentColor = AppColors.textOnPrimaryColor
                             ),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Delete Files")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete files",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Delete Files")
+                            }
                         }
                     }
                     Button(
@@ -496,15 +500,25 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                 itemViewModel.downloadItemFiles()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(top = 8.dp), // Consistent with the "Add Files" button
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = AppColors.primaryColor, // Using primary color, same as "Add Files" and "Add Sale"
+                            backgroundColor = AppColors.primaryColor,
                             contentColor = AppColors.textOnPrimaryColor
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Download Files")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Download,
+                                contentDescription = "Download files",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Download Files")
+                        }
                     }
                 }
             }
@@ -572,7 +586,6 @@ fun ModelSale(
         onClick = {
             val costDecimal = cost.toBigDecimalOrNull() ?: BigDecimal.ZERO
             val priceDecimal = price.toBigDecimalOrNull() ?: BigDecimal.ZERO
-
             saleViewModel.createSale(
                 cost = costDecimal,
                 price = priceDecimal,

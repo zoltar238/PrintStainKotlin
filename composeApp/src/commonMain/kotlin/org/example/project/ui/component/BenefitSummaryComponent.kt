@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import org.example.project.ui.AppColors
 import java.text.NumberFormat
 
+@Suppress("DefaultLocale")
 @Composable
 fun BenefitSummary(cost: String, price: String, currencyFormat: NumberFormat) {
     val costValue = cost.toDoubleOrNull() ?: 0.0
@@ -47,7 +48,8 @@ fun BenefitSummary(cost: String, price: String, currencyFormat: NumberFormat) {
                 Text("Cost:", color = AppColors.textOnBackgroundSecondaryColor)
                 Text(
                     currencyFormat.format(costValue),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.textOnBackgroundColor
                 )
             }
             Row(
@@ -57,7 +59,8 @@ fun BenefitSummary(cost: String, price: String, currencyFormat: NumberFormat) {
                 Text("Price:", color = AppColors.textOnBackgroundSecondaryColor)
                 Text(
                     currencyFormat.format(priceValue),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.textOnBackgroundColor
                 )
             }
             Divider(Modifier.padding(vertical = 4.dp))

@@ -1,17 +1,18 @@
 package org.example.project.ui.main
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ViewInAr
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
@@ -20,11 +21,12 @@ import org.example.project.ui.main.sale.SalesScreen
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.material.icons.filled.Menu
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, saleViewModel: SaleViewModel) {
-    // Estado que controla el menú seleccionado y el estado del drawer
     var selectedView by remember { mutableStateOf("Models") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -32,7 +34,6 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
-    // Load initial data only once when the composable enters the composition
     LaunchedEffect(Unit) {
         if (saleUiState.sales.isEmpty()) {
             saleViewModel.getAllSales()
@@ -42,73 +43,139 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
         }
     }
 
-    MaterialTheme {
-        var username by remember { mutableStateOf<String?>(null) }
-        scope.launch { username = PreferencesDaoImpl.getUsername() }
-
-        // ModalNavigationDrawer as sidebar
+    Surface(
+        color = AppColors.backgroundColor
+    ) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                ModalDrawerSheet {
-                    Text("Drawer title", modifier = Modifier.padding(16.dp))
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(300.dp)
+                        .background(AppColors.surfaceColor)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "PrintStain Menu",
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = AppColors.textOnBackgroundColor,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Divider(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = AppColors.textOnBackgroundSecondaryColor
+                    )
                     NavigationDrawerItem(
-                        label = { Text(text = "Sales") },
+                        icon = { 
+                            Icon(
+                                imageVector = Icons.Filled.ShoppingCart,
+                                contentDescription = "Sales Icon",
+                                tint = if (selectedView == "Sales") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
+                            ) 
+                        },
+                        label = { Text("Sales") },
                         selected = selectedView == "Sales",
-                        onClick = { selectedView = "Sales" }
+                        onClick = {
+                            selectedView = "Sales"
+                            scope.launch { drawerState.close() }
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = AppColors.primaryColor,
+                            unselectedContainerColor = AppColors.surfaceColor,
+                            selectedTextColor = AppColors.textOnPrimaryColor,
+                            unselectedTextColor = AppColors.textOnBackgroundColor
+                        )
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                     NavigationDrawerItem(
-                        label = { Text(text = "Models") },
+                        icon = { 
+                            Icon(
+                                imageVector = Icons.Filled.ViewInAr,
+                                contentDescription = "Models Icon",
+                                tint = if (selectedView == "Models") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
+                            ) 
+                        },
+                        label = { Text("Models") },
                         selected = selectedView == "Models",
-                        onClick = { selectedView = "Models" }
+                        onClick = {
+                            selectedView = "Models"
+                            scope.launch { drawerState.close() }
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = AppColors.primaryColor,
+                            unselectedContainerColor = AppColors.surfaceColor,
+                            selectedTextColor = AppColors.textOnPrimaryColor,
+                            unselectedTextColor = AppColors.textOnBackgroundColor
+                        )
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                     NavigationDrawerItem(
-                        label = { Text(text = "Settings") },
+                        icon = { 
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = "Settings Icon",
+                                tint = if (selectedView == "Settings") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
+                            ) 
+                        },
+                        label = { Text("Settings") },
                         selected = selectedView == "Settings",
-                        onClick = { selectedView = "Settings" }
+                        onClick = {
+                            selectedView = "Settings"
+                            scope.launch { drawerState.close() }
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = AppColors.primaryColor,
+                            unselectedContainerColor = AppColors.surfaceColor,
+                            selectedTextColor = AppColors.textOnPrimaryColor,
+                            unselectedTextColor = AppColors.textOnBackgroundColor
+                        )
                     )
                 }
             }
         ) {
             Scaffold(
+                containerColor = AppColors.backgroundColor,
+                contentColor = AppColors.textOnBackgroundColor,
                 topBar = {
                     TopAppBar(
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        drawerState.open()
-                                    }
-                                },
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.Default.Menu, // Icono de menú estándar de Material
-                                        contentDescription = "Abrir menú"
-                                    )
-                                }
-
+                        title = {
+                            Text(
+                                "PrintStain - $selectedView",
+                                color = AppColors.textOnPrimaryColor
                             )
                         },
-                        title = { Text("PrintStain - $selectedView") },
-                        backgroundColor = AppColors.tertiaryColor
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = "Menu",
+                                    tint = AppColors.textOnPrimaryColor
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = AppColors.tertiaryColor
+                        )
                     )
                 },
-                content = {
-                    // Pantalla principal según la vista seleccionada
-                    when (selectedView) {
-                        "Sales" -> SalesScreen(saleViewModel, itemViewModel)
-                        // Send model status and collected models
-                        "Models" -> ModelsScreen(
-                            navController = navController,
-                            itemViewModel = itemViewModel,
-                        )
+                content = { paddingValues ->
+                    Surface(
+                        modifier = Modifier.padding(paddingValues),
+                        color = AppColors.backgroundColor
+                    ) {
+                        when (selectedView) {
+                            "Sales" -> SalesScreen(saleViewModel, itemViewModel)
+                            "Models" -> ModelsScreen(
+                                navController = navController,
+                                itemViewModel = itemViewModel,
+                            )
 
-                        "Settings" -> SettingsView()
+                            "Settings" -> SettingsView()
+                        }
                     }
                 }
             )
         }
     }
 }
-

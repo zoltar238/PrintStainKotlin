@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,8 +31,18 @@ fun CurrencyTextField(
                 onValueChange(cleanText)
             }
         },
-        label = { Text(label) },
-        placeholder = { Text("0.00") },
+        label = {
+            Text(
+                label,
+                color = AppColors.textOnBackgroundColor
+            )
+        },
+        placeholder = {
+            Text(
+                "0.00",
+                color = AppColors.textOnBackgroundSecondaryColor
+            )
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         leadingIcon = {
@@ -43,6 +54,13 @@ fun CurrencyTextField(
             )
         },
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = AppColors.textOnBackgroundColor,
+            cursorColor = AppColors.primaryColor,
+            focusedBorderColor = AppColors.primaryColor,
+            unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+            backgroundColor = AppColors.surfaceColor
+        )
     )
 }

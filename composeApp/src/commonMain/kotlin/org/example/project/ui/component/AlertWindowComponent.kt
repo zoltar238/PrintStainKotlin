@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import org.example.project.ui.AppColors
 
 @Composable
 fun AlertDialog(
@@ -22,13 +23,15 @@ fun AlertDialog(
             title = {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = AppColors.textOnBackgroundColor
                 )
             },
             text = {
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppColors.textOnBackgroundSecondaryColor
                 )
             },
             confirmButton = {
@@ -38,19 +41,25 @@ fun AlertDialog(
                         onDismiss()
                     }
                 ) {
-                    Text(confirmButton)
+                    Text(
+                        text = confirmButton,
+                        color = AppColors.primaryColor
+                    )
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismiss
                 ) {
-                    Text(dismissButton)
+                    Text(
+                        text = dismissButton,
+                        color = AppColors.textOnBackgroundSecondaryColor
+                    )
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = AppColors.surfaceColor,
+            titleContentColor = AppColors.textOnBackgroundColor,
+            textContentColor = AppColors.textOnBackgroundSecondaryColor
         )
     }
 }

@@ -1,5 +1,6 @@
 package org.example.project.ui.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -12,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.ui.component.MessageToaster
 import org.example.project.viewModel.PersonViewModel
@@ -34,50 +36,58 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
     }
 
     MaterialTheme {
-        // Loading indicator
-        if (personUiState.isLoading) LoadingIndicator()
-        // Toast
-        MessageToaster(
-            messageEvent = personUiState.messageEvent,
-            success = personUiState.success,
-            onMessageConsumed = { personViewModel.consumeMessage() }
-        )
-        Column(
-            Modifier.fillMaxHeight().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Row para botones de alternancia (Registro | Iniciar sesión)
-            Row(
-                modifier = Modifier.fillMaxWidth().zIndex(1f),
-                horizontalArrangement = Arrangement.Center
+        Box(modifier = Modifier.fillMaxSize().background(AppColors.backgroundColor)) {
+            // Loading indicator
+            if (personUiState.isLoading) LoadingIndicator()
+            // Toast
+            MessageToaster(
+                messageEvent = personUiState.messageEvent,
+                success = personUiState.success,
+                onMessageConsumed = { personViewModel.consumeMessage() }
+            )
+            Column(
+                Modifier.fillMaxHeight().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Button(
-                    onClick = { isRegisterMode = true },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = if (isRegisterMode) MaterialTheme.colors.primary else Color.Gray
-                    ),
-                    modifier = Modifier.padding(8.dp)
+                // Row para botones de alternancia (Registro | Iniciar sesión)
+                Row(
+                    modifier = Modifier.fillMaxWidth().zIndex(1f),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Registro")
+                    Button(
+                        onClick = { isRegisterMode = true },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = if (isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
+                        ),
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(
+                            "Register",
+                            color = if (isRegisterMode) AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
+                        )
+                    }
+
+                    Button(
+                        onClick = { isRegisterMode = false },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = if (!isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
+                        ),
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(
+                            "Login",
+                            color = if (!isRegisterMode) AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
+                        )
+                    }
                 }
 
-                Button(
-                    onClick = { isRegisterMode = false },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = if (!isRegisterMode) MaterialTheme.colors.primary else Color.Gray
-                    ),
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("Iniciar sesión")
+                // Formulario de Registro
+                if (isRegisterMode) {
+                    RegisterScreen(personViewModel = personViewModel)
+                } else {
+                    LoginScreen(personViewModel = personViewModel)
                 }
-            }
-
-            // Formulario de Registro
-            if (isRegisterMode) {
-                RegisterScreen(personViewModel = personViewModel)
-            } else {
-                LoginScreen(personViewModel = personViewModel)
             }
         }
     }

@@ -1,17 +1,19 @@
 package org.example.project.ui.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import org.example.project.model.dto.LoginDto
+import org.example.project.ui.AppColors
 import org.example.project.viewModel.PersonViewModel
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.Res
@@ -46,19 +48,23 @@ fun LoginScreen(
                     username = newText
                     isUsernameValid = newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.username_field)) },
+                label = { Text(stringResource(Res.string.username_field), color = AppColors.textOnBackgroundColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isUsernameValid,
-                colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isUsernameValid) {
                 Text(
                     text = "Username cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -69,21 +75,25 @@ fun LoginScreen(
                     password = newText
                     isPasswordValid = newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.password_field)) },
-                placeholder = { Text("*************") },
+                label = { Text(stringResource(Res.string.password_field), color = AppColors.textOnBackgroundColor) },
+                placeholder = { Text("*************", color = AppColors.textOnBackgroundSecondaryColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 visualTransformation = PasswordVisualTransformation(),
                 isError = !isPasswordValid,
-                colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isPasswordValid) {
                 Text(
                     text = "Password cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -98,7 +108,10 @@ fun LoginScreen(
                     onCheckedChange = { saveCredentials = it }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Remember me")
+                Text(
+                    text = "Remember me",
+                    color = AppColors.textOnBackgroundColor
+                )
             }
 
             Button(
@@ -115,9 +128,16 @@ fun LoginScreen(
                         )
                     }
                 },
-                modifier = commonModifier
+                modifier = commonModifier,
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = AppColors.primaryColor,
+                    contentColor = AppColors.textOnPrimaryColor
+                )
             ) {
-                Text("Log in")
+                Text(
+                    "Log in",
+                    color = AppColors.textOnPrimaryColor
+                )
             }
         }
     }

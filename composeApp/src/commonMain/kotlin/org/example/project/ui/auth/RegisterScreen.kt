@@ -1,18 +1,18 @@
 package org.example.project.ui.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import org.apache.commons.validator.routines.EmailValidator
 import org.example.project.model.dto.PersonDto
+import org.example.project.ui.AppColors
 import org.example.project.viewModel.PersonViewModel
 import org.jetbrains.compose.resources.stringResource
 import printstain.composeapp.generated.resources.*
@@ -50,19 +50,23 @@ fun RegisterScreen(
                     name = newText
                     isNameValid = newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.name_field)) },
+                label = { Text(stringResource(Res.string.name_field), color = AppColors.textOnBackgroundColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isNameValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isNameValid) {
                 Text(
                     text = "Name cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -73,19 +77,23 @@ fun RegisterScreen(
                     surname = newText
                     isSurnameValid = newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.surname_field)) },
+                label = { Text(stringResource(Res.string.surname_field), color = AppColors.textOnBackgroundColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isSurnameValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isSurnameValid) {
                 Text(
                     text = "Surname cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -96,19 +104,23 @@ fun RegisterScreen(
                     username = newText
                     isUsernameValid = newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.username_field)) },
+                label = { Text(stringResource(Res.string.username_field), color = AppColors.textOnBackgroundColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isUsernameValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isUsernameValid) {
                 Text(
                     text = "Username cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -119,19 +131,23 @@ fun RegisterScreen(
                     email = newText
                     isEmailValid = EmailValidator.getInstance().isValid(newText)
                 },
-                label = { Text(stringResource(Res.string.email_field)) },
+                label = { Text(stringResource(Res.string.email_field), color = AppColors.textOnBackgroundColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 isError = !isEmailValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isEmailValid) {
                 Text(
                     text = "Invalid email address",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -143,21 +159,25 @@ fun RegisterScreen(
                     isPasswordValid = newText.isNotEmpty()
                     isRepeatedPasswordValid = repeatedPassword.isEmpty() || newText == repeatedPassword
                 },
-                label = { Text(stringResource(Res.string.password_field)) },
-                placeholder = { Text("*************") },
+                label = { Text(stringResource(Res.string.password_field), color = AppColors.textOnBackgroundColor) },
+                placeholder = { Text("*************", color = AppColors.textOnBackgroundSecondaryColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 visualTransformation = PasswordVisualTransformation(),
                 isError = !isPasswordValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isPasswordValid) {
                 Text(
                     text = "Password cannot be empty",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -168,21 +188,30 @@ fun RegisterScreen(
                     repeatedPassword = newText
                     isRepeatedPasswordValid = newText == password && newText.isNotEmpty()
                 },
-                label = { Text(stringResource(Res.string.repeat_password_field)) },
-                placeholder = { Text("*************") },
+                label = {
+                    Text(
+                        stringResource(Res.string.repeat_password_field),
+                        color = AppColors.textOnBackgroundColor
+                    )
+                },
+                placeholder = { Text("*************", color = AppColors.textOnBackgroundSecondaryColor) },
                 singleLine = true,
                 modifier = commonModifier,
                 visualTransformation = PasswordVisualTransformation(),
                 isError = !isRepeatedPasswordValid,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
+                    textColor = AppColors.textOnBackgroundColor,
+                    focusedBorderColor = AppColors.primaryColor,
+                    unfocusedBorderColor = AppColors.textOnBackgroundSecondaryColor,
+                    errorBorderColor = AppColors.errorColor,
+                    errorLabelColor = AppColors.errorColor,
+                    cursorColor = AppColors.primaryColor
                 )
             )
             if (!isRepeatedPasswordValid) {
                 Text(
                     text = "Passwords do not match",
-                    color = Color.Red,
+                    color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
@@ -212,7 +241,12 @@ fun RegisterScreen(
                             )
                         )
                     }
-                }
+                },
+                modifier = commonModifier,
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = AppColors.primaryColor,
+                    contentColor = AppColors.textOnPrimaryColor
+                )
             ) {
                 Text("Register")
             }

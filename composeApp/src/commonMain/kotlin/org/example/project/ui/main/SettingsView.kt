@@ -181,9 +181,7 @@ fun SettingsView() {
                             OutlinedButton(
                                 onClick = {
                                     scope.launch {
-                                        // TODO: Add account deletion logic
                                         PreferencesDaoImpl.deleteAllPreferences()
-                                        // TODO: Navigate to login screen
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
