@@ -2,26 +2,23 @@ package org.example.project.ui.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.ViewInAr
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.launch
-import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
 import org.example.project.ui.main.model.ModelsScreen
 import org.example.project.ui.main.sale.SalesScreen
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import androidx.compose.material.icons.filled.Menu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,12 +64,12 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                         color = AppColors.textOnBackgroundSecondaryColor
                     )
                     NavigationDrawerItem(
-                        icon = { 
+                        icon = {
                             Icon(
                                 imageVector = Icons.Filled.ShoppingCart,
                                 contentDescription = "Sales Icon",
                                 tint = if (selectedView == "Sales") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
-                            ) 
+                            )
                         },
                         label = { Text("Sales") },
                         selected = selectedView == "Sales",
@@ -89,12 +86,12 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     NavigationDrawerItem(
-                        icon = { 
+                        icon = {
                             Icon(
                                 imageVector = Icons.Filled.ViewInAr,
                                 contentDescription = "Models Icon",
                                 tint = if (selectedView == "Models") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
-                            ) 
+                            )
                         },
                         label = { Text("Models") },
                         selected = selectedView == "Models",
@@ -111,12 +108,12 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     NavigationDrawerItem(
-                        icon = { 
+                        icon = {
                             Icon(
                                 imageVector = Icons.Filled.Settings,
                                 contentDescription = "Settings Icon",
                                 tint = if (selectedView == "Settings") AppColors.textOnPrimaryColor else AppColors.textOnBackgroundColor
-                            ) 
+                            )
                         },
                         label = { Text("Settings") },
                         selected = selectedView == "Settings",

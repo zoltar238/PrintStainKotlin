@@ -1,7 +1,6 @@
 package org.example.project.ui.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
