@@ -82,8 +82,9 @@ class ItemService(database: PrintStainDatabase) {
             }
             item.person?.let {
                 personDao.insertPerson(
-                    it.personId!!,
-                    it.name!!
+                    personId = it.personId!!,
+                    name = it.name!!,
+                    isActive = it.isActive ?: true
                 )
             }
         }

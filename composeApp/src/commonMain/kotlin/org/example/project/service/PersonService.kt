@@ -72,4 +72,29 @@ class PersonService(
         val password = PreferencesDaoImpl.getPassword()
         return Pair(username, password)
     }
+
+    suspend fun deleteUser(username: String): ResponseApi<String> {
+        return try {
+            val token = PreferencesDaoImpl.getToken()
+            responseHandler(
+                "Delete user",
+                ProcessTags.DeleteUser.name,
+            ) {
+                ClientController.userController.deleteUser(
+                    token = token!!,
+                    username = username
+                )
+            }
+        } catch (e: Exception) {
+            AppLogger.e(
+                "",
+                """
+                    Process: ${ProcessTags.Userlogin.name}.
+                    Status: Unexpected internal error deleting user.
+                """.trimIndent(),
+                e
+            )
+            ResponseApi(success = false, response = "Error: ${e.localizedMessage}", null)
+        }
+    }
 }

@@ -31,6 +31,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
+
     LaunchedEffect(Unit) {
         if (saleUiState.sales.isEmpty()) {
             saleViewModel.getAllSales()
@@ -59,9 +60,9 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                         color = AppColors.textOnBackgroundColor,
                         style = MaterialTheme.typography.titleLarge
                     )
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(bottom = 16.dp),
-                        color = AppColors.textOnBackgroundSecondaryColor
+                        thickness = DividerDefaults.Thickness, color = AppColors.textOnBackgroundSecondaryColor
                     )
                     NavigationDrawerItem(
                         icon = {
@@ -131,6 +132,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                 }
             }
         ) {
+
             Scaffold(
                 containerColor = AppColors.backgroundColor,
                 contentColor = AppColors.textOnBackgroundColor,

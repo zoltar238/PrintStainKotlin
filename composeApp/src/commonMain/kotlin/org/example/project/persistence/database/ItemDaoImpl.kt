@@ -63,20 +63,21 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                 )
 
                 // Map person
-                val person = firstRow.person_personId?.let {
+                val person = firstRow.personId?.let {
                     Person(
                         personId = it,
-                        name = firstRow.person_name ?: "",
+                        name = firstRow.personName ?: "",
+                        isActive = firstRow.personIsActive ?: true
                     )
                 }
 
                 // Map images
                 val images = rows.mapNotNull { row ->
-                    row.image_id?.let { imageId ->
+                    row.imageId?.let { imageId ->
                         Image(
                             imageId = imageId,
-                            base64Image = row.image_data ?: "",
-                            item_id = row.image_id
+                            base64Image = row.imageData ?: "",
+                            item_id = row.imageId
                         )
                     }
                 }.toCollection(LinkedHashSet()).toList()
@@ -89,7 +90,7 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                             date = row.sale_date,
                             cost = row.sale_cost,
                             price = row.sale_price,
-                            itemId = row.image_id,
+                            itemId = row.imageId,
                             status = row.sale_status,
                         )
                     }

@@ -14,7 +14,6 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
-import org.example.project.ui.component.MessageToaster
 import org.example.project.viewModel.PersonViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -38,12 +37,7 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
         Box(modifier = Modifier.fillMaxSize().background(AppColors.backgroundColor)) {
             // Loading indicator
             if (personUiState.isLoading) LoadingIndicator()
-            // Toast
-            MessageToaster(
-                messageEvent = personUiState.messageEvent,
-                success = personUiState.success,
-                onMessageConsumed = { personViewModel.consumeMessage() }
-            )
+
             Column(
                 Modifier.fillMaxHeight().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -16,18 +16,34 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
+import org.example.project.ui.component.AlertDialog
+import org.example.project.ui.navigation.AppModule.itemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsView() {
     val scope = rememberCoroutineScope()
     var darkMode by rememberSaveable { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         darkMode = PreferencesDaoImpl.getDarkMode() ?: false
     }
 
     MaterialTheme {
+
+        // Account deletion dialog
+        AlertDialog(
+            show = showDialog,
+            onDismiss = { showDialog = false },
+            title = "Delete this account?",
+            message = "This action cannot be undone and will result in the permanent deletion of your account.",
+            confirmButton = "Delete",
+            onConfirm = { itemViewModel.deleteItem(listOf()) },
+            dismissButton = "Cancel"
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()

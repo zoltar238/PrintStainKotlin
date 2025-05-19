@@ -11,10 +11,11 @@ class PersonDaoImpl(db: PrintStainDatabase) : PersonDao {
 
     val query = db.personEntityQueries
 
-    override suspend fun insertPerson(personId: Long, name: String?) {
+    override suspend fun insertPerson(personId: Long, name: String?, isActive: Boolean) {
         query.insertOrReplacePerson(
             personId = personId,
-            name = name
+            name = name,
+            isActive = isActive
         )
     }
 

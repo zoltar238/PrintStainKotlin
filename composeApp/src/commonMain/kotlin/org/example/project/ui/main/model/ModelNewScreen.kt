@@ -31,7 +31,6 @@ import io.github.vinceglb.filekit.exists
 import kotlinx.coroutines.launch
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
-import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.component.ReturnButton
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.util.urlImageToBitmap
@@ -83,12 +82,6 @@ fun ModelNewScreen(
             isLight = true
         )
     ) {
-        // Toaster
-        MessageToaster(
-            messageEvent = itemUiState.messageEvent,
-            success = itemUiState.success,
-            onMessageConsumed = { itemViewModel.consumeMessage() }
-        )
 
         // Loading indicator
         if (itemUiState.isLoading) LoadingIndicator()

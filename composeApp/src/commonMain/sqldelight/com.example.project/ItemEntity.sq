@@ -23,10 +23,11 @@ WHERE itemId = ?;
 selectAllItemWithRelations:
 SELECT
     i.*,
-    p.personId AS person_personId,
-    p.name AS person_name,
-    img.imageId AS image_id,
-    img.base64Image AS image_data,
+    p.personId AS personPersonId,
+    p.name AS personName,
+    p.isActive AS personIsActive,
+    img.imageId AS imageId,
+    img.base64Image AS imageData,
     s.saleId AS sale_saleId,
     s.price AS sale_price,
     s.date AS sale_date,

@@ -1,6 +1,8 @@
 package org.example.project.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.createDatabase
 import org.example.project.ui.auth.AuthScreen
+import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.main.MainScreen
 import org.example.project.ui.main.model.ModelDetailsScreen
 import org.example.project.ui.main.model.ModelNewScreen
@@ -30,9 +33,31 @@ object AppModule {
     val saleViewModel by lazy { SaleViewModel(database) }
 }
 
+@Suppress("StateFlowValueCalledInComposition")
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
+    val saleUiState by AppModule.saleViewModel.saleUiState.collectAsState()
+    val itemUiState by AppModule.itemViewModel.itemUiState.collectAsState()
+    val personUiState by AppModule.personViewModel.personUiState.collectAsState()
+
+    MessageToaster(
+        messageEvent = saleUiState.messageEvent,
+        success = saleUiState.success,
+        onMessageConsumed = { AppModule.saleViewModel.consumeMessage() }
+    )
+    MessageToaster(
+        messageEvent = itemUiState.messageEvent,
+        success = itemUiState.success,
+        onMessageConsumed = { AppModule.itemViewModel.consumeMessage() }
+    )
+    MessageToaster(
+        messageEvent = personUiState.messageEvent,
+        success = personUiState.success,
+        onMessageConsumed = { AppModule.personViewModel.consumeMessage() }
+    )
+
 
     NavHost(navController = navController, startDestination = "log_reg_screen") {
         composable("log_reg_screen") {

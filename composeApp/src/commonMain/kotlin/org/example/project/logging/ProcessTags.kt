@@ -17,6 +17,6 @@ enum class ProcessTags {
     ItemsGetAll,
     SaleFindAll,
     SaleCreateNew,
-    InsertUser,
+    DeleteUser,
     GetAllPersons
 }

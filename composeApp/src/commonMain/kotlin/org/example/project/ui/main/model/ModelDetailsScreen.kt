@@ -26,7 +26,10 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.project.ui.AppColors
-import org.example.project.ui.component.*
+import org.example.project.ui.component.BenefitSummary
+import org.example.project.ui.component.CurrencyTextField
+import org.example.project.ui.component.LoadingIndicator
+import org.example.project.ui.component.ReturnButton
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemUiState
 import org.example.project.viewModel.ItemViewModel
@@ -68,16 +71,6 @@ fun ModelDetailsScreen(
             if (itemUiState.isLoading) {
                 LoadingIndicator()
             }
-            MessageToaster(
-                messageEvent = saleUiState.messageEvent,
-                success = saleUiState.success,
-                onMessageConsumed = { saleViewModel.consumeMessage() }
-            )
-            MessageToaster(
-                messageEvent = itemUiState.messageEvent,
-                success = itemUiState.success,
-                onMessageConsumed = { itemViewModel.consumeMessage() }
-            )
 
             Column(
                 Modifier

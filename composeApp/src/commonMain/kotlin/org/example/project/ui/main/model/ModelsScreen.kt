@@ -27,7 +27,6 @@ import org.example.project.model.dto.ItemWithRelations
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.AlertDialog
 import org.example.project.ui.component.LoadingIndicator
-import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 
@@ -42,12 +41,6 @@ fun ModelsScreen(navController: NavHostController, itemViewModel: ItemViewModel)
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
     MaterialTheme {
-        // Toaster
-        MessageToaster(
-            messageEvent = itemUiState.messageEvent,
-            success = itemUiState.success,
-            onMessageConsumed = { itemViewModel.consumeMessage() }
-        )
         // Loading indicator
         if (itemUiState.isLoading) LoadingIndicator()
 
@@ -373,7 +366,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                 }
             }
 
-            // Dialog de confirmación para eliminar
+            // Delete confirmation dialog
             AlertDialog(
                 show = showDialog,
                 onDismiss = { showDialog = false },

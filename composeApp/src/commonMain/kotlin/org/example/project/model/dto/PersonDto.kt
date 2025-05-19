@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PersonDto(
     val personId: Long? = null,
+    val isActive: Boolean? = true,
     val name: String? = null,
     val surname: String? = null,
     val username: String? = null,

@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import comexampleproject.Sale
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.LoadingIndicator
-import org.example.project.ui.component.MessageToaster
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
@@ -112,12 +111,6 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
             ) {
                 LoadingIndicator()
             }
-
-            MessageToaster(
-                messageEvent = saleUiState.messageEvent,
-                success = saleUiState.success,
-                onMessageConsumed = { saleViewModel.consumeMessage() }
-            )
         }
     }
 }

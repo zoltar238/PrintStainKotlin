@@ -8,6 +8,7 @@ interface PersonDao {
     suspend fun insertPerson(
         personId: Long,
         name: String?,
+        isActive: Boolean
     )
 
     fun getAllPersons(): Flow<List<Person>>

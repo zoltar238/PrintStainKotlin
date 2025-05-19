@@ -14,6 +14,7 @@ import org.example.project.PrintStainDatabase
 import org.example.project.model.MessageEvent
 import org.example.project.model.dto.LoginDto
 import org.example.project.model.dto.PersonDto
+import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.service.PersonService
 
 data class PersonUiState(
@@ -47,25 +48,15 @@ class PersonViewModel(
 
     fun registerUser(personDto: PersonDto) {
         viewModelScope.launch(dispatcher) {
-            try {
-                _personUiState.update { it.copy(isLoading = true) }
-                val serverResponse = personService.registerUser(personDto)
+            _personUiState.update { it.copy(isLoading = true) }
+            val serverResponse = personService.registerUser(personDto)
 
-                _personUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        success = serverResponse.success,
-                        messageEvent = MessageEvent(serverResponse.response!!)
-                    )
-                }
-            } catch (e: Exception) {
-                _personUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        success = false,
-                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
-                    )
-                }
+            _personUiState.update {
+                it.copy(
+                    isLoading = false,
+                    success = serverResponse.success,
+                    messageEvent = MessageEvent(serverResponse.response!!)
+                )
             }
         }
     }
@@ -73,45 +64,50 @@ class PersonViewModel(
     fun loginUser(loginDto: LoginDto, rememberMe: Boolean) {
         viewModelScope.launch(dispatcher) {
             _personUiState.update { it.copy(isLoading = true) }
-            try {
-                val serverResponse = personService.loginUser(loginDto)
+            val serverResponse = personService.loginUser(loginDto)
 
-                print(serverResponse.response)
+            print(serverResponse.response)
 
-                _personUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        success = serverResponse.success,
-                        messageEvent = MessageEvent(
-                            if (serverResponse.response!!.contains("Unauthorized") && !serverResponse.success)
-                                "Wrong username or password"
-                            else
-                                serverResponse.response!!
-                        )
+            _personUiState.update {
+                it.copy(
+                    isLoading = false,
+                    success = serverResponse.success,
+                    messageEvent = MessageEvent(
+                        if (serverResponse.response!!.contains("Unauthorized") && !serverResponse.success)
+                            "Wrong username or password"
+                        else
+                            serverResponse.response
                     )
-                }
+                )
+            }
 
-                if (serverResponse.success && serverResponse.data != null) {
-                    // Save user
-                    if (rememberMe) {
-                        personService.saveUserCredentials(
-                            username = loginDto.username!!,
-                            password = loginDto.password!!,
-                            token = serverResponse.data
-                        )
-                    } else {
-                        personService.saveToken(serverResponse.data)
-                    }
-                }
-            } catch (e: Exception) {
-                _personUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        success = false,
-                        messageEvent = MessageEvent("Error: ${e.localizedMessage}")
+            if (serverResponse.success && serverResponse.data != null) {
+                // Save user
+                if (rememberMe) {
+                    personService.saveUserCredentials(
+                        username = loginDto.username!!,
+                        password = loginDto.password!!,
+                        token = serverResponse.data
                     )
+                } else {
+                    personService.saveToken(serverResponse.data)
                 }
-                throw e
+            }
+        }
+    }
+
+    fun deleteUser() {
+        viewModelScope.launch(dispatcher) {
+            _personUiState.update { it.copy(isLoading = true) }
+            val userToDelete = PreferencesDaoImpl.getUsername()
+            val serverResponse = personService.deleteUser(userToDelete!!)
+
+            _personUiState.update {
+                it.copy(
+                    isLoading = false,
+                    success = serverResponse.success,
+                    messageEvent = MessageEvent(serverResponse.response!!)
+                )
             }
         }
     }
