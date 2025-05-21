@@ -8,6 +8,7 @@ interface PersonDao {
     suspend fun insertPerson(
         personId: Long,
         name: String?,
+        username: String?,
         isActive: Boolean
     )
 

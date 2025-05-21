@@ -84,6 +84,7 @@ class ItemService(database: PrintStainDatabase) {
                 personDao.insertPerson(
                     personId = it.personId!!,
                     name = it.name!!,
+                    username = it.username,
                     isActive = it.isActive ?: true
                 )
             }

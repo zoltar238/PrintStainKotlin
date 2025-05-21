@@ -4,6 +4,7 @@ import kotlin.Boolean;
 CREATE TABLE Person(
     personId INTEGER PRIMARY KEY,
     name TEXT,
+    username TEXT,
     isActive INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 
@@ -13,8 +14,9 @@ insertOrReplacePerson:
 INSERT OR REPLACE INTO Person(
     personId,
     name,
+    username,
     isActive)
-VALUES(?, ?, ?);
+VALUES(?, ?, ?, ?);
 
 -- Get all persons
 selectAllPersons:

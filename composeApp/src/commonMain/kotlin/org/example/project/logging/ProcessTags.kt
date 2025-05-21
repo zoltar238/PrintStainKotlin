@@ -18,5 +18,5 @@ enum class ProcessTags {
     SaleFindAll,
     SaleCreateNew,
     DeleteUser,
-    GetAllPersons
+    ResetPassword
 }

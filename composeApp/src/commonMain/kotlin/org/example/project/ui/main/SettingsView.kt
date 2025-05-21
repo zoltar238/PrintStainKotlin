@@ -144,7 +144,7 @@ fun SettingsView(navController: NavController) {
                             Button(
                                 onClick = {
                                     scope.launch {
-                                        PreferencesDaoImpl.deleteAllPreferences()
+                                        navController.navigate("password_reset_screen?origin=main_app_view")
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),

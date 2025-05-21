@@ -1,6 +1,8 @@
 package org.example.project.ui.auth
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.onClick
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
@@ -11,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import org.example.project.model.dto.LoginDto
 import org.example.project.ui.AppColors
 import org.example.project.viewModel.PersonViewModel
@@ -19,8 +22,10 @@ import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.password_field
 import printstain.composeapp.generated.resources.username_field
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginScreen(
+    navController: NavHostController,
     personViewModel: PersonViewModel,
 ) {
     var username by remember { mutableStateOf("") }
@@ -138,6 +143,12 @@ fun LoginScreen(
                     color = AppColors.textOnPrimaryColor
                 )
             }
+
+            Text(
+                text = "Forgot Password?",
+                color = AppColors.textOnBackgroundColor,
+                modifier = Modifier.onClick(onClick = { navController.navigate("password_reset_screen?origin=log_reg_screen") })
+            )
         }
     }
 }

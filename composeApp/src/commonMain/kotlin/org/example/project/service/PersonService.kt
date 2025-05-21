@@ -96,4 +96,30 @@ class PersonService(
             ResponseApi(success = false, response = "Error: ${e.localizedMessage}", null)
         }
     }
+
+    suspend fun resetPassword(username: String, newPassword: String): ResponseApi<String> {
+        return try {
+            responseHandler(
+                "Reseting user password",
+                ProcessTags.ResetPassword.name,
+            ) {
+                ClientController.userController.resetPassword(
+                    user = PersonDto(
+                        username = username,
+                        password = newPassword
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            AppLogger.e(
+                "",
+                """
+                    Process: ${ProcessTags.ResetPassword.name}.
+                    Status: Unexpected internal resetting password.
+                """.trimIndent(),
+                e
+            )
+            ResponseApi(success = false, response = "Error: ${e.localizedMessage}", null)
+        }
+    }
 }

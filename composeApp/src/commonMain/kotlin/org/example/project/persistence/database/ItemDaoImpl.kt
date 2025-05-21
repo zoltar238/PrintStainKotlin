@@ -67,7 +67,8 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
                     Person(
                         personId = it,
                         name = firstRow.personName ?: "",
-                        isActive = firstRow.personIsActive ?: true
+                        isActive = firstRow.personIsActive ?: true,
+                        username = firstRow.personUsername ?: "",
                     )
                 }
 

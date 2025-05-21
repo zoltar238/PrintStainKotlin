@@ -11,12 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 import org.example.project.PrintStainDatabase
 import org.example.project.model.MessageEvent
 import org.example.project.model.dto.LoginDto
 import org.example.project.model.dto.PersonDto
-import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.service.PersonService
 
 data class PersonUiState(
@@ -68,8 +66,6 @@ class PersonViewModel(
             _personUiState.update { it.copy(isLoading = true) }
             val serverResponse = personService.loginUser(loginDto)
 
-            print(serverResponse.response)
-
             _personUiState.update {
                 it.copy(
                     isLoading = false,
@@ -99,6 +95,21 @@ class PersonViewModel(
             // Clear message after 3 seconds to avoid issues with login screen
             delay(3000)
             _personUiState.update { it.copy(messageEvent = MessageEvent(null)) }
+        }
+    }
+
+    fun resetPassword(username: String, newPassword: String) {
+        viewModelScope.launch(dispatcher) {
+            _personUiState.update { it.copy(isLoading = true) }
+            val serverResponse = personService.resetPassword(username, newPassword)
+
+            _personUiState.update {
+                it.copy(
+                    isLoading = false,
+                    success = serverResponse.success,
+                    messageEvent = MessageEvent(serverResponse.response!!)
+                )
+            }
         }
     }
 

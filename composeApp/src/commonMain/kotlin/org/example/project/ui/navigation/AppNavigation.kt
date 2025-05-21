@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.example.project.persistence.database.DriverFactory
 import org.example.project.persistence.database.createDatabase
 import org.example.project.ui.auth.AuthScreen
+import org.example.project.ui.auth.ResetPasswordScreen
 import org.example.project.ui.component.MessageToaster
 import org.example.project.ui.main.MainScreen
 import org.example.project.ui.main.model.ModelDetailsScreen
@@ -60,12 +61,31 @@ fun AppNavigation() {
 
 
     NavHost(navController = navController, startDestination = "log_reg_screen") {
+        // Auth screen
         composable("log_reg_screen") {
             AuthScreen(
                 navController = navController,
                 personViewModel = AppModule.personViewModel
             )
         }
+        // Password reset screen
+        composable(
+            route = "password_reset_screen?origin={origin}",
+            arguments = listOf(
+                navArgument("origin") {
+                    type = NavType.StringType
+                    defaultValue = "log_reg_screen"
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val origin = backStackEntry.arguments?.getString("origin")
+            ResetPasswordScreen(
+                navController = navController,
+                navigationRoute = origin!!,
+            )
+        }
+        // Main screen of the app
         composable("main_app_view") {
             MainScreen(
                 navController = navController,

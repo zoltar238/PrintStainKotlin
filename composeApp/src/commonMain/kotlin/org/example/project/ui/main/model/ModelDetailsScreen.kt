@@ -265,7 +265,7 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "${uiState.selectedItem.person?.name}",
+            text = "${uiState.selectedItem.person?.username} ${if (uiState.selectedItem.person?.isActive == false) "(This user was deleted)" else ""}",
             color = AppColors.textOnBackgroundColor,
             modifier = Modifier.padding(top = 4.dp),
         )

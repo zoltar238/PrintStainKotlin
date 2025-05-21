@@ -25,6 +25,7 @@ SELECT
     i.*,
     p.personId AS personPersonId,
     p.name AS personName,
+    p.username AS personUsername,
     p.isActive AS personIsActive,
     img.imageId AS imageId,
     img.base64Image AS imageData,

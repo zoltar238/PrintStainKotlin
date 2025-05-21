@@ -79,7 +79,10 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
                 if (isRegisterMode) {
                     RegisterScreen(personViewModel = personViewModel)
                 } else {
-                    LoginScreen(personViewModel = personViewModel)
+                    LoginScreen(
+                        personViewModel = personViewModel,
+                        navController = navController
+                    )
                 }
             }
         }

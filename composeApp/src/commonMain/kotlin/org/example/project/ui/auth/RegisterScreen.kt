@@ -156,7 +156,7 @@ fun RegisterScreen(
                 value = password,
                 onValueChange = { newText ->
                     password = newText
-                    isPasswordValid = newText.isNotEmpty()
+                    isPasswordValid = newText.isNotEmpty() && newText.length >= 6
                     isRepeatedPasswordValid = repeatedPassword.isEmpty() || newText == repeatedPassword
                 },
                 label = { Text(stringResource(Res.string.password_field), color = AppColors.textOnBackgroundColor) },
@@ -176,7 +176,7 @@ fun RegisterScreen(
             )
             if (!isPasswordValid) {
                 Text(
-                    text = "Password cannot be empty",
+                    text = if (password.isEmpty()) "Password cannot be empty" else "Password must be at least 6 characters",
                     color = AppColors.errorColor,
                     modifier = Modifier.padding(start = 40.dp)
                 )
