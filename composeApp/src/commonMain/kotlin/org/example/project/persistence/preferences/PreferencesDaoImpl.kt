@@ -71,6 +71,20 @@ object PreferencesDaoImpl : PreferencesDao {
         }
     }
 
+    // Delete username
+    suspend fun clearUsername() {
+        pref.edit { preferences ->
+            preferences.remove(PreferenceKeys.USERNAME_KEY)
+        }
+    }
+
+    // Delete password
+    suspend fun clearPassword() {
+        pref.edit { preferences ->
+            preferences.remove(PreferenceKeys.PASSWORD_KEY)
+        }
+    }
+
     // Delete all preferences
     override suspend fun deleteAllPreferences() {
         pref.edit { preferences ->

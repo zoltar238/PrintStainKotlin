@@ -13,15 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.AlertDialog
-import org.example.project.ui.navigation.AppModule.itemViewModel
+import org.example.project.ui.navigation.AppModule.personViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsView() {
+fun SettingsView(navController: NavController) {
     val scope = rememberCoroutineScope()
     var darkMode by rememberSaveable { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -40,7 +41,18 @@ fun SettingsView() {
             title = "Delete this account?",
             message = "This action cannot be undone and will result in the permanent deletion of your account.",
             confirmButton = "Delete",
-            onConfirm = { itemViewModel.deleteItem(listOf()) },
+            onConfirm = {
+                scope.launch {
+                    // Delete user from server
+                    personViewModel.deleteUser()
+                    // Delete all user data
+                    PreferencesDaoImpl.clearPassword()
+                    PreferencesDaoImpl.clearUsername()
+                    PreferencesDaoImpl.clearToken()
+                    // Navigate to login screen
+                    navController.navigate("log_reg_screen")
+                }
+            },
             dismissButton = "Cancel"
         )
 
@@ -175,8 +187,12 @@ fun SettingsView() {
                             OutlinedButton(
                                 onClick = {
                                     scope.launch {
-                                        PreferencesDaoImpl.deleteAllPreferences()
-                                        // TODO: Navigate to login screen
+                                        PreferencesDaoImpl.clearPassword()
+                                        PreferencesDaoImpl.clearUsername()
+                                        PreferencesDaoImpl.clearToken()
+                                        navController.navigate("log_reg_screen") {
+                                            popUpTo("log_reg_screen") { inclusive = true }
+                                        }
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
@@ -197,7 +213,7 @@ fun SettingsView() {
                             OutlinedButton(
                                 onClick = {
                                     scope.launch {
-                                        PreferencesDaoImpl.deleteAllPreferences()
+                                        showDialog = true
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),

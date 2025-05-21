@@ -73,7 +73,7 @@ class PersonService(
         return Pair(username, password)
     }
 
-    suspend fun deleteUser(username: String): ResponseApi<String> {
+    suspend fun deleteUser(): ResponseApi<String> {
         return try {
             val token = PreferencesDaoImpl.getToken()
             responseHandler(
@@ -81,8 +81,7 @@ class PersonService(
                 ProcessTags.DeleteUser.name,
             ) {
                 ClientController.userController.deleteUser(
-                    token = token!!,
-                    username = username
+                    token = "Bearer $token"
                 )
             }
         } catch (e: Exception) {

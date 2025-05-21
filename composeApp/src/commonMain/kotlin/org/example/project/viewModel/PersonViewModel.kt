@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import comexampleproject.Person
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import org.example.project.PrintStainDatabase
 import org.example.project.model.MessageEvent
 import org.example.project.model.dto.LoginDto
@@ -93,14 +95,17 @@ class PersonViewModel(
                     personService.saveToken(serverResponse.data)
                 }
             }
+
+            // Clear message after 3 seconds to avoid issues with login screen
+            delay(3000)
+            _personUiState.update { it.copy(messageEvent = MessageEvent(null)) }
         }
     }
 
     fun deleteUser() {
         viewModelScope.launch(dispatcher) {
             _personUiState.update { it.copy(isLoading = true) }
-            val userToDelete = PreferencesDaoImpl.getUsername()
-            val serverResponse = personService.deleteUser(userToDelete!!)
+            val serverResponse = personService.deleteUser()
 
             _personUiState.update {
                 it.copy(

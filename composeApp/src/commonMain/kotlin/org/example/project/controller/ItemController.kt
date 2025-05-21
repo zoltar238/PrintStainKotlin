@@ -10,9 +10,6 @@ interface ItemController {
     @GET("item/getAllItems")
     suspend fun getAllItems(@Header("Authorization") token: String): Response<ResponseApi<List<ItemDto>>>
 
-    @GET("item/getAllUserItems")
-    suspend fun getAllUserItems(@Header("Authorization") token: String): Response<ResponseApi<List<ItemDto>>>
-
     @POST("item/postItem")
     suspend fun postItem(@Header("Authorization") token: String, @Body itemDto: ItemDto): Response<ResponseApi<ItemDto>>
 

@@ -170,7 +170,9 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
                                 itemViewModel = itemViewModel,
                             )
 
-                            "Settings" -> SettingsView()
+                            "Settings" -> SettingsView(
+                                navController = navController
+                            )
                         }
                     }
                 }

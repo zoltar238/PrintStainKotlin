@@ -20,11 +20,14 @@ fun MessageToaster(
     LaunchedEffect(messageEvent) {
         messageEvent?.let { event ->
             if (!event.isConsumed) {
-                toaster.show(
-                    message = event.message,
-                    type = if (success) ToastType.Success else ToastType.Error
-                )
-                onMessageConsumed() // Consumimos el mensaje después de mostrarlo
+                event.message?.let {
+                    toaster.show(
+                        message = it,
+                        type = if (success) ToastType.Success else ToastType.Error
+                    )
+                }
+                // Consume message after showing it
+                onMessageConsumed()
             }
         }
     }
@@ -32,6 +35,7 @@ fun MessageToaster(
     Toaster(
         state = toaster,
         showCloseButton = true,
-        alignment = Alignment.TopCenter
+        alignment = Alignment.TopCenter,
+        richColors = true
     )
 }

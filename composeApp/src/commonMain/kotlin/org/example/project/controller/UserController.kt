@@ -15,6 +15,5 @@ interface UserController {
     @DELETE("person/delete")
     suspend fun deleteUser(
         @Header("Authorization") token: String,
-        @Query("id") username: String
     ): Response<ResponseApi<String>>
 }
