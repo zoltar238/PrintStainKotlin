@@ -239,4 +239,31 @@ class ItemService(database: PrintStainDatabase) {
 
         throw IllegalStateException("Could not download file")
     }
+
+    fun previewFile(path: String): ResponseApi<String> {
+        try {
+            AppLogger.i(
+                tag = ProcessTags.OpeningFstl.name,
+                "Attempting to open fstl with path: $path"
+            )
+            if (Runtime.getRuntime().exec(arrayOf("which", "fstl")).errorStream != null) {
+                AppLogger.i(
+                    tag = ProcessTags.OpeningFstl.name,
+                    message = "Fstl was found instaled in the system, preceding to open stl/obj file"
+                )
+            } else {
+                throw Exception("Fstl is not installed in the system")
+            }
+            val command = arrayOf("fstl", path)
+            val process = Runtime.getRuntime().exec(command)
+            return ResponseApi(true, "File preview opened successfully", "File previewed opened")
+        } catch (e: Exception) {
+            AppLogger.e(
+                tag = ProcessTags.OpeningFstl.name,
+                "Error attempting to open fstl with path: $path",
+                throwable = e
+            )
+            return ResponseApi(true, "Error opening file preview: $e", "Error opening file preview")
+        }
+    }
 }

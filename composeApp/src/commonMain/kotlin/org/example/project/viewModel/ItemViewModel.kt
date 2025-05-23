@@ -573,4 +573,21 @@ class ItemViewModel(
             }
         }
     }
+
+    fun previewFile(path: String) {
+        viewModelScope.launch(dispatcher) {
+            _itemUiState.update { it.copy(isLoading = true) }
+
+            val result = itemService.previewFile(path)
+
+            _itemUiState.update {
+                it.copy(
+                    isLoading = false,
+                    messageEvent = MessageEvent(result.response),
+                    success = result.success
+                )
+            }
+
+        }
+    }
 }

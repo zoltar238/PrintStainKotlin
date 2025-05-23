@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -363,6 +364,23 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                         color = AppColors.textOnBackgroundColor,
                                         modifier = Modifier.weight(1f)
                                     )
+                                }
+                                if (fileDto.fileName!!.split(".").last() == "obj" || fileDto.fileName!!.split(".")
+                                        .last() == "stl"
+                                ) {
+                                    IconButton(
+                                        onClick = {
+
+                                            itemViewModel.previewFile(fileDto.fileUrl!!)
+                                        },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                            contentDescription = "Preview file",
+                                            tint = AppColors.errorColor
+                                        )
+                                    }
                                 }
                                 if (!hasFiles.value) {
                                     IconButton(
