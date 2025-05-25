@@ -43,20 +43,13 @@ fun AppNavigation() {
     val itemUiState by AppModule.itemViewModel.itemUiState.collectAsState()
     val personUiState by AppModule.personViewModel.personUiState.collectAsState()
 
+    val messageEventList = listOf(saleUiState.messageEvent, itemUiState.messageEvent, personUiState.messageEvent)
+    val messageEventConsumedList = listOf(AppModule.saleViewModel.consumeMessage(), AppModule.itemViewModel.consumeMessage(), AppModule.personViewModel.consumeMessage())
+
     MessageToaster(
-        messageEvent = saleUiState.messageEvent,
+        messageEvents = messageEventList,
         success = saleUiState.success,
-        onMessageConsumed = { AppModule.saleViewModel.consumeMessage() }
-    )
-    MessageToaster(
-        messageEvent = itemUiState.messageEvent,
-        success = itemUiState.success,
-        onMessageConsumed = { AppModule.itemViewModel.consumeMessage() }
-    )
-    MessageToaster(
-        messageEvent = personUiState.messageEvent,
-        success = personUiState.success,
-        onMessageConsumed = { AppModule.personViewModel.consumeMessage() }
+        onMessageConsumed = messageEventConsumedList
     )
 
 

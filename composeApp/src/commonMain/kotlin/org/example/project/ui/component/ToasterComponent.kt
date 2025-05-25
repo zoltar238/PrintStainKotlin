@@ -8,26 +8,28 @@ import com.dokar.sonner.Toaster
 import com.dokar.sonner.rememberToasterState
 import org.example.project.model.MessageEvent
 
-// Todo: further customize toast
+
 @Composable
 fun MessageToaster(
-    messageEvent: MessageEvent?,
+    messageEvents: List<MessageEvent?>,
     success: Boolean,
-    onMessageConsumed: () -> Unit,
+    onMessageConsumed: List<Unit>,
 ) {
     val toaster = rememberToasterState()
 
-    LaunchedEffect(messageEvent) {
-        messageEvent?.let { event ->
-            if (!event.isConsumed) {
-                event.message?.let {
-                    toaster.show(
-                        message = it,
-                        type = if (success) ToastType.Success else ToastType.Error
-                    )
+    LaunchedEffect(messageEvents) {
+        messageEvents.forEachIndexed { index, event ->
+            event?.let {
+                if (!it.isConsumed) {
+                    event.message?.let {
+                        toaster.show(
+                            message = it,
+                            type = if (success) ToastType.Success else ToastType.Error
+                        )
+                    }
+                    // Consume the message after showing it
+                    onMessageConsumed[index]
                 }
-                // Consume message after showing it
-                onMessageConsumed()
             }
         }
     }
