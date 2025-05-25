@@ -413,39 +413,40 @@ class ItemViewModel(
         }
     }
 
-    fun updateItemFiles() {
-        viewModelScope.launch(dispatcher) {
-            try {
-                val updatedFiles = itemService.updateItemFiles(
-                    files = if (itemUiState.value.selectedItemFiles.isNullOrEmpty()) mutableListOf() else itemUiState.value.selectedItemFiles as MutableList<FileDto>
+   fun updateItemFiles() {
+    viewModelScope.launch(dispatcher) {
+        try {
+            val currentFiles = itemUiState.value.selectedItemFiles ?: emptyList()
+            val updatedFiles = itemService.updateItemFiles(files = currentFiles.toMutableList()) // Si acepta List<FileDto>
+
+            AppLogger.i(
+                "Modify item files",
+                "Process: ${ProcessTags.UpdateItemFiles.name}.",
+            )
+
+            _itemUiState.update {
+                it.copy(
+                    selectedItemFiles = updatedFiles, // Ya debería ser una nueva instancia
+                    isLoading = false,
+                    success = true
                 )
-                AppLogger.i(
-                    "Modify item files",
-                    "Process: ${ProcessTags.UpdateItemFiles.name}.",
+            }
+        } catch (e: Exception) {
+            AppLogger.e(
+                "Modify item files",
+                "Process: ${ProcessTags.UpdateItemFiles.name}. Status: Internal error updating item files.",
+                e
+            )
+            _itemUiState.update {
+                it.copy(
+                    isLoading = false,
+                    messageEvent = MessageEvent("Error updating item files: ${e.localizedMessage}"),
+                    success = false
                 )
-                _itemUiState.update {
-                    it.copy(
-                        selectedItemFiles = updatedFiles,
-                        isLoading = false,
-                        success = true
-                    )
-                }
-            } catch (e: Exception) {
-                AppLogger.e(
-                    "Modify item files",
-                    "Process: ${ProcessTags.UpdateItemFiles.name}. Status: Internal error updating item files.",
-                    e
-                )
-                _itemUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        messageEvent = MessageEvent("Error updating item files: ${e.localizedMessage}"),
-                        success = false
-                    )
-                }
             }
         }
     }
+}
 
     fun downloadItemFiles() {
         viewModelScope.launch(dispatcher) {

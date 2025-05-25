@@ -1,6 +1,7 @@
 package org.example.project.service
 
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.toLowerCase
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
@@ -23,6 +24,7 @@ import org.example.project.persistence.database.*
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.util.Zipper
 import org.example.project.util.encodeBitmapToBase64
+import java.io.BufferedReader
 import java.io.File
 
 class ItemService(database: PrintStainDatabase) {
@@ -119,7 +121,7 @@ class ItemService(database: PrintStainDatabase) {
         imageDao.deleteImagesById(itemId)
     }
 
-    suspend fun updateItemFiles(files: MutableList<FileDto>): List<FileDto> {
+    suspend fun updateItemFiles(files: MutableList<FileDto>): MutableList<FileDto> {
         val selectedPlatformFiles = FileKit.openFilePicker(
             title = "Select model files",
             mode = FileKitMode.Multiple(),
@@ -129,7 +131,7 @@ class ItemService(database: PrintStainDatabase) {
                 files.add(FileDto(fileName = file.file.name, fileUrl = file.file.absolutePath))
             }
         }
-        return files.toList()
+        return files
     }
 
     suspend fun uploadFiles(files: List<FileDto>, itemId: Long, zipName: String): ResponseApi<String> {
@@ -246,7 +248,11 @@ class ItemService(database: PrintStainDatabase) {
                 tag = ProcessTags.OpeningFstl.name,
                 "Attempting to open fstl with path: $path"
             )
-            if (Runtime.getRuntime().exec(arrayOf("which", "fstl")).errorStream != null) {
+            if (!File(path).exists()) {
+                throw Exception("File was not found in the system")
+            }
+            val option = if (System.getProperty("os.name").toLowerCase().contains("windows")) "where" else "which"
+            if (Runtime.getRuntime().exec(arrayOf(option, "fstl")).errorStream != null) {
                 AppLogger.i(
                     tag = ProcessTags.OpeningFstl.name,
                     message = "Fstl was found instaled in the system, preceding to open stl/obj file"
@@ -254,7 +260,9 @@ class ItemService(database: PrintStainDatabase) {
             } else {
                 throw Exception("Fstl is not installed in the system")
             }
-            val command = arrayOf("fstl", path)
+
+            val fstlPath = Runtime.getRuntime().exec(arrayOf(option, "fstl")).inputStream.bufferedReader().readLine()
+            val command = arrayOf(fstlPath, path)
             val process = Runtime.getRuntime().exec(command)
             return ResponseApi(true, "File preview opened successfully", "File previewed opened")
         } catch (e: Exception) {
@@ -263,7 +271,7 @@ class ItemService(database: PrintStainDatabase) {
                 "Error attempting to open fstl with path: $path",
                 throwable = e
             )
-            return ResponseApi(true, "Error opening file preview: $e", "Error opening file preview")
+            return ResponseApi(false, "Error opening file preview: $e", "Error opening file preview")
         }
     }
 }

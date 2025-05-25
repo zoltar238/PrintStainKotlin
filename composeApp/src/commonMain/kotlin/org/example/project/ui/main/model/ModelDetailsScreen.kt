@@ -365,24 +365,24 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
-                                if (fileDto.fileName!!.split(".").last() == "obj" || fileDto.fileName!!.split(".")
-                                        .last() == "stl"
-                                ) {
-                                    IconButton(
-                                        onClick = {
-
-                                            itemViewModel.previewFile(fileDto.fileUrl!!)
-                                        },
-                                        modifier = Modifier.size(24.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                            contentDescription = "Preview file",
-                                            tint = AppColors.errorColor
-                                        )
-                                    }
-                                }
                                 if (!hasFiles.value) {
+                                    if (fileDto.fileName!!.split(".").last() == "obj" || fileDto.fileName!!.split(".")
+                                            .last() == "stl"
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+
+                                                itemViewModel.previewFile(fileDto.fileUrl!!)
+                                            },
+                                            modifier = Modifier.size(24.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                                contentDescription = "Preview file",
+                                                tint = AppColors.errorColor
+                                            )
+                                        }
+                                    }
                                     IconButton(
                                         onClick = {
                                             itemViewModel.deleteItemFile(fileDto.fileName!!)
