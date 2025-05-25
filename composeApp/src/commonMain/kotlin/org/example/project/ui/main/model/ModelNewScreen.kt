@@ -226,14 +226,14 @@ fun ModelNewScreen(
                         // Create or modify item
                         if (option == "new") {
                             itemViewModel.createItem(
-                                name = name!!,
-                                description = description!!,
+                                name = name!!.trim(),
+                                description = description!!.trim(),
                                 images = imageBitmapList
                             )
                         } else {
                             itemViewModel.modifyItem(
-                                name = name!!,
-                                description = description!!,
+                                name = name!!.trim(),
+                                description = description!!.trim(),
                                 images = imageBitmapList
                             )
                         }
