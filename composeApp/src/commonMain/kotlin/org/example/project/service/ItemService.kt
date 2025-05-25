@@ -1,7 +1,6 @@
 package org.example.project.service
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.toLowerCase
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
@@ -24,7 +23,6 @@ import org.example.project.persistence.database.*
 import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.util.Zipper
 import org.example.project.util.encodeBitmapToBase64
-import java.io.BufferedReader
 import java.io.File
 
 class ItemService(database: PrintStainDatabase) {
