@@ -48,7 +48,7 @@ class SaleViewModel(
             _saleUiState.update {
                 it.copy(
                     sales = result.data ?: emptyList(),
-                    messageEvent = MessageEvent(result.response!!),
+                    messageEvent = if (!result.data.isNullOrEmpty()) {MessageEvent(result.response!!)} else {null},
                     success = result.success,
                     isLoading = false
                 )

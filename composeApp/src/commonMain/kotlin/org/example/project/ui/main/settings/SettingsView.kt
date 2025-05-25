@@ -1,4 +1,4 @@
-package org.example.project.ui.main
+package org.example.project.ui.main.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -74,7 +74,7 @@ fun SettingsView(navController: NavController) {
                 ) {
                     // Appearance Section
                     Text(
-                        "Apariencia",
+                        "Appearance",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.textOnBackgroundColor
@@ -123,7 +123,7 @@ fun SettingsView(navController: NavController) {
 
                     // Account Section
                     Text(
-                        "Cuenta",
+                        "Account",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.textOnBackgroundColor

@@ -504,6 +504,7 @@ class ItemViewModel(
                         it.copy(
                             isLoading = false,
                             messageEvent = MessageEvent(serverResponse.response!!),
+                            selectedItemFiles = emptyList(),
                             success = true
                         )
                     }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.example.project.ui.AppColors
 import org.example.project.ui.main.model.ModelsScreen
 import org.example.project.ui.main.sale.SalesScreen
+import org.example.project.ui.main.settings.SettingsView
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -31,7 +32,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
 
-
+    // Initial collection of sales and models
     LaunchedEffect(Unit) {
         if (saleUiState.sales.isEmpty()) {
             saleViewModel.getAllSales()
