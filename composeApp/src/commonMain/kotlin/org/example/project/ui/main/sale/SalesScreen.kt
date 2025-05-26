@@ -31,11 +31,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import comexampleproject.Sale
 import org.example.project.ui.AppColors
+import org.example.project.ui.component.BenefitSummary
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.util.decodeBase64ToBitmap
+import org.example.project.viewModel.ItemUiState
 import org.example.project.viewModel.ItemViewModel
 import org.example.project.viewModel.SaleViewModel
 import java.math.BigDecimal
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
@@ -43,6 +47,7 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
     val saleUiState by saleViewModel.saleUiState.collectAsState()
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val lazyListState = rememberLazyListState()
+    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
 
     LaunchedEffect(saleUiState.messageEvent?.message) {
         if (saleUiState.messageEvent?.message == "Sale deleted successfully") {
@@ -61,9 +66,16 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp)
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
+
+                // Profit preview
+                BenefitSummary(
+                    cost = saleUiState.sales.sumOf { sale -> sale.cost!! }.toString(),
+                    price = saleUiState.sales.sumOf { sale -> sale.price!! }.toString(),
+                    currencyFormat = currencyFormat
+                )
 
                 // Sales table header
                 TableHeader()
@@ -91,7 +103,8 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
                                     SaleItem(
                                         sale = sale,
                                         imageBitmap = imageBitmap,
-                                        saleViewModel = saleViewModel
+                                        saleViewModel = saleViewModel,
+                                        itemUiState = itemUiState
                                     )
                                 }
                             }
@@ -184,7 +197,7 @@ fun TableHeader() {
 }
 
 @Composable
-fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel) {
+fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel, itemUiState: ItemUiState) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -243,7 +256,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel)
                 color = AppColors.textOnBackgroundColor
             )
             Text(
-                text = "${sale.itemId}",
+                text = "${itemUiState.items.find { it.item.itemId == sale.itemId }?.item?.name}",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
