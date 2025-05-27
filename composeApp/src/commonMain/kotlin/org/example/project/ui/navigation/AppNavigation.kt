@@ -45,11 +45,12 @@ fun AppNavigation() {
 
     val messageEventList = listOf(saleUiState.messageEvent, itemUiState.messageEvent, personUiState.messageEvent)
     val messageEventConsumedList = listOf(AppModule.saleViewModel.consumeMessage(), AppModule.itemViewModel.consumeMessage(), AppModule.personViewModel.consumeMessage())
+    val successList = listOf(saleUiState.success, itemUiState.success, personUiState.success)
 
     MessageToaster(
-        messageEvents = messageEventList,
-        success = saleUiState.success,
-        onMessageConsumed = messageEventConsumedList
+        messageEventList = messageEventList,
+        successList = successList,
+        onMessageConsumedList = messageEventConsumedList
     )
 
 

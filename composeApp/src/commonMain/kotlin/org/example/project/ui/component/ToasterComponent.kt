@@ -11,24 +11,24 @@ import org.example.project.model.MessageEvent
 
 @Composable
 fun MessageToaster(
-    messageEvents: List<MessageEvent?>,
-    success: Boolean,
-    onMessageConsumed: List<Unit>,
+    messageEventList: List<MessageEvent?>,
+    successList: List<Boolean>,
+    onMessageConsumedList: List<Unit>,
 ) {
     val toaster = rememberToasterState()
 
-    LaunchedEffect(messageEvents) {
-        messageEvents.forEachIndexed { index, event ->
+    LaunchedEffect(messageEventList) {
+        messageEventList.forEachIndexed { index, event ->
             event?.let {
                 if (!it.isConsumed) {
                     event.message?.let {
                         toaster.show(
                             message = it,
-                            type = if (success) ToastType.Success else ToastType.Error
+                            type = if (successList[index]) ToastType.Success else ToastType.Error
                         )
                     }
                     // Consume the message after showing it
-                    onMessageConsumed[index]
+                    onMessageConsumedList[index]
                 }
             }
         }
