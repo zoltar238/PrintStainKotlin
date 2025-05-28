@@ -29,6 +29,9 @@ import org.example.project.ui.component.AlertDialog
 import org.example.project.ui.component.LoadingIndicator
 import org.example.project.util.decodeBase64ToBitmap
 import org.example.project.viewModel.ItemViewModel
+import org.jetbrains.compose.resources.painterResource
+import printstain.composeapp.generated.resources.Res
+import printstain.composeapp.generated.resources.image_placeholder_3x
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -196,6 +199,7 @@ fun SearchBar(
 fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemViewModel: ItemViewModel) {
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    val errorLoadingImage by remember { mutableStateOf(item.images.any { image -> image.base64Image.isNullOrEmpty() }) }
 
     Card(
         modifier = Modifier
@@ -215,14 +219,20 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
             if (!showContextMenu.value) {
                 // Background image
                 Image(
-                    painter = BitmapPainter(decodeBase64ToBitmap(item.images.first().base64Image!!)),
+                    painter = if (!item.images.first().base64Image.isNullOrEmpty()) {
+                        BitmapPainter(decodeBase64ToBitmap(item.images.first().base64Image!!))
+                    } else {
+                        painterResource(Res.drawable.image_placeholder_3x)
+                    },
                     contentDescription = item.item.description,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable(onClick = {
-                            itemViewModel.getItemById(item.item.itemId)
-                            navController.navigate("model_details_screen")
+                            if (!errorLoadingImage) {
+                                itemViewModel.getItemById(item.item.itemId)
+                                navController.navigate("model_details_screen")
+                            }
                         })
                 )
 
@@ -251,7 +261,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        text = item.item.name ?: "",
+                        text = "${item.item.name ?: ""} (${if (errorLoadingImage) "Loading error" else null})",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
@@ -324,24 +334,26 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                itemViewModel.getItemById(item.item.itemId)
-                                navController.navigate("model_add_new?option=edit")
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppColors.primaryColor,
-                                contentColor = AppColors.textOnPrimaryColor
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp).padding(end = 4.dp)
-                            )
-                            Text("Edit")
+                        if (!errorLoadingImage) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    itemViewModel.getItemById(item.item.itemId)
+                                    navController.navigate("model_add_new?option=edit")
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = AppColors.primaryColor,
+                                    contentColor = AppColors.textOnPrimaryColor
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                                )
+                                Text("Edit")
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))

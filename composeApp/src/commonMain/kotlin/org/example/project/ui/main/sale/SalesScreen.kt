@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +41,10 @@ import org.example.project.viewModel.SaleViewModel
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
+import org.jetbrains.compose.resources.painterResource
+import printstain.composeapp.generated.resources.Res
+import printstain.composeapp.generated.resources.image_placeholder_3x
+
 
 @Composable
 fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
@@ -97,16 +102,15 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
                             items(saleUiState.sales) { sale ->
                                 val bitmap =
                                     itemUiState.items.find { it.item.itemId == sale.itemId }?.images?.firstOrNull()?.base64Image
-                                val imageBitmap = bitmap?.let { decodeBase64ToBitmap(it) }
 
-                                if (imageBitmap != null) {
                                     SaleItem(
                                         sale = sale,
-                                        imageBitmap = imageBitmap,
+                                        imageBitmap = if (!bitmap.isNullOrEmpty()) {
+                                            decodeBase64ToBitmap(bitmap)
+                                        } else null,
                                         saleViewModel = saleViewModel,
                                         itemUiState = itemUiState
                                     )
-                                }
                             }
                         }
                     } else {
@@ -197,7 +201,7 @@ fun TableHeader() {
 }
 
 @Composable
-fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel, itemUiState: ItemUiState) {
+fun SaleItem(sale: Sale, imageBitmap: ImageBitmap?, saleViewModel: SaleViewModel, itemUiState: ItemUiState) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -241,7 +245,7 @@ fun SaleItem(sale: Sale, imageBitmap: ImageBitmap, saleViewModel: SaleViewModel,
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    bitmap = imageBitmap,
+                    painter = if (imageBitmap != null) BitmapPainter(imageBitmap) else painterResource(Res.drawable.image_placeholder_3x),
                     contentDescription = "Item Image",
                     modifier = Modifier
                         .size(50.dp)

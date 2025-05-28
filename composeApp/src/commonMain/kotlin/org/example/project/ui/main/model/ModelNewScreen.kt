@@ -39,6 +39,7 @@ import org.jetbrains.compose.resources.painterResource
 import printstain.composeapp.generated.resources.Res
 import printstain.composeapp.generated.resources.image_placeholder_3x
 
+@Suppress("ConflictingOnColor")
 @Composable
 fun ModelNewScreen(
     previousRoute: String,

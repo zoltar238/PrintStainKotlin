@@ -248,7 +248,6 @@ class ItemViewModel(
                     it.copy(
                         items = localItems,
                         isLoading = false,
-                        messageEvent = MessageEvent("Models have been updated"),
                         success = true
                     )
                 }
