@@ -1,5 +1,6 @@
 package org.example.project.logging
 
+import java.time.Instant
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -12,26 +13,25 @@ actual object AppLogger {
     }
 
     actual fun e(
-        tag: String,
         message: String,
         throwable: Throwable?,
     ) {
         if (throwable != null) {
-            logger.log(Level.SEVERE, "ERROR: [$tag] $message", throwable)
+            logger.log(Level.SEVERE, "ERROR: [${Instant.now()}] $message", throwable)
         } else {
-            logger.severe("ERROR: [$tag] $message")
+            logger.severe("ERROR: [${Instant.now()}] $message")
         }
     }
 
-    actual fun d(tag: String, message: String) {
-        logger.info("DEBUG: [$tag] $message")
+    actual fun d(message: String) {
+        logger.info("DEBUG: [${Instant.now()}] $message")
     }
 
-    actual fun i(tag: String, message: String) {
-        logger.info("INFO: [$tag] $message")
+    actual fun i(message: String) {
+        logger.info("INFO: [${Instant.now()}] $message")
     }
 
-    actual fun w(tag: String, message: String) {
-        logger.warning("INFO: [$tag] $message")
+    actual fun w(message: String) {
+        logger.warning("INFO: [${Instant.now()}] $message")
     }
 }

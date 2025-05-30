@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.example.project.model.dto.ItemWithRelations
 import org.example.project.ui.AppColors
 import org.example.project.ui.component.AlertDialog
@@ -200,6 +202,9 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
     val showContextMenu = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val errorLoadingImage by remember { mutableStateOf(item.images.any { image -> image.base64Image.isNullOrEmpty() }) }
+    val scope = rememberCoroutineScope()
+    val itemUiState by itemViewModel.itemUiState.collectAsState()
+
 
     Card(
         modifier = Modifier
@@ -219,7 +224,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
             if (!showContextMenu.value) {
                 // Background image
                 Image(
-                    painter = if (!item.images.first().base64Image.isNullOrEmpty()) {
+                    painter = if (item.images.isNotEmpty() && !item.images.first().base64Image.isNullOrEmpty()) {
                         BitmapPainter(decodeBase64ToBitmap(item.images.first().base64Image!!))
                     } else {
                         painterResource(Res.drawable.image_placeholder_3x)
@@ -261,7 +266,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        text = "${item.item.name ?: ""} (${if (errorLoadingImage) "Loading error" else null})",
+                        text = "${item.item.name ?: ""} ${if (errorLoadingImage) "(Loading error)" else null}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
@@ -338,8 +343,16 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                             Button(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
-                                    itemViewModel.getItemById(item.item.itemId)
-                                    navController.navigate("model_add_new?option=edit")
+                                    scope.launch {
+                                        itemViewModel.getItemById(item.item.itemId)
+                                        // Wait for data to update before navigating to item
+                                        while (itemViewModel.itemUiState.value.selectedItem?.item?.itemId != item.item.itemId) {
+                                            delay(20)
+                                        }
+                                        if (itemViewModel.itemUiState.value.selectedItem?.item?.itemId == item.item.itemId) {
+                                            navController.navigate("model_add_new?option=edit")
+                                        }
+                                    }
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(

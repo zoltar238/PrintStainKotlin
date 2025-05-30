@@ -29,7 +29,7 @@ class PersonViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
-    private val personService = PersonService(database)
+    private val personService = PersonService()
 
     private val _personUiState = MutableStateFlow(PersonUiState(isLoading = true))
     val personUiState: StateFlow<PersonUiState> = _personUiState.asStateFlow()
