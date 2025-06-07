@@ -110,10 +110,6 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
             }
     }
 
-    override fun getAllItems(): Flow<List<Item>> {
-        return query.selectAllItems().asFlow().mapToList(Dispatchers.IO)
-    }
-
     override suspend fun deleteItem(itemId: Long) {
         query.deleteItem(itemId)
     }

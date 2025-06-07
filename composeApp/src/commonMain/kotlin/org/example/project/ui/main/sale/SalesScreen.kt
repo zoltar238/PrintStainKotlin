@@ -54,11 +54,6 @@ fun SalesScreen(saleViewModel: SaleViewModel, itemViewModel: ItemViewModel) {
     val lazyListState = rememberLazyListState()
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale.getDefault()) }
 
-    LaunchedEffect(saleUiState.messageEvent?.message) {
-        if (saleUiState.messageEvent?.message == "Sale deleted successfully") {
-            itemViewModel.updateItems()
-        }
-    }
 
     MaterialTheme {
         Box(modifier = Modifier.fillMaxSize()) {

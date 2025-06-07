@@ -19,8 +19,4 @@ class PersonDaoImpl(db: PrintStainDatabase) : PersonDao {
             isActive = isActive
         )
     }
-
-    override fun getAllPersons(): Flow<List<Person>> {
-        return query.selectAllPersons().asFlow().mapToList(Dispatchers.IO)
-    }
 }

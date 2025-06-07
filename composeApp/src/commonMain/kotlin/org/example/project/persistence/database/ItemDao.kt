@@ -19,6 +19,5 @@ interface ItemDao {
 
     suspend fun uploadFileStructure(itemId: Long, fileStructure: String)
     fun getAllItemsWithRelation(): Flow<List<ItemWithRelations>>
-    fun getAllItems(): Flow<List<Item>>
     suspend fun deleteItem(itemId: Long)
 }

@@ -39,9 +39,9 @@ object AppModule {
 fun AppNavigation() {
     val navController = rememberNavController()
 
+    val personUiState by AppModule.personViewModel.personUiState.collectAsState()
     val saleUiState by AppModule.saleViewModel.saleUiState.collectAsState()
     val itemUiState by AppModule.itemViewModel.itemUiState.collectAsState()
-    val personUiState by AppModule.personViewModel.personUiState.collectAsState()
 
     val messageEventList = listOf(saleUiState.messageEvent, itemUiState.messageEvent, personUiState.messageEvent)
     val messageEventConsumedList = listOf(AppModule.saleViewModel.consumeMessage(), AppModule.itemViewModel.consumeMessage(), AppModule.personViewModel.consumeMessage())
@@ -79,7 +79,7 @@ fun AppNavigation() {
                 navigationRoute = origin!!,
             )
         }
-        // Main screen of the app
+        // Main screen
         composable("main_app_view") {
             MainScreen(
                 navController = navController,
@@ -87,7 +87,7 @@ fun AppNavigation() {
                 saleViewModel = AppModule.saleViewModel
             )
         }
-        // Detailed view of a model
+        // Detailed view of a model screen
         composable("model_details_screen") {
             ModelDetailsScreen(
                 navController = navController,

@@ -1,7 +1,10 @@
 package org.example.project.service
 
 import comexampleproject.Sale // Asumo que el nombre correcto del paquete es org.example.project.model o similar
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import org.example.project.PrintStainDatabase
 import org.example.project.controller.ClientController
 import org.example.project.controller.ResponseApi
@@ -19,7 +22,18 @@ class SaleService(
 ) {
     private val saleDao: SaleDao = SaleDaoImpl(database)
 
-    suspend fun getAllSales(): ResponseApi<List<Sale>> {
+    fun getAllLocalSales(): Flow<List<Sale>> {
+        val processCode = "000034"
+        val processName = "Get all local sales flow"
+        AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Setting up flow for local sales.")
+
+        return saleDao.getALlSales()
+            .onEach { sales ->
+                AppLogger.d("[MSG-$processCode: $processName] -> Flow emitted ${sales.size} sales from local DB.")
+            }
+    }
+
+    suspend fun fetchAllSalesFromServer(): ResponseApi<List<Sale>> {
         val processCode = "000015"
         val processName = "Get all sales"
 
@@ -39,9 +53,15 @@ class SaleService(
 
             if (serverResponse.success) {
                 AppLogger.i("[MSG-$processCode: $processName - Process] -> Sales retrieved successfully from server.")
-                serverResponse.data?.let { sales ->
-                    AppLogger.d("[DBG-$processCode: $processName] -> ${sales.size} sales received from server. Saving to local database.")
-                    sales.forEach { sale ->
+                //Save only new sales
+                val originalItems = saleDao.getALlSales().firstOrNull() ?: emptyList()
+                val serverSales = serverResponse.data ?: emptyList()
+                val newSales = serverSales.filter { saleDto ->
+                    saleDto.saleId !in originalItems.map { it.saleId }
+                }
+
+                    AppLogger.d("[DBG-$processCode: $processName] -> ${newSales.size} sales received from server. Saving to local database.")
+                    newSales.forEach { sale ->
                         saleDao.insertSale(
                             saleId = sale.saleId!!,
                             date = sale.date.toString(),
@@ -52,16 +72,12 @@ class SaleService(
                         )
                     }
                     AppLogger.d("[DBG-$processCode: $processName] -> All sales from server saved locally.")
-                } ?: AppLogger.w("[MSG-$processCode: $processName - Process] -> Server response data is null, though success was true.")
 
 
-                AppLogger.d("[DBG-$processCode: $processName] -> Retrieving all sales from local database.")
-                val localSales = saleDao.getALlSales().first()
-                AppLogger.d("[DBG-$processCode: $processName] -> ${localSales.size} sales retrieved from local database.")
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully retrieved and updated local sales.")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully retrieved sales from server.")
                 ResponseApi(
                     success = true,
-                    data = localSales,
+                    data = null,
                     response = serverResponse.response
                 )
             } else {
@@ -126,16 +142,14 @@ class SaleService(
                         status = saleDto.status // Usar el status de saleDto o el que devuelva el servidor si es diferente
                     )
                     AppLogger.d("[DBG-$processCode: $processName] -> New sale saved locally.")
-                } ?: AppLogger.w("[MSG-$processCode: $processName - Process] -> Server response data (newSaleId) is null, though success was true.")
+                }
+                    ?: AppLogger.w("[MSG-$processCode: $processName - Process] -> Server response data (newSaleId) is null, though success was true.")
 
 
-                AppLogger.d("[DBG-$processCode: $processName] -> Retrieving all sales from local database after creation.")
-                val localSales = saleDao.getALlSales().first()
-                AppLogger.d("[DBG-$processCode: $processName] -> ${localSales.size} sales retrieved from local database.")
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully created sale and retrieved updated list.")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully created sale.")
                 ResponseApi(
                     success = true,
-                    data = localSales,
+                    data = null,
                     response = serverResponse.response
                 )
             } else {
@@ -184,13 +198,10 @@ class SaleService(
                 saleDao.deleteSale(saleId)
                 AppLogger.d("[DBG-$processCode: $processName] -> Sale ID: $saleId deleted from local database.")
 
-                AppLogger.d("[DBG-$processCode: $processName] -> Retrieving all sales from local database after deletion.")
-                val localSales = saleDao.getALlSales().first()
-                AppLogger.d("[DBG-$processCode: $processName] -> ${localSales.size} sales retrieved from local database.")
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted sale and retrieved updated list.")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted sale.")
                 ResponseApi(
                     success = true,
-                    data = localSales,
+                    data = null,
                     response = serverResponse.response
                 )
             } else {
@@ -258,7 +269,8 @@ class SaleService(
                 AppLogger.d("[DBG-$processCode: $processName] -> Sale ID: $saleId updated in local database.")
 
                 AppLogger.d("[DBG-$processCode: $processName] -> Retrieving updated sale ID: $saleId from local database.")
-                val updatedSale = saleDao.getSaleById(saleId).first() // Podría ser nulo si la venta no existe o fue eliminada concurrentemente
+                val updatedSale = saleDao.getSaleById(saleId)
+                    .first() // Podría ser nulo si la venta no existe o fue eliminada concurrentemente
                 AppLogger.d("[DBG-$processCode: $processName] -> Sale retrieved: $updatedSale")
                 AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully modified sale and retrieved updated sale details.")
                 ResponseApi(

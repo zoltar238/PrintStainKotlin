@@ -46,15 +46,8 @@ fun ModelDetailsScreen(
     saleViewModel: SaleViewModel,
 ) {
     val itemUiState by itemViewModel.itemUiState.collectAsState()
-    val saleUiState by saleViewModel.saleUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(saleUiState.messageEvent?.message) {
-        if (saleUiState.messageEvent?.message == "Sale created successfully") {
-            itemViewModel.updateItems()
-        }
-    }
 
     MaterialTheme {
         Scaffold(

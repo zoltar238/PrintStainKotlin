@@ -5,13 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.example.project.PrintStainDatabase
+import org.example.project.logging.AppLogger
 import org.example.project.model.MessageEvent
 import org.example.project.model.dto.*
 import org.example.project.service.ItemService
@@ -44,6 +42,34 @@ class ItemViewModel(
         }
     }
 
+    // Subscribe to flow
+    init {
+        viewModelScope.launch(dispatcher) {
+            itemService.getAllLocalItems()
+                .catch { e ->
+                    // Handle possible exceptions
+                    AppLogger.e(
+                        message = "[ItemViewModel Error] -> Error collecting local items: ${e.localizedMessage}",
+                        throwable = e
+                    )
+                    // Return error message
+                    _itemUiState.update {
+                        it.copy(
+                            messageEvent = MessageEvent("Error obtaining items: ${e.message}"),
+                            success = false
+                        )
+                    }
+                }
+                .collect { localItems ->
+                    _itemUiState.update {
+                        it.copy(
+                            items = localItems,
+                        )
+                    }
+                }
+        }
+    }
+
     fun getItemById(id: Long) {
         viewModelScope.launch(dispatcher) {
             _itemUiState.update { it.copy(isLoading = true) }
@@ -68,29 +94,12 @@ class ItemViewModel(
 
             val serverResponse = itemService.fetchAllItemsFromServer()
 
-            if (!serverResponse.success) {
-                _itemUiState.update {
-                    it.copy(
-                        isLoading = false,
-                        messageEvent = MessageEvent(serverResponse.response!!),
-                        success = false
-                    )
-                }
-            } else {
-                serverResponse.data?.let {
-                    itemService.processItemsToLocalDB(it)
-                }
-
-                val localItems = itemService.getAllLocalItems()
-
-                _itemUiState.update {
-                    it.copy(
-                        items = localItems,
-                        isLoading = false,
-                        messageEvent = MessageEvent(serverResponse.response!!),
-                        success = true
-                    )
-                }
+            _itemUiState.update {
+                it.copy(
+                    isLoading = false,
+                    messageEvent = MessageEvent(serverResponse.response!!),
+                    success = serverResponse.success
+                )
             }
         }
     }
@@ -116,11 +125,9 @@ class ItemViewModel(
                     itemService.processItemsToLocalDB(listOf(it))
                 }
 
-                val localItems = itemService.getAllLocalItems()
 
                 _itemUiState.update {
                     it.copy(
-                        items = localItems,
                         isLoading = false,
                         messageEvent = MessageEvent(serverResponse.response!!),
                         success = true
@@ -153,32 +160,11 @@ class ItemViewModel(
 
                 _itemUiState.update {
                     it.copy(
-                        items = if (serverResponse.success) itemService.getAllLocalItems() else _itemUiState.value.items,
                         isLoading = false,
                         messageEvent = MessageEvent(serverResponse.response!!),
                         success = serverResponse.success
                     )
                 }
-            }
-        }
-    }
-
-    fun updateItems() {
-        viewModelScope.launch(dispatcher) {
-
-            // Indicate the operation has started
-            _itemUiState.update { it.copy(isLoading = true) }
-
-            // Get updated items directly from the local database
-            val localItems = itemService.getAllLocalItems()
-
-            // Update state with retrieved items
-            _itemUiState.update {
-                it.copy(
-                    items = localItems,
-                    isLoading = false,
-                    success = true
-                )
             }
         }
     }
@@ -224,19 +210,14 @@ class ItemViewModel(
                     )
                 }
             } else {
-                // Pasos críticos que faltaban para actualizar correctamente:
-                // 1. Eliminar imágenes antiguas
+                // Delete old images
                 selectedItem.item.itemId.let { itemService.deleteImagesForItem(it) }
 
-                // 2. Procesar el nuevo item con sus relaciones en la DB local
+                // Process new item to the local database
                 serverResponse.data?.let { itemService.processItemsToLocalDB(listOf(it)) }
-
-                // 3. Obtener los items actualizados
-                val localItems = itemService.getAllLocalItems()
 
                 _itemUiState.update {
                     it.copy(
-                        items = localItems,
                         isLoading = false,
                         messageEvent = MessageEvent("Model has been updated"),
                         success = true
@@ -274,12 +255,12 @@ class ItemViewModel(
         viewModelScope.launch(dispatcher) {
             val currentFiles = itemUiState.value.selectedItemFiles ?: emptyList()
             val updatedFiles =
-                itemService.updateItemFiles(files = currentFiles.toMutableList()) // Si acepta List<FileDto>
+                itemService.updateItemFiles(files = currentFiles.toMutableList())
 
 
             _itemUiState.update {
                 it.copy(
-                    selectedItemFiles = updatedFiles, // Ya debería ser una nueva instancia
+                    selectedItemFiles = updatedFiles,
                     isLoading = false,
                     success = true
                 )
@@ -321,7 +302,6 @@ class ItemViewModel(
                     )
                 }
             } else {
-                updateItems()
                 _itemUiState.update {
                     it.copy(
                         isLoading = false,
@@ -331,57 +311,56 @@ class ItemViewModel(
                     )
                 }
             }
-    }
-}
-
-fun uploadItemFiles() {
-    viewModelScope.launch(dispatcher) {
-        _itemUiState.update { it.copy(isLoading = true) }
-        val serverResponse = itemService.uploadFiles(
-            files = itemUiState.value.selectedItemFiles!!,
-            itemId = itemUiState.value.selectedItem!!.item.itemId,
-            zipName = itemUiState.value.selectedItem?.item?.name!!
-        )
-
-        if (!serverResponse.success) {
-            _itemUiState.update {
-                it.copy(
-                    isLoading = false,
-                    messageEvent = MessageEvent(serverResponse.response!!),
-                    success = false
-                )
-            }
-        } else {
-            _itemUiState.update {
-                itemService.updateFileStructure(
-                    itemId = itemUiState.value.selectedItem!!.item.itemId,
-                    files = itemUiState.value.selectedItemFiles!!
-                )
-                updateItems()
-                it.copy(
-                    isLoading = false,
-                    messageEvent = MessageEvent("Files uploaded successfully"),
-                    success = true
-                )
-            }
         }
-}
-}
+    }
 
-fun previewFile(path: String) {
-    viewModelScope.launch(dispatcher) {
-        _itemUiState.update { it.copy(isLoading = true) }
-
-        val result = itemService.previewFile(path)
-
-        _itemUiState.update {
-            it.copy(
-                isLoading = false,
-                messageEvent = MessageEvent(result.response),
-                success = result.success
+    fun uploadItemFiles() {
+        viewModelScope.launch(dispatcher) {
+            _itemUiState.update { it.copy(isLoading = true) }
+            val serverResponse = itemService.uploadFiles(
+                files = itemUiState.value.selectedItemFiles!!,
+                itemId = itemUiState.value.selectedItem!!.item.itemId,
+                zipName = itemUiState.value.selectedItem?.item?.name!!
             )
-        }
 
+            if (!serverResponse.success) {
+                _itemUiState.update {
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent(serverResponse.response!!),
+                        success = false
+                    )
+                }
+            } else {
+                _itemUiState.update {
+                    itemService.updateFileStructure(
+                        itemId = itemUiState.value.selectedItem!!.item.itemId,
+                        files = itemUiState.value.selectedItemFiles!!
+                    )
+                    it.copy(
+                        isLoading = false,
+                        messageEvent = MessageEvent("Files uploaded successfully"),
+                        success = true
+                    )
+                }
+            }
+        }
     }
-}
+
+    fun previewFile(path: String) {
+        viewModelScope.launch(dispatcher) {
+            _itemUiState.update { it.copy(isLoading = true) }
+
+            val result = itemService.previewFile(path)
+
+            _itemUiState.update {
+                it.copy(
+                    isLoading = false,
+                    messageEvent = MessageEvent(result.response),
+                    success = result.success
+                )
+            }
+
+        }
+    }
 }

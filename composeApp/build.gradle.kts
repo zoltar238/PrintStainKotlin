@@ -103,9 +103,8 @@ kotlin {
             // File zipper
             implementation("net.lingala.zip4j:zip4j:2.11.5")
 
-            // Other windows embedding
-            implementation("net.java.dev.jna:jna:5.13.0")
-            implementation("net.java.dev.jna:jna-platform:5.13.0")
+            // Koin dependency injection
+            implementation(libs.koin.core)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

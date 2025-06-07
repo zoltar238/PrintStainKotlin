@@ -12,6 +12,7 @@ core = "1.16.0"
 datastore = "1.1.5"
 filekitCore = "0.10.0-beta01"
 http4kBom = "5.38.0.0"
+koinCore = "3.5.6"
 kotlin = "2.0.21"
 kotlinLoggingJvm = "5.0.0"
 kotlinReflect = "2.0.20"
@@ -56,6 +57,7 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "converterJackson" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "nativeDriver" }
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekitCore" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }

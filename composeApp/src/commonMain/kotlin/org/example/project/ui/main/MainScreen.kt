@@ -30,18 +30,18 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val saleUiState by saleViewModel.saleUiState.collectAsState()
-    val itemUiState by itemViewModel.itemUiState.collectAsState()
+    var hasLoaded  by rememberSaveable { mutableStateOf(false) }
 
-    // Initial collection of sales and models
+
+    // Initial load of data
     LaunchedEffect(Unit) {
-        if (saleUiState.sales.isEmpty()) {
-            saleViewModel.getAllSales()
-        }
-        if (itemUiState.items.isEmpty()) {
+        if (!hasLoaded) {
             itemViewModel.getAllItems()
+            saleViewModel.getAllSales()
+            hasLoaded = true
         }
     }
+
 
 
     Surface(

@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import comexampleproject.Sale
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.example.project.PrintStainDatabase
+import org.example.project.logging.AppLogger
 import org.example.project.model.MessageEvent
 import org.example.project.service.SaleService
 import java.math.BigDecimal
@@ -40,15 +38,41 @@ class SaleViewModel(
         }
     }
 
+    // Suscribe to flow
+    init {
+        viewModelScope.launch(dispatcher) {
+            saleService.getAllLocalSales()
+                .catch { e ->
+                    AppLogger.e(
+                        message = "[SaleViewModel Error] -> Error collecting local sales: ${e.localizedMessage}",
+                        throwable = e
+                    )
+
+                    _saleUiState.update {
+                        it.copy(
+                            messageEvent = MessageEvent("Error obtaining sales: ${e.localizedMessage}"),
+                            success = false,
+                        )
+                    }
+                }
+                .collect { sales ->
+                    _saleUiState.update {
+                        it.copy(
+                            sales = sales,
+                        )
+                    }
+                }
+        }
+    }
+
     fun getAllSales() {
         viewModelScope.launch(dispatcher) {
             _saleUiState.update { it.copy(isLoading = true) }
 
-            val result = saleService.getAllSales()
+            val result = saleService.fetchAllSalesFromServer()
             _saleUiState.update {
                 it.copy(
-                    sales = result.data ?: emptyList(),
-                    messageEvent = if (!result.data.isNullOrEmpty()) {MessageEvent(result.response!!)} else {null},
+                    messageEvent = MessageEvent(result.response!!),
                     success = result.success,
                     isLoading = false
                 )
@@ -63,7 +87,6 @@ class SaleViewModel(
             val result = saleService.createSale(cost, price, itemId)
             _saleUiState.update {
                 it.copy(
-                    sales = result.data ?: it.sales,
                     messageEvent = MessageEvent(result.response!!),
                     success = result.success,
                     isLoading = false
@@ -79,7 +102,6 @@ class SaleViewModel(
             val result = saleService.deleteSale(saleId)
             _saleUiState.update {
                 it.copy(
-                    sales = result.data ?: it.sales,
                     messageEvent = MessageEvent(result.response!!),
                     success = result.success,
                     isLoading = false
@@ -98,9 +120,6 @@ class SaleViewModel(
                 // Update the specific sale in the list
                 _saleUiState.update { state ->
                     state.copy(
-                        sales = state.sales.map {
-                            if (it.saleId == saleId) result.data else it
-                        },
                         messageEvent = MessageEvent(result.response!!),
                         success = true,
                         isLoading = false

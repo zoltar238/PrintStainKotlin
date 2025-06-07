@@ -1,10 +1,15 @@
 package org.example.project.service
 
 import androidx.compose.ui.graphics.ImageBitmap
+import comexampleproject.Item
+import comexampleproject.Person
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -23,9 +28,7 @@ import org.example.project.persistence.preferences.PreferencesDaoImpl
 import org.example.project.util.Zipper
 import org.example.project.util.encodeBitmapToBase64
 import java.io.File
-import java.io.IOException // Added for file operations
-import java.time.Instant
-import java.util.UUID
+import java.io.IOException
 
 class ItemService(database: PrintStainDatabase) {
     private val itemDao: ItemDao = ItemDaoImpl(database)
@@ -42,7 +45,17 @@ class ItemService(database: PrintStainDatabase) {
             AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Calling server.")
             val response = responseHandler { ClientController.itemController.getAllItems("Bearer $token") }
             if (response.success) {
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully fetched ${response.data?.size ?: 0} items from server.")
+                val itemCount = response.data?.size ?: 0
+                AppLogger.d("[MSG-$processCode: $processName] -> Successfully fetched $itemCount items from server.")
+
+                // Process items to the local database
+                response.data?.let { items ->
+                    AppLogger.d("[DBG-$processCode: $processName] -> Processing $itemCount items to local database.")
+                    processItemsToLocalDB(items)
+                    AppLogger.d("[DBG-$processCode: $processName] -> Items successfully processed to local database.")
+                }
+
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully fetched and processed items from server.")
             } else {
                 AppLogger.w("[MSG-$processCode: $processName - End of process] -> Failed to fetch items from server: ${response.response}.")
             }
@@ -54,7 +67,7 @@ class ItemService(database: PrintStainDatabase) {
             )
             ResponseApi(
                 success = false,
-                response = "Unexpected error getting items from server: ${e.localizedMessage}",
+                response = "Unexpected error fetching items from server: ${e.localizedMessage}",
                 data = null
             )
         }
@@ -150,7 +163,14 @@ class ItemService(database: PrintStainDatabase) {
         val processName = "Process items to local DB"
         AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Processing ${items.size} items to local DB.")
         try {
-            items.forEach { item ->
+
+            //Save only new items
+            val originalItems = itemDao.getAllItemsWithRelation().firstOrNull() ?: emptyList()
+            val newItems = items.filter { itemDto ->
+                itemDto.itemId !in originalItems.map { it.item.itemId }
+            }
+
+            newItems.forEach { item ->
                 AppLogger.d("[DBG-$processCode: $processName] -> Processing item ID: ${item.itemId}, Name: ${item.name}.")
                 item.itemId?.let { itemId ->
                     itemDao.insertItem(
@@ -174,7 +194,8 @@ class ItemService(database: PrintStainDatabase) {
 
                         imageDao.insertImage(
                             imageId = imageId,
-                            base64Image = image.base64Image ?: "", // default to empty if null
+                            // default to empty if null
+                            base64Image = image.base64Image ?: "",
                             item_id = itemId
                         )
                         AppLogger.d("[DBG-$processCode: $processName] -> Inserted/Updated image ID: $imageId.")
@@ -202,25 +223,16 @@ class ItemService(database: PrintStainDatabase) {
                 message = "[MSG-$processCode: $processName - End of process] -> Error processing items to local DB: ${e.localizedMessage}.",
                 throwable = e
             )
-            // Optional: throw or handle further depending on your error strategy
         }
     }
 
-
-    suspend fun getAllLocalItems(): List<ItemWithRelations> {
+    fun getAllLocalItems(): Flow<List<ItemWithRelations>> {
         val processCode = "000024"
-        val processName = "Get all local items"
-        AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Attempting to get all local items with relations.")
-        return try {
-            val items = itemDao.getAllItemsWithRelation().first()
-            AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully retrieved ${items.size} items from local DB.")
-            items
-        } catch (e: Exception) {
-            AppLogger.e(
-                message = "[MSG-$processCode: $processName - End of process] -> Error getting all local items: ${e.localizedMessage}.",
-                throwable = e
-            )
-            emptyList() // Return empty list on error
+        val processName = "Get all local items flow"
+        AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Setting up flow for local items with relations.")
+
+        return itemDao.getAllItemsWithRelation().onEach { items ->
+            AppLogger.d("[MSG-$processCode: $processName] -> Flow emitted ${items.size} items from local DB.")
         }
     }
 
@@ -230,7 +242,7 @@ class ItemService(database: PrintStainDatabase) {
         AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Attempting to get item by ID: $id.")
         return try {
             // getAllLocalItems already has logging and error handling
-            val item = getAllLocalItems().firstOrNull { it.item.itemId == id }
+            val item = itemDao.getAllItemsWithRelation().first().firstOrNull { it.item.itemId == id }
             if (item != null) {
                 AppLogger.i("[MSG-$processCode: $processName - End of process] -> Item found for ID: $id.")
             } else {
