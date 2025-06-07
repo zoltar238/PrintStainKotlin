@@ -236,6 +236,9 @@ fun ModelNewScreen(
                                 images = imageBitmapList
                             )
                         }
+                        if (itemUiState.success) {
+                            navController.popBackStack()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
