@@ -2,10 +2,10 @@ package org.example.project.ui.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +21,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun AuthScreen(navController: NavHostController, personViewModel: PersonViewModel) {
-    // Save screen that needs to be shown
+    // Save the screen that needs to be shown
     var isRegisterMode by remember { mutableStateOf(true) }
     // Person view model:
     val personUiState by personViewModel.personUiState.collectAsState()
@@ -51,7 +51,7 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
                     Button(
                         onClick = { isRegisterMode = true },
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = if (isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
+                            containerColor = if (isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
                         ),
                         modifier = Modifier.padding(8.dp)
                     ) {
@@ -64,7 +64,7 @@ fun AuthScreen(navController: NavHostController, personViewModel: PersonViewMode
                     Button(
                         onClick = { isRegisterMode = false },
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = if (!isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
+                            containerColor = if (!isRegisterMode) AppColors.primaryColor else AppColors.secondaryBackgroundColor
                         ),
                         modifier = Modifier.padding(8.dp)
                     ) {
