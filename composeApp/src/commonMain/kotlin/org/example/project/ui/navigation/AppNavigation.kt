@@ -92,11 +92,10 @@ fun AppNavigation() {
             ModelDetailsScreen(
                 navController = navController,
                 itemViewModel = AppModule.itemViewModel,
-                previousRoute = "main_app_view",
                 saleViewModel = AppModule.saleViewModel
             )
         }
-        // Screen to add new model to the database
+        // Screen to add a new model to the database
         composable(
             route = "model_add_new?option={option}", arguments = listOf(
                 navArgument("option") {
@@ -109,7 +108,6 @@ fun AppNavigation() {
             ModelNewScreen(
                 navController = navController,
                 itemViewModel = AppModule.itemViewModel,
-                previousRoute = "main_app_view",
                 option = option!!
             )
         }

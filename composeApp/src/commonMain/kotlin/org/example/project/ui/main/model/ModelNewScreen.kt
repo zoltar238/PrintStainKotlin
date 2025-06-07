@@ -42,7 +42,6 @@ import printstain.composeapp.generated.resources.image_placeholder_3x
 @Suppress("ConflictingOnColor")
 @Composable
 fun ModelNewScreen(
-    previousRoute: String,
     itemViewModel: ItemViewModel,
     navController: NavHostController,
     option: String,
@@ -92,8 +91,7 @@ fun ModelNewScreen(
             floatingActionButtonPosition = FabPosition.Start,
             floatingActionButton = {
                 ReturnButton(
-                    navController = navController,
-                    navigationRoute = previousRoute
+                    navController = navController
                 )
             }
         ) { paddingValues ->

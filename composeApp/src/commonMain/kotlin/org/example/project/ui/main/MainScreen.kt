@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -25,7 +26,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, saleViewModel: SaleViewModel) {
-    var selectedView by remember { mutableStateOf("Models") }
+    var selectedView by rememberSaveable { mutableStateOf("Models") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -41,6 +42,7 @@ fun MainScreen(navController: NavHostController, itemViewModel: ItemViewModel, s
             itemViewModel.getAllItems()
         }
     }
+
 
     Surface(
         color = AppColors.backgroundColor

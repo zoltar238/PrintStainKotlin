@@ -15,12 +15,13 @@ import androidx.navigation.NavHostController
 import org.example.project.ui.AppColors
 
 @Composable
-fun ReturnButton(navController: NavHostController, navigationRoute: String) {
+fun ReturnButton(navController: NavHostController) {
     // Back button with improved styling
     Box(modifier = Modifier.fillMaxSize()) {
 
         Button(
-            onClick = { navController.navigate(navigationRoute) },
+//            onClick = { navController.navigate(navigationRoute) },
+            onClick = { navController.popBackStack() },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppColors.secondaryColor,

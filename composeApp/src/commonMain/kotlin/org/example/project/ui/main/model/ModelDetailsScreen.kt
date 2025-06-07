@@ -44,7 +44,6 @@ fun ModelDetailsScreen(
     navController: NavHostController,
     itemViewModel: ItemViewModel,
     saleViewModel: SaleViewModel,
-    previousRoute: String,
 ) {
     val itemUiState by itemViewModel.itemUiState.collectAsState()
     val saleUiState by saleViewModel.saleUiState.collectAsState()
@@ -62,8 +61,7 @@ fun ModelDetailsScreen(
             floatingActionButtonPosition = FabPosition.Start,
             floatingActionButton = {
                 ReturnButton(
-                    navController = navController,
-                    navigationRoute = previousRoute
+                    navController = navController
                 )
             },
             backgroundColor = AppColors.backgroundColor,

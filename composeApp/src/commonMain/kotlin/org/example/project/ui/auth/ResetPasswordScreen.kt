@@ -36,8 +36,7 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
             floatingActionButtonPosition = FabPosition.Start,
             floatingActionButton = {
                 ReturnButton(
-                    navController = navController,
-                    navigationRoute = navigationRoute
+                    navController = navController
                 )
             })
         { innerPadding ->
