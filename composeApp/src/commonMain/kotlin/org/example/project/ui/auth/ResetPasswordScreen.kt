@@ -23,6 +23,7 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
     var confirmPassword by remember { mutableStateOf("") }
 
     // Validation states
+    var isUsernameValid by remember { mutableStateOf(true) }
     var isNewPasswordValid by remember { mutableStateOf(true) }
     var isConfirmPasswordValid by remember { mutableStateOf(true) }
     var doPasswordsMatch by remember { mutableStateOf(true) }
@@ -57,12 +58,14 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
 
                         OutlinedTextField(
                             value = username,
-                            onValueChange = { username = it },
+                            onValueChange = {
+                                username = it
+                                isUsernameValid = it.isNotEmpty()
+                            },
                             label = { Text("Username", color = AppColors.textOnBackgroundColor) },
                             placeholder = { Text("Username", color = AppColors.textOnBackgroundSecondaryColor) },
                             singleLine = true,
                             modifier = commonModifier,
-                            visualTransformation = PasswordVisualTransformation(),
                             isError = username.isEmpty(),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 textColor = AppColors.textOnBackgroundColor,
@@ -73,7 +76,7 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
                                 cursorColor = AppColors.primaryColor
                             )
                         )
-                        if (username.isEmpty()) {
+                        if (isUsernameValid) {
                             Text(
                                 text = "Username cannot be empty",
                                 color = AppColors.errorColor,
