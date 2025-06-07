@@ -66,7 +66,7 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
                             placeholder = { Text("Username", color = AppColors.textOnBackgroundSecondaryColor) },
                             singleLine = true,
                             modifier = commonModifier,
-                            isError = username.isEmpty(),
+                            isError = !isUsernameValid,
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 textColor = AppColors.textOnBackgroundColor,
                                 focusedBorderColor = AppColors.primaryColor,
