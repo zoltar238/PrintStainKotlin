@@ -266,7 +266,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        text = "${item.item.name ?: ""} ${if (errorLoadingImage) "(Loading error)" else null}",
+                        text = "${item.item.name ?: ""} ${if (errorLoadingImage) "(Loading error)" else ""}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
