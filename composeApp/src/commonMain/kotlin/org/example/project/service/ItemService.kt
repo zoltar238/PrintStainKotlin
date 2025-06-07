@@ -67,10 +67,10 @@ class ItemService(database: PrintStainDatabase) {
         return try {
             AppLogger.d("[DBG-$processCode: $processName] -> Obtaining token.")
             val token = PreferencesDaoImpl.getToken()
-            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Item DTO: $itemDto. Calling server.")
+            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Item DTO: ${itemDto.name}. Calling server.")
             val response = responseHandler { ClientController.itemController.postItem("Bearer $token", itemDto) }
             if (response.success) {
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully created item '${itemDto.name}' on server. Response data: ${response.data}")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully created item '${itemDto.name}' on server.")
             } else {
                 AppLogger.w("[MSG-$processCode: $processName - End of process] -> Failed to create item '${itemDto.name}' on server: ${response.response}.")
             }
@@ -127,7 +127,7 @@ class ItemService(database: PrintStainDatabase) {
             AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Items to delete: $items. Calling server.")
             val response = responseHandler { ClientController.itemController.deleteItems("Bearer $token", items) }
             if (response.success) {
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted items on server. Response: ${response.data}")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted items on server.")
             } else {
                 AppLogger.w("[MSG-$processCode: $processName - End of process] -> Failed to delete items on server: ${response.response}.")
             }
@@ -394,7 +394,7 @@ class ItemService(database: PrintStainDatabase) {
             }
 
             if (serverResponse.success) {
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Files uploaded successfully for item ID: $itemId. Server response: ${serverResponse.data}")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Files uploaded successfully for item ID: $itemId.")
             } else {
                 AppLogger.w("[MSG-$processCode: $processName - End of process] -> Failed to upload files for item ID: $itemId. Server error: ${serverResponse.response}")
             }
