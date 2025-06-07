@@ -76,7 +76,7 @@ fun ResetPasswordScreen(navController: NavHostController, navigationRoute: Strin
                                 cursorColor = AppColors.primaryColor
                             )
                         )
-                        if (isUsernameValid) {
+                        if (!isUsernameValid) {
                             Text(
                                 text = "Username cannot be empty",
                                 color = AppColors.errorColor,
