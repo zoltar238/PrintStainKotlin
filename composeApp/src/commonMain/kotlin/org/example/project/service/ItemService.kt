@@ -1,8 +1,6 @@
 package org.example.project.service
 
 import androidx.compose.ui.graphics.ImageBitmap
-import comexampleproject.Item
-import comexampleproject.Person
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
