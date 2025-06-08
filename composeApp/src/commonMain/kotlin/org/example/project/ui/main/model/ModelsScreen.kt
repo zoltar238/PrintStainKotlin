@@ -235,7 +235,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                         .fillMaxSize()
                         .clickable(onClick = {
                             if (!errorLoadingImage) {
-                                itemViewModel.getItemById(item.item.itemId)
+                                itemViewModel.selectItemById(item.item.itemId)
                                 navController.navigate("model_details_screen")
                             }
                         })
@@ -344,7 +344,7 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
                                     scope.launch {
-                                        itemViewModel.getItemById(item.item.itemId)
+                                        itemViewModel.selectItemById(item.item.itemId)
                                         // Wait for data to update before navigating to item
                                         while (itemViewModel.itemUiState.value.selectedItem?.item?.itemId != item.item.itemId) {
                                             delay(20)
@@ -398,7 +398,8 @@ fun ModelCard(item: ItemWithRelations, navController: NavHostController, itemVie
                 title = "Delete this model?",
                 message = "This action cannot be undone and the model will be permanently deleted.",
                 confirmButton = "Delete",
-                onConfirm = { itemViewModel.deleteItem(listOf(item)) },
+                onConfirm = {
+                    itemViewModel.deleteItem(item) },
                 dismissButton = "Cancel"
             )
         }

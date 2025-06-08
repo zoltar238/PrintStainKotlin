@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -14,7 +15,6 @@ import org.example.project.model.MessageEvent
 import org.example.project.model.dto.*
 import org.example.project.service.ItemService
 import org.example.project.util.encodeBitmapToBase64
-import java.time.OffsetDateTime
 
 data class ItemUiState(
     val items: List<ItemWithRelations> = emptyList(),
@@ -91,7 +91,7 @@ class ItemViewModel(
         }
     }
 
-    fun getItemById(id: Long) {
+    fun selectItemById(id: Long) {
         viewModelScope.launch(dispatcher) {
             itemService.selectItem(id)
         }
@@ -146,25 +146,31 @@ class ItemViewModel(
         }
     }
 
-    fun deleteItem(items: List<ItemWithRelations>) {
+    fun deleteItem(item: ItemWithRelations) {
         viewModelScope.launch(dispatcher) {
             _itemUiState.update { it.copy(isLoading = true) }
 
-            val itemWithSales = items.firstOrNull { it.sales?.isNotEmpty() == true }
+            selectItemById(item.item.itemId)
+            // Wait until the selected item coincides with the stored one
+            while (_itemUiState.value.selectedItem?.item?.itemId != item.item.itemId) {
+                delay(10)
+            }
+            val itemWithSales = _itemUiState.value.selectedItem
 
-            if (itemWithSales != null) {
+            if (!itemWithSales?.sales.isNullOrEmpty()) {
                 _itemUiState.update {
                     it.copy(
                         isLoading = false,
-                        messageEvent = MessageEvent("Error: Item \"${itemWithSales.item.name}\" has related sales and cannot be deleted, please delete the sales first or archive this model."),
+                        messageEvent = MessageEvent("Error: Item \"${itemWithSales.item.name}\" has related sales and cannot be deleted, please delete the sales first."),
                         success = false
                     )
                 }
             } else {
-                val serverResponse = itemService.deleteItemsOnServer(items.map { ItemDto(it.item.itemId) })
+                val itemAsList = listOf(item)
+                val serverResponse = itemService.deleteItemsOnServer(itemAsList.map { ItemDto(it.item.itemId) })
 
                 if (serverResponse.success) {
-                    itemService.deleteLocalItems(items)
+                    itemService.deleteLocalItems(itemAsList)
                 }
 
                 _itemUiState.update {
