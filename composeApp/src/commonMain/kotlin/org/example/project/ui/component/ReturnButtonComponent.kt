@@ -7,7 +7,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,12 +16,15 @@ import org.example.project.ui.AppColors
 
 @Composable
 fun ReturnButton(navController: NavHostController) {
-    // Back button with improved styling
+    var isEnabled by remember { mutableStateOf(true) }
     Box(modifier = Modifier.fillMaxSize()) {
-
         Button(
-//            onClick = { navController.navigate(navigationRoute) },
-            onClick = { navController.popBackStack() },
+            onClick = {
+                if (isEnabled) {
+                    navController.popBackStack()
+                    isEnabled = false
+                }
+            },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppColors.secondaryColor,
@@ -42,5 +45,6 @@ fun ReturnButton(navController: NavHostController) {
                 )
             }
         }
+
     }
 }
