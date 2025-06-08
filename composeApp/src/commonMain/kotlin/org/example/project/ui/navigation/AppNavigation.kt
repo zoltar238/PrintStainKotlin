@@ -76,7 +76,6 @@ fun AppNavigation() {
             val origin = backStackEntry.arguments?.getString("origin")
             ResetPasswordScreen(
                 navController = navController,
-                navigationRoute = origin!!,
             )
         }
         // Main screen

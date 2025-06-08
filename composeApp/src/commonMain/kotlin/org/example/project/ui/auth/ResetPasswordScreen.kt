@@ -17,7 +17,7 @@ import org.example.project.ui.component.ReturnButton
 import org.example.project.ui.navigation.AppModule.personViewModel
 
 @Composable
-fun ResetPasswordScreen(navController: NavHostController, navigationRoute: String) {
+fun ResetPasswordScreen(navController: NavHostController) {
     var username by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
