@@ -110,6 +110,74 @@ class ItemDaoImpl(db: PrintStainDatabase) : ItemDao {
             }
     }
 
+    override fun getItemWithRelationsById(itemId: Long): Flow<ItemWithRelations?> {
+    return query.selectItemWithRelationsById(itemId)
+        .asFlow()
+        .mapToList(Dispatchers.IO)
+        .map { rows ->
+            if (rows.isEmpty()) {
+                null
+            } else {
+                val firstRow = rows.first()
+
+                // Map Item (solo una vez)
+                val item = Item(
+                    itemId = firstRow.itemId,
+                    name = firstRow.name,
+                    description = firstRow.description,
+                    postDate = firstRow.postDate,
+                    timesUploaded = firstRow.timesUploaded,
+                    personId = firstRow.personId,
+                    archived = firstRow.archived,
+                    fileStructure = firstRow.fileStructure
+                )
+
+                // Map Person (solo una vez)
+                val person = if (firstRow.personPersonId != null) {
+                    Person(
+                        personId = firstRow.personPersonId,
+                        name = firstRow.personName ?: "",
+                        isActive = firstRow.personIsActive ?: true,
+                        username = firstRow.personUsername ?: ""
+                    )
+                } else null
+
+                // Map ALL Images (de todas las filas)
+                val images = rows.mapNotNull { row ->
+                    row.imageId?.let {
+                        Image(
+                            imageId = it,
+                            base64Image = row.imageData ?: "",
+                            item_id = row.itemId
+                        )
+                    }
+                }.distinctBy { it.imageId }
+
+                // Map ALL Sales (de todas las filas)
+                val sales = rows.mapNotNull { row ->
+                    row.sale_saleId?.let {
+                        Sale(
+                            saleId = it,
+                            date = row.sale_date,
+                            cost = row.sale_cost,
+                            price = row.sale_price,
+                            itemId = row.itemId,
+                            status = row.sale_status
+                        )
+                    }
+                }.distinctBy { it.saleId }
+
+                ItemWithRelations(
+                    item = item,
+                    person = person,
+                    images = images,
+                    sales = sales
+                )
+            }
+        }
+}
+
+
     override suspend fun deleteItem(itemId: Long) {
         query.deleteItem(itemId)
     }

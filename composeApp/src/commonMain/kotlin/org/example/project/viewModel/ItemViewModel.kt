@@ -14,6 +14,7 @@ import org.example.project.model.MessageEvent
 import org.example.project.model.dto.*
 import org.example.project.service.ItemService
 import org.example.project.util.encodeBitmapToBase64
+import java.time.OffsetDateTime
 
 data class ItemUiState(
     val items: List<ItemWithRelations> = emptyList(),
@@ -42,9 +43,10 @@ class ItemViewModel(
         }
     }
 
-    // Subscribe to flow
+    // Subscribe to flows
     init {
         viewModelScope.launch(dispatcher) {
+            // All items flow
             itemService.getAllLocalItems()
                 .catch { e ->
                     // Handle possible exceptions
@@ -66,25 +68,32 @@ class ItemViewModel(
                             items = localItems,
                         )
                     }
+                } }
+        viewModelScope.launch(dispatcher) {
+            // Selected item flow
+            itemService.selectedItem
+                .catch { e ->
+                        AppLogger.e(
+                            message = "Error selecting item: ${e.localizedMessage}",
+                            throwable = e
+                        )
+                    }
+                .collect { selectedItem ->
+                _itemUiState.update {
+                    it.copy(
+                        selectedItem = selectedItem,
+                        selectedItemFiles = if (selectedItem?.item?.fileStructure.isNullOrEmpty()) emptyList() else Json.decodeFromString<List<FileDto>>(
+                        selectedItem.item.fileStructure.replace("\\", "").replaceFirst("\"", "").dropLast(1)
+                        )
+                    )
                 }
+            }
         }
     }
 
     fun getItemById(id: Long) {
         viewModelScope.launch(dispatcher) {
-            _itemUiState.update { it.copy(isLoading = true) }
-            val item = itemService.getItemById(id)
-            _itemUiState.update {
-                it.copy(
-                    isLoading = false,
-                    success = item != null,
-                    selectedItem = item,
-                    selectedItemFiles = if (item?.item?.fileStructure.isNullOrEmpty()) emptyList() else Json.decodeFromString<List<FileDto>>(
-                        item.item.fileStructure.replace("\\", "").replaceFirst("\"", "").dropLast(1)
-                    ),
-                    messageEvent = if (item == null) MessageEvent("Item not found") else null
-                )
-            }
+            itemService.selectItem(id)
         }
     }
 
@@ -194,6 +203,7 @@ class ItemViewModel(
                     images = images.filter { (it.width > 1 && it.height > 1) }.map { image ->
                         ImageDto(base64Image = encodeBitmapToBase64(image))
                     },
+                    fileStructure = selectedItem.item.fileStructure,
                     person = PersonDto(
                         personId = selectedItem.person?.personId,
                         name = selectedItem.person?.name
@@ -214,7 +224,7 @@ class ItemViewModel(
                 selectedItem.item.itemId.let { itemService.deleteImagesForItem(it) }
 
                 // Process new item to the local database
-                serverResponse.data?.let { itemService.processItemsToLocalDB(listOf(it)) }
+                serverResponse.data?.let { itemService.updateItemLocally(listOf(it)) }
 
                 _itemUiState.update {
                     it.copy(

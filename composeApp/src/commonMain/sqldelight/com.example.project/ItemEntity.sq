@@ -39,6 +39,28 @@ LEFT JOIN Person p ON i.personId = p.personId
 LEFT JOIN Image img ON img.item_id = i.itemId
 LEFT JOIN Sale s ON s.itemId = i.itemId;
 
+-- Get single item with all its relations
+selectItemWithRelationsById:
+SELECT
+    i.*,
+    p.personId AS personPersonId,
+    p.name AS personName,
+    p.username AS personUsername,
+    p.isActive AS personIsActive,
+    img.imageId AS imageId,
+    img.base64Image AS imageData,
+    s.saleId AS sale_saleId,
+    s.price AS sale_price,
+    s.date AS sale_date,
+    s.cost AS sale_cost,
+    s.status AS sale_status
+FROM Item i
+LEFT JOIN Person p ON i.personId = p.personId
+LEFT JOIN Image img ON img.item_id = i.itemId
+LEFT JOIN Sale s ON s.itemId = i.itemId
+WHERE i.itemId = ?;
+
+
 -- Get item by ID
 selectItemById:
 SELECT

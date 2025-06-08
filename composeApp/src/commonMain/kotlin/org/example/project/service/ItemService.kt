@@ -4,10 +4,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.openFilePicker
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -106,10 +104,10 @@ class ItemService(database: PrintStainDatabase) {
         return try {
             AppLogger.d("[DBG-$processCode: $processName] -> Obtaining token.")
             val token = PreferencesDaoImpl.getToken()
-            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Item DTO: $itemDto. Calling server.")
+            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Item DTO: ${itemDto.name}. Calling server.")
             val response = responseHandler { ClientController.itemController.updateItem("Bearer $token", itemDto) }
             if (response.success) {
-                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully updated item ID: ${itemDto.itemId} on server. Response data: ${response.data}")
+                AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully updated item ID: ${itemDto.itemId} on server. Response data: ${response.response}")
             } else {
                 AppLogger.w("[MSG-$processCode: $processName - End of process] -> Failed to update item ID: ${itemDto.itemId} on server: ${response.response}.")
             }
@@ -135,7 +133,7 @@ class ItemService(database: PrintStainDatabase) {
         return try {
             AppLogger.d("[DBG-$processCode: $processName] -> Obtaining token.")
             val token = PreferencesDaoImpl.getToken()
-            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Items to delete: $items. Calling server.")
+            AppLogger.d("[DBG-$processCode: $processName] -> Token obtained. Items to delete: ${items.size}. Calling server.")
             val response = responseHandler { ClientController.itemController.deleteItems("Bearer $token", items) }
             if (response.success) {
                 AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted items on server.")
@@ -156,6 +154,39 @@ class ItemService(database: PrintStainDatabase) {
         }
     }
 
+    suspend fun updateItemLocally(items: List<ItemDto>) {
+        val processCode = "000023"
+        val processName = "Process item images to local DB"
+        AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Processing images for ${items.size} items to local DB.")
+        try {
+            items.forEach { item ->
+                itemDao.insertItem(
+                    itemId = item.itemId!!,
+                    name = item.name,
+                    description = item.description,
+                    postDate = item.postDate.toString(),
+                    fileStructure = item.fileStructure,
+                    timesUploaded = item.timesUploaded,
+                    personId = item.person?.personId
+                )
+                AppLogger.d("[DBG-$processCode: $processName] -> Inserted/Updated item ID: ${item.itemId}.")
+
+                item.images?.forEach { image ->
+                    imageDao.insertImage(
+                        imageId = image.imageId ?: System.currentTimeMillis(),
+                        base64Image = image.base64Image ?: "",
+                        item_id = item.itemId
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            AppLogger.e(
+                message = "[MSG-$processCode: $processName - End of process] -> Error processing images to local DB: ${e.localizedMessage}.",
+                throwable = e
+            )
+        }
+    }
+
     suspend fun processItemsToLocalDB(items: List<ItemDto>) {
         val processCode = "000023"
         val processName = "Process items to local DB"
@@ -163,9 +194,10 @@ class ItemService(database: PrintStainDatabase) {
         try {
 
             //Save only new items
-            val originalItems = itemDao.getAllItemsWithRelation().firstOrNull() ?: emptyList()
+            val databaseItems = itemDao.getAllItemsWithRelation().firstOrNull() ?: emptyList()
+
             val newItems = items.filter { itemDto ->
-                itemDto.itemId !in originalItems.map { it.item.itemId }
+                itemDto.itemId !in databaseItems.map { it.item.itemId }
             }
 
             newItems.forEach { item ->
@@ -233,6 +265,23 @@ class ItemService(database: PrintStainDatabase) {
             AppLogger.d("[MSG-$processCode: $processName] -> Flow emitted ${items.size} items from local DB.")
         }
     }
+
+    private val _selectedItemId = MutableStateFlow<Long?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val selectedItem: Flow<ItemWithRelations?> = _selectedItemId
+        .flatMapLatest { id ->
+            if (id == null) {
+                flowOf(null)
+            } else {
+                itemDao.getItemWithRelationsById(id)
+            }
+        }
+
+    fun selectItem(id: Long?) {
+        _selectedItemId.value = id
+    }
+
 
     suspend fun getItemById(id: Long): ItemWithRelations? {
         val processCode = "000025"
@@ -385,7 +434,13 @@ class ItemService(database: PrintStainDatabase) {
             AppLogger.d("[DBG-$processCode: $processName] -> Preparing multipart body for zip file.")
             val requestFile = zipFile.asRequestBody("application/zip".toMediaTypeOrNull())
             val body = MultipartBody.Part.createFormData("file", zipFile.name, requestFile)
-            AppLogger.d("[DBG-$processCode: $processName] -> MultipartBody.Part created. Name: '${body.headers?.get("Content-Disposition")}', Filename: '${zipFile.name}'.")
+            AppLogger.d(
+                "[DBG-$processCode: $processName] -> MultipartBody.Part created. Name: '${
+                    body.headers?.get(
+                        "Content-Disposition"
+                    )
+                }', Filename: '${zipFile.name}'."
+            )
 
             AppLogger.d("[DBG-$processCode: $processName] -> Obtaining token.")
             val token = PreferencesDaoImpl.getToken()
@@ -527,7 +582,8 @@ class ItemService(database: PrintStainDatabase) {
                     AppLogger.i("[MSG-$processCode: $processName - End of process] -> $successMsg")
                     return ResponseApi(success = true, response = successMsg, data = successMsg)
                 } ?: run {
-                    val errorMsg = "Server returned successful status but response body was null for item ID $itemId."
+                    val errorMsg =
+                        "Server returned successful status but response body was null for item ID $itemId."
                     AppLogger.w("[MSG-$processCode: $processName - End of process] -> $errorMsg")
                     return ResponseApi(success = false, response = errorMsg, data = errorMsg)
                 }
@@ -618,7 +674,11 @@ class ItemService(database: PrintStainDatabase) {
                 message = "[MSG-$processCode: $processName - End of process] -> Error attempting to open fstl with path '$path': ${e.localizedMessage}.",
                 throwable = e
             )
-            return ResponseApi(false, "Error opening file preview: ${e.localizedMessage}", "Error opening file preview")
+            return ResponseApi(
+                false,
+                "Error opening file preview: ${e.localizedMessage}",
+                "Error opening file preview"
+            )
         }
     }
 }
