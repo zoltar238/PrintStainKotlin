@@ -272,11 +272,13 @@ private fun infoBlock(uiState: ItemUiState, itemViewModel: ItemViewModel, itemUi
             modifier = Modifier.padding(top = 8.dp),
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = "Published on: ${uiState.selectedItem.item.postDate}",
-            color = AppColors.textOnBackgroundColor,
-            modifier = Modifier.padding(top = 8.dp),
-        )
+        uiState.selectedItem.item.postDate?.let {
+            Text(
+                text = "Published on: ${it.substringBefore("T")}",
+                color = AppColors.textOnBackgroundColor,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
         Divider(
             color = AppColors.secondaryColor.copy(alpha = 0.5f),
             thickness = 2.dp,
@@ -295,7 +297,7 @@ fun FileStructureDetail(uiState: ItemUiState, itemViewModel: ItemViewModel, item
     val scope = rememberCoroutineScope()
     var isFileListVisible: Boolean by remember { mutableStateOf(true) }
     val hasFiles = remember(uiState.selectedItem) {
-        mutableStateOf(!uiState.selectedItem?.item?.fileStructure.isNullOrEmpty())
+        mutableStateOf(!uiState.selectedItem?.item?.fileStructure.isNullOrEmpty() && uiState.selectedItem.item.fileStructure.length > 10)
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {

@@ -134,12 +134,12 @@ class SaleService(
                 serverResponse.data?.let { newSaleId ->
                     AppLogger.d("[DBG-$processCode: $processName] -> Saving new sale (ID: $newSaleId) to local database.")
                     saleDao.insertSale(
-                        saleId = newSaleId, // Asumiendo que serverResponse.data es el ID de la venta creada
+                        saleId = newSaleId,
                         date = saleDto.date.toString(),
                         cost = saleDto.cost?.toDouble(),
                         price = saleDto.price?.toDouble(),
                         itemId = saleDto.itemId,
-                        status = saleDto.status // Usar el status de saleDto o el que devuelva el servidor si es diferente
+                        status = saleDto.status
                     )
                     AppLogger.d("[DBG-$processCode: $processName] -> New sale saved locally.")
                 }
@@ -240,7 +240,7 @@ class SaleService(
                 cost = cost,
                 price = price,
                 status = status,
-                date = OffsetDateTime.now() // La fecha se actualiza, considerar si esto es siempre deseado o si la fecha original debe mantenerse o enviarse.
+                date = OffsetDateTime.now()
             )
             AppLogger.d("[DBG-$processCode: $processName] -> SaleDto for update created: $saleDto")
 
@@ -251,9 +251,6 @@ class SaleService(
                     token = "Bearer $token"
                 )
             }
-            // Asumo que updateSale devuelve la Sale actualizada o un booleano/mensaje.
-            // Si devuelve la Sale, el tipo de serverResponse.data será Sale, no Unit o similar.
-            // Para este ejemplo, sigo la lógica de que el servidor confirma el éxito y luego obtenemos el objeto de la BD local.
             AppLogger.d("[DBG-$processCode: $processName] -> Server response received. Success: ${serverResponse.success}, Response: ${serverResponse.response}")
 
 
@@ -264,13 +261,12 @@ class SaleService(
                     saleId = saleId,
                     cost = cost.toDouble(),
                     price = price.toDouble(),
-                    status = status // La fecha no se actualiza aquí, consistente con SaleDao.updateSale
+                    status = status
                 )
                 AppLogger.d("[DBG-$processCode: $processName] -> Sale ID: $saleId updated in local database.")
 
                 AppLogger.d("[DBG-$processCode: $processName] -> Retrieving updated sale ID: $saleId from local database.")
-                val updatedSale = saleDao.getSaleById(saleId)
-                    .first() // Podría ser nulo si la venta no existe o fue eliminada concurrentemente
+                val updatedSale = saleDao.getSaleById(saleId).first()
                 AppLogger.d("[DBG-$processCode: $processName] -> Sale retrieved: $updatedSale")
                 AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully modified sale and retrieved updated sale details.")
                 ResponseApi(

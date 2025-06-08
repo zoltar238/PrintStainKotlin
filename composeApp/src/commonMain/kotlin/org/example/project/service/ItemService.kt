@@ -493,10 +493,7 @@ class ItemService(database: PrintStainDatabase) {
         AppLogger.i("[MSG-$processCode: $processName - Starting process] -> Attempting to update file structure for item ID: $itemId with ${files.size} files.")
         try {
             val fileStructureJson = Json.encodeToString(files)
-            // The original code added extra quotes: "\"" + ... + "\"". This might be required by your backend/DB.
-            // If your DB expects a JSON string literal (including the outer quotes), keep it.
-            // Otherwise, just `fileStructureJson` is usually correct for a JSON column.
-            val finalJsonString = "\"$fileStructureJson\"" // Keeping original logic for now
+            val finalJsonString = "\"$fileStructureJson\""
             AppLogger.d("[DBG-$processCode: $processName] -> Updating item ID: $itemId with file structure: $finalJsonString.")
             itemDao.uploadFileStructure(
                 itemId = itemId,
@@ -530,7 +527,7 @@ class ItemService(database: PrintStainDatabase) {
             if (serverResponse.success) {
                 AppLogger.i("[MSG-$processCode: $processName - Process] -> Files deleted successfully on server for item ID: $itemId.")
                 AppLogger.d("[DBG-$processCode: $processName] -> Updating local file structure to empty for item ID: $itemId.")
-                itemDao.uploadFileStructure(itemId, "\"[]\"") // Set to empty JSON array string
+                itemDao.uploadFileStructure(itemId, "\"[]\"")
                 AppLogger.d("[DBG-$processCode: $processName] -> Local file structure updated.")
                 AppLogger.i("[MSG-$processCode: $processName - End of process] -> Successfully deleted files on server and cleared local structure for item ID: $itemId.")
             } else {
